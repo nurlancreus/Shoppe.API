@@ -8,7 +8,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Shoppe.Application\Shoppe.Application.csproj" />
-    <ProjectReference Include="..\..\Core\Shoppe.Domain\Shoppe.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Concretes\" />
   </ItemGroup>
 
 </Project>
