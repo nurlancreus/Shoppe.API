@@ -1,0 +1,6 @@
+@Shoppe.API_HostAddress = http://localhost:5295
+
+GET {{Shoppe.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
