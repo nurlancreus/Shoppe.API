@@ -26,7 +26,14 @@ namespace Shoppe.API
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options => {
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "api.xml"));
+
+                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Cities Web API", Version = "1.0" });
+
+                options.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Cities Web API", Version = "2.0" });
+
+            }); //generates OpenAPI specification
 
             //Enable versioning in Web API controllers
             builder.Services.AddApiVersioning(config =>
