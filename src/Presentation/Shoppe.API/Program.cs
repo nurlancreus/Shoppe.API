@@ -24,39 +24,16 @@ namespace Shoppe.API
 
             builder.Services.AddControllers();
 
+            builder.ConfigureIdentity();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(options => {
-                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "api.xml"));
-
-                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Cities Web API", Version = "1.0" });
-
-                options.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Cities Web API", Version = "2.0" });
-
-            }); //generates OpenAPI specification
+            builder.ConfigureSwaggerGen();
 
             //Enable versioning in Web API controllers
-            builder.Services.AddApiVersioning(config =>
-            {
-                config.ApiVersionReader = new UrlSegmentApiVersionReader(); //Reads version number from request url at "apiVersion" constraint
-
-                //config.ApiVersionReader = new QueryStringApiVersionReader(); //Reads version number from request query string called "api-version". Eg: api-version=1.0
-
-                //config.ApiVersionReader = new HeaderApiVersionReader("api-version"); //Reads version number from request header called "api-version". Eg: api-version: 1.0
-
-                config.DefaultApiVersion = new ApiVersion(1, 0);
-                config.AssumeDefaultVersionWhenUnspecified = true;
-            });
+            builder.ConfigureVersioning();
 
             // Implement built-in rate limiter
-            builder.Services.AddRateLimiter(options => options
-            .AddFixedWindowLimiter(policyName: "fixed", limiterOptions =>
-            {
-                limiterOptions.PermitLimit = 100;
-                limiterOptions.Window = TimeSpan.FromMinutes(1);
-                limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-                limiterOptions.QueueLimit = 5;
-            }));
+            builder.ConfigureRateLimiting();
 
             var app = builder.Build();
 
