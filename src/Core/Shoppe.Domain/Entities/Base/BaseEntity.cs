@@ -10,6 +10,6 @@ namespace Shoppe.Domain.Entities.Base
     {
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public virtual DateTime? UpdatedAt { get; set; }
     }
 }
