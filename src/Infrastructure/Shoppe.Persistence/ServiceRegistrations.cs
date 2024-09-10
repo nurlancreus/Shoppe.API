@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shoppe.Application.Abstractions.Repositories;
 using Shoppe.Application.Abstractions.UoW;
+using Shoppe.Domain.Entities.Identity;
 using Shoppe.Persistence.Concretes.Repositories;
 using Shoppe.Persistence.Concretes.UoW;
 using Shoppe.Persistence.Context;
@@ -12,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace Shoppe.Persistence
 {
