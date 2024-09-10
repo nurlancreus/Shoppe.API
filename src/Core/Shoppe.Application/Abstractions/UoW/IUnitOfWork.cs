@@ -8,13 +8,8 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Abstractions.UoW
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork
     {
-        IProductReadRepository ProductReadRepository { get; }
-        IProductWriteRepository ProductWriteRepository { get; }
-        Task<int> SaveAsync();
-        Task BeginTransactionAsync();
-        Task CommitTransactionAsync();
-        Task RollbackTransactionAsync();
+        Task SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

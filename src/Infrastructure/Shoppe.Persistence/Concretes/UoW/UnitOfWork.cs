@@ -1,98 +1,44 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Shoppe.Application.Abstractions.Repositories;
 using Shoppe.Application.Abstractions.UoW;
+using Shoppe.Domain.Entities.Base;
 using Shoppe.Persistence.Context;
 using System;
 using System.Threading.Tasks;
 
 namespace Shoppe.Persistence.Concretes.UoW
 {
-    public class UnitOfWork : IUnitOfWork, IDisposable
+    public class UnitOfWork : IUnitOfWork
     {
         private readonly ShoppeDbContext _context;
-        private IDbContextTransaction? _transaction;
-        private bool _disposed = false;
-
-        // Entity-specific repositories
-        public IProductReadRepository ProductReadRepository { get; private set; }
-        public IProductWriteRepository ProductWriteRepository { get; private set; }
-
-        public UnitOfWork(
-            ShoppeDbContext context,
-            IProductReadRepository productReadRepository,
-            IProductWriteRepository productWriteRepository)
+        public UnitOfWork(ShoppeDbContext context)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-            ProductReadRepository = productReadRepository ?? throw new ArgumentNullException(nameof(productReadRepository));
-            ProductWriteRepository = productWriteRepository ?? throw new ArgumentNullException(nameof(productWriteRepository));
+            _context = context;
+        }
+        public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            UpdateDateTimesWhileSavingInterceptor();
+
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<int> SaveAsync()
+        private void UpdateDateTimesWhileSavingInterceptor()
         {
-            return await _context.SaveChangesAsync();
-        }
+            var changedEntries = _context.ChangeTracker.Entries<BaseEntity>().Where(e => e.State == EntityState.Modified || e.State == EntityState.Added);
 
-        public async Task BeginTransactionAsync()
-        {
-            if (_transaction == null)
+            foreach (var entry in changedEntries)
             {
-                _transaction = await _context.Database.BeginTransactionAsync();
-            }
-        }
-
-        public async Task CommitTransactionAsync()
-        {
-            try
-            {
-                await SaveAsync();
-                if (_transaction != null)
+                if (entry.State == EntityState.Added)
                 {
-                    await _transaction.CommitAsync();
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
                 }
             }
-            catch
-            {
-                await RollbackTransactionAsync();
-                throw;
-            }
-            finally
-            {
-                if (_transaction != null)
-                {
-                    await _transaction.DisposeAsync();
-                    _transaction = null;
-                }
-            }
-        }
-
-        public async Task RollbackTransactionAsync()
-        {
-            if (_transaction != null)
-            {
-                await _transaction.RollbackAsync();
-                await _transaction.DisposeAsync();
-                _transaction = null;
-            }
-        }
-
-        // Dispose pattern to clean up resources
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
-                _disposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

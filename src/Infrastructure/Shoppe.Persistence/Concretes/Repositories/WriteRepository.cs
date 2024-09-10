@@ -30,22 +30,22 @@ namespace Shoppe.Persistence.Concretes.Repositories
             return true;
         }
 
-        public async Task<bool> InsertAsync(T entity)
+        public async Task<bool> AddAsync(T entity)
         {
             var entry = await Table.AddAsync(entity);
-
-            return _context.Entry(entry).State == EntityState.Added;
+            
+            return entry.State == EntityState.Added;
         }
 
-        public async Task InsertRangeAsync(IEnumerable<T> entities)
+        public async Task AddRangeAsync(IEnumerable<T> entities)
         {
             await Table.AddRangeAsync(entities);
         }
 
-        public async Task<int> SaveAsync()
-        {
-            return await _context.SaveChangesAsync();
-        }
+        //public async Task<int> SaveAsync()
+        //{
+        //    return await _context.SaveChangesAsync();
+        //}
 
         public bool Update(T entity)
         {
