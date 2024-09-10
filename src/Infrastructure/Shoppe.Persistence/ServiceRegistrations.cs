@@ -20,7 +20,7 @@ namespace Shoppe.Persistence
 {
     public static class ServiceRegistrations
     {
-        public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection RegisterPersistenceServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<ShoppeDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("Default")));
             //services.AddScoped<IDbContextTransaction, IDbContextTransaction>();
