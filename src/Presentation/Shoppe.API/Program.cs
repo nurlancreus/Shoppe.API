@@ -10,6 +10,9 @@ using System.Threading.RateLimiting;
 using Shoppe.Infrastructure;
 using Shoppe.Application;
 using Shoppe.Domain.Enums;
+using FluentValidation.AspNetCore;
+using FluentValidation;
+using Shoppe.Application.Validators.Product;
 
 namespace Shoppe.API
 {
@@ -27,10 +30,15 @@ namespace Shoppe.API
                 .RegisterPersistenceServices(builder.Configuration)
                 .RegisterInfrastructureServices();
 
-            builder.Services.AddStorage(StorageType.AWS, builder.Configuration);
+            builder.Services.AddStorage(StorageType.Local, builder.Configuration);
 
             builder.ConfigureLogging();
             builder.ConfigureOptions();
+
+            builder.Services//AddFluentValidationAutoValidation()
+                .AddFluentValidationClientsideAdapters();
+
+                                  builder.Services.AddValidatorsFromAssemblyContaining<CreateProductCommandRequestValidator>();
 
             builder.Services.AddControllers();
 
@@ -56,6 +64,8 @@ namespace Shoppe.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.ConfigureExceptionHandler(app.Services.GetRequiredService<ILogger<Program>>());
 
             // should put above everything you want to log (only logs the things coming after itself)
             app.UseSerilogRequestLogging();
