@@ -9,5 +9,6 @@ namespace Shoppe.Domain.Entities
 {
     public class Slider : BaseEntity
     {
+        public ICollection<Slide> Slides { get; set; } = [];
     }
 }

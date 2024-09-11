@@ -7,12 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.2" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Shoppe.Domain\Shoppe.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Command\Product\DeleteProduct\" />
+    <Folder Include="Features\Command\Product\UpdateProduct\" />
+    <Folder Include="Features\Query\Product\GetAllProducts\" />
+    <Folder Include="Features\Query\Product\GetProductById\" />
   </ItemGroup>
 
 </Project>
