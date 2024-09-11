@@ -11,6 +11,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Shoppe.Infrastructure.Concretes.Services.Storage.AWS;
+using Shoppe.Infrastructure.Concretes.Services.Storage;
+using Shoppe.Application.Abstractions.Pagination;
+using Shoppe.Infrastructure.Concretes.Services;
 
 namespace Shoppe.Infrastructure
 {
@@ -18,6 +21,11 @@ namespace Shoppe.Infrastructure
     {
         public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services)
         {
+            #region Service Registrations
+            services.AddScoped<IStorageService, StorageService>();
+            services.AddScoped<IPaginationService, PaginationService>();
+            #endregion
+
             return services;
         }
 
