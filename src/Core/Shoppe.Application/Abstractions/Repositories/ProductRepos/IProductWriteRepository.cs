@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Application.Abstractions.Repositories
+namespace Shoppe.Application.Abstractions.Repositories.ProductRepos
 {
-    public interface IProductReadRepository : IReadRepository<Product>
+    public interface IProductWriteRepository : IWriteRepository<Product>
     {
     }
 }

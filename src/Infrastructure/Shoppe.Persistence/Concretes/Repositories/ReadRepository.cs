@@ -17,7 +17,7 @@ namespace Shoppe.Persistence.Concretes.Repositories
         {
         }
 
-        public async Task<IQueryable<T>> GetAllAsync(bool isTracking = true)
+        public async Task<IQueryable<T>> GetAllAsync( bool isTracking = true)
         {
             var query = Table.AsQueryable();
 
@@ -35,25 +35,30 @@ namespace Shoppe.Persistence.Concretes.Repositories
             return await Task.FromResult(query);
         }
 
-        public async Task<T?> GetAsync(Expression<Func<T, bool>> method, bool isTracking = true)
+        public async Task<T?> GetAsync(Expression<Func<T, bool>> method, CancellationToken cancellationToken, bool isTracking = true)
         {
             var query = Table.AsQueryable();
 
             if (!isTracking) query.AsNoTracking();
 
-            return await query.FirstOrDefaultAsync(method);
+            return await query.FirstOrDefaultAsync(method, cancellationToken);
 
         }
 
-        public async Task<T?> GetByIdAsync(string id, bool isTracking = true)
+        public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken, bool isTracking = true)
         {
-            if (!Enum.TryParse(id, out Guid parsedId)) return null;
+            if (!Guid.TryParse(id, out Guid parsedId)) return null;
 
             var query = Table.AsQueryable();
 
             if (!isTracking) query.AsNoTracking();
 
-            return await query.FirstOrDefaultAsync(e => e.Id == parsedId);
+            return await query.FirstOrDefaultAsync(e => e.Id == parsedId, cancellationToken);
+        }
+
+        public async Task<bool> IsExist(Expression<Func<T, bool>> method, CancellationToken cancellationToken, bool isTracking = false)
+        {
+            return await Table.AnyAsync(method, cancellationToken);
         }
     }
 }

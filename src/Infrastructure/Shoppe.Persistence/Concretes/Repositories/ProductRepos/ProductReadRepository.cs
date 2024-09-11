@@ -1,4 +1,4 @@
-﻿using Shoppe.Application.Abstractions.Repositories;
+﻿using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Domain.Entities;
 using Shoppe.Persistence.Context;
 using System;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Persistence.Concretes.Repositories
+namespace Shoppe.Persistence.Concretes.Repositories.ProductRepos
 {
     public class ProductReadRepository : ReadRepository<Product>, IProductReadRepository
     {
