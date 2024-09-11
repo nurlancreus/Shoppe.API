@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Entities.Files
 {
-    public abstract class ImageFile : ApplicationFile
+    public class ImageFile : ApplicationFile
     {
         public bool IsMain { get; set; }
     }
