@@ -12,6 +12,9 @@ namespace Shoppe.Domain.Entities
         public string Title { get; set; } = null!;
         public string Body { get; set; } = null!;
         public string URL { get; set; } = null!;
+        public string ButtonText { get; set; } = null!;
         public SlideImageFile SlideImageFile { get; set; } = null!;
+        public Guid SliderId { get; set; }
+        public Slider Slider { get; set; } = null!;
     }
 }
