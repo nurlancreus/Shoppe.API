@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Abstractions.Repositories;
 using Shoppe.Application.Abstractions.UoW;
+using Shoppe.Application.Features.Command.Product.CreateProduct;
 using Shoppe.Domain.Entities;
 
 namespace Shoppe.API.Controllers.v1
@@ -9,37 +11,20 @@ namespace Shoppe.API.Controllers.v1
     //[ApiVersion("1.0")]
     public class ProductsController : ApplicationControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IProductReadRepository _productReadRepository;
-        private readonly IProductWriteRepository _productWriteRepository;
+        private readonly IMediator _mediator;
 
-        public ProductsController(IUnitOfWork unitOfWork, IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository)
+        public ProductsController(IMediator mediator)
         {
-            _unitOfWork = unitOfWork;
-            _productReadRepository = productReadRepository;
-            _productWriteRepository = productWriteRepository;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var products = await _productReadRepository.GetAllAsync();
-
-            return Ok(products);
+            _mediator = mediator;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(CreateProductCommandRequest createProductCommandRequest)
         {
-            var product = new Product
-            {
-                Name = "Product1"
-            };
+            var response = await _mediator.Send(createProductCommandRequest);
 
-            await _productWriteRepository.AddAsync(product);
-            await _unitOfWork.SaveChangesAsync();
-
-            return Ok();
+            return Ok(response);
         }
+
     }
 }
