@@ -1,5 +1,4 @@
-﻿using Shoppe.Domain.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,11 +12,6 @@ namespace Shoppe.Application.Helpers
         {
             // Use Enum.TryParse with ignoreCase = true for case-insensitive parsing
             return Enum.TryParse(value, ignoreCase: caseInsentitive, result: out result);
-        }
-
-        public static bool IsDefinedEnum<T>(string value, out T result) where T : struct, Enum
-        {
-            return Enum.TryParse(value, true, out result) && Enum.IsDefined(typeof(T), result);
         }
     }
 }
