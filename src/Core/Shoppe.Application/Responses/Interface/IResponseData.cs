@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Domain.Entities.Files
+namespace Shoppe.Application.Responses.Interface
 {
-    public abstract class ImageFile : ApplicationFile
+    public interface IResponseData
     {
-        public bool IsMain { get; set; }
     }
 }
