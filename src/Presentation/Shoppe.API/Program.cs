@@ -53,6 +53,8 @@ namespace Shoppe.API
             // Implement built-in rate limiter
             builder.ConfigureRateLimiting();
 
+            builder.ConfigureAuth();
+
             var app = builder.Build();
 
             //Use rate limiter
