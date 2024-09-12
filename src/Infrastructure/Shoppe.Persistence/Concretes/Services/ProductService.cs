@@ -1,13 +1,20 @@
-﻿using Shoppe.Application.Abstractions.Repositories.ProductRepos;
+﻿using Microsoft.EntityFrameworkCore;
+using Shoppe.Application.Abstractions.Pagination;
+using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
+using Shoppe.Application.Abstractions.Repositories.ProductDetailsRepos;
+using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.Constants;
+using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Product;
 using Shoppe.Application.Extensions.Mapping;
+using Shoppe.Application.Helpers;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Enums;
+using Shoppe.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,13 +29,18 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IProductWriteRepository _productWriteRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IStorageService _storageService;
-
-        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService)
+        private readonly IPaginationService _paginationService;
+        private readonly IProductDetailsReadRepository _productDetailsReadRepository;
+        private readonly ICategoryReadRepository _categoryReadRepository;
+        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IProductDetailsReadRepository productDetailsReadRepository, ICategoryReadRepository categoryReadRepository)
         {
             _productReadRepository = productReadRepository;
             _productWriteRepository = productWriteRepository;
             _unitOfWork = unitOfWork;
             _storageService = storageService;
+            _paginationService = paginationService;
+            _productDetailsReadRepository = productDetailsReadRepository;
+            _categoryReadRepository = categoryReadRepository;
         }
 
         public async Task CreateProductAsync(CreateProductDTO createProductDTO, CancellationToken cancellationToken)
@@ -53,9 +65,19 @@ namespace Shoppe.Persistence.Concretes.Services
                 }
             };
 
-            if(createProductDTO.Categories.Count > 0) 
-            { 
-                product.Categories = createProductDTO.Categories.Select(c => c.ToCategoryEntity()).ToList();
+            if (createProductDTO.CategoryIds.Count > 0)
+            {
+                foreach (var id in createProductDTO.CategoryIds)
+                {
+                    var category = await _categoryReadRepository.GetByIdAsync(id, cancellationToken);
+
+                    if (category != null)
+                    {
+                        product.Categories.Add(category);
+
+                    }
+                }
+
             }
 
             if (createProductDTO.ProductImages.Count > 0)
@@ -64,20 +86,224 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 int counter = 0;
 
-                foreach (var imageResult in imageResults)
+                foreach (var (path, fileName) in imageResults)
                 {
                     product.ProductImageFiles.Add(new ProductImageFile()
                     {
-                        FileName = imageResult.fileName,
-                        PathName = imageResult.path,
+                        FileName = fileName,
+                        PathName = path,
                         Storage = _storageService.StorageName,
                         IsMain = ++counter == 1
                     });
                 }
-
-                await _productWriteRepository.AddAsync(product, cancellationToken);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
+
+            await _productWriteRepository.AddAsync(product, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task DeleteProductAsync(string id, CancellationToken cancellationToken)
+        {
+            var product = await _productReadRepository.GetByIdAsync(id, cancellationToken);
+
+            if (product == null)
+            {
+                throw new EntityNotFoundException(nameof(product));
+            }
+
+            bool isDeleted = _productWriteRepository.Delete(product);
+
+            if (!isDeleted)
+            {
+                throw new DeleteNotSucceedException(nameof(product));
+            }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<GetAllProductsDTO> GetAllProductsAsync(int page, int pageSize, CancellationToken cancellationToken)
+        {
+            var productsQuery = await _productReadRepository.GetAllAsync(false);
+
+            var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, pageSize, productsQuery);
+
+            var products = await paginatedQuery.Include(q => q.Categories).Include(q => q.ProductDetails).ThenInclude(p => p.Dimension).Include(q => q.Reviews).Include(q => q.ProductImageFiles).ToListAsync(cancellationToken);
+
+            return new GetAllProductsDTO()
+            {
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                Products = products.Select(p => new GetProductDTO()
+                {
+                    Id = p.Id.ToString(),
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    Stock = p.Stock,
+                    Weigth = p.ProductDetails.Weigth,
+                    Height = p.ProductDetails.Dimension.Height,
+                    Width = p.ProductDetails.Dimension.Width,
+                    Colors = p.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
+                    Material = p.ProductDetails.Material.ToString(),
+                    Categories = p.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
+                    ProductImages = p.ProductImageFiles.Select(i => new GetProductImageFileDTO()
+                    {
+                        FileName = i.FileName,
+                        PathName = i.PathName,
+                        IsMain = i.IsMain,
+                    }).ToList(),
+
+                    Rating = 3
+
+                }).ToList(),
+            };
+        }
+
+        public async Task<GetProductDTO> GetProductAsync(string id, CancellationToken cancellationToken)
+        {
+            var product = await _productReadRepository.GetByIdAsync(id, cancellationToken);
+
+            if (product == null)
+            {
+                throw new EntityNotFoundException(nameof(product));
+            }
+
+            await _productReadRepository.Table.Entry(product).Reference(p => p.ProductDetails).LoadAsync();
+
+            await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync();
+
+            await _productDetailsReadRepository.Table.Entry(product.ProductDetails).Reference(p => p.Dimension).LoadAsync();
+
+            return new GetProductDTO()
+            {
+                Id = product.Id.ToString(),
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                Stock = product.Stock,
+                Weigth = product.ProductDetails.Weigth,
+                Height = product.ProductDetails.Dimension.Height,
+                Width = product.ProductDetails.Dimension.Width,
+                Colors = product.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
+                Material = product.ProductDetails.Material.ToString(),
+                Categories = product.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
+                ProductImages = product.ProductImageFiles.Select(i => new GetProductImageFileDTO()
+                {
+                    FileName = i.FileName,
+                    PathName = i.PathName,
+                    IsMain = i.IsMain,
+                }).ToList(),
+
+                Rating = 3
+
+            };
+        }
+
+        public async Task UpdateProductAsync(UpdateProductDTO updateProductDTO, CancellationToken cancellationToken)
+        {
+            var product = await _productReadRepository.GetByIdAsync(updateProductDTO.Id, cancellationToken);
+
+            if (product == null)
+            {
+                throw new EntityNotFoundException("product");
+            }
+
+            // Load related entities
+            await _productReadRepository.Table.Entry(product).Reference(p => p.ProductDetails).LoadAsync(cancellationToken);
+            await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync(cancellationToken);
+            await _productDetailsReadRepository.Table.Entry(product.ProductDetails).Reference(p => p.Dimension).LoadAsync(cancellationToken);
+
+            // Check and update properties only if they exist in the DTO
+            if (!string.IsNullOrWhiteSpace(updateProductDTO.Name))
+                product.Name = updateProductDTO.Name;
+
+            if (updateProductDTO.Stock.HasValue)
+                product.Stock = updateProductDTO.Stock.Value;
+
+            if (updateProductDTO.Price.HasValue)
+                product.Price = updateProductDTO.Price.Value;
+
+            if (!string.IsNullOrWhiteSpace(updateProductDTO.Description))
+                product.Description = updateProductDTO.Description;
+
+            if (updateProductDTO.Weigth.HasValue)
+                product.ProductDetails.Weigth = updateProductDTO.Weigth.Value;
+
+            if (updateProductDTO.Width.HasValue && updateProductDTO.Height.HasValue)
+            {
+                product.ProductDetails.Dimension.Width = updateProductDTO.Width.Value;
+                product.ProductDetails.Dimension.Height = updateProductDTO.Height.Value;
+            }
+
+            // Update material if the material is provided
+            if (!string.IsNullOrEmpty(updateProductDTO.Material) &&
+                EnumHelpers.TryParseEnum(updateProductDTO.Material, out Material parsedMaterial))
+            {
+                product.ProductDetails.Material = parsedMaterial;
+            }
+
+            // Update colors if any colors are provided
+            if (updateProductDTO.Colors.Count > 0)
+            {
+                product.ProductDetails.Colors.Clear(); // Clear existing colors
+                foreach (var color in updateProductDTO.Colors)
+                {
+                    if (EnumHelpers.TryParseEnum(color, out Color parsedColor))
+                    {
+                        product.ProductDetails.Colors.Add(parsedColor);
+                    }
+                }
+            }
+
+            if (updateProductDTO.CategoryIds.Count > 0)
+            {
+
+                foreach (var id in updateProductDTO.CategoryIds)
+                {
+                    var category = await _categoryReadRepository.GetByIdAsync(id, cancellationToken);
+
+                    if (category != null)
+                    {
+                        product.Categories.Add(category);
+
+                    }
+                }
+            }
+
+            // Handle product images if any are provided
+            if (updateProductDTO.ProductImages.Count > 0)
+            {
+                List<(string path, string fileName)> imageResults = await _storageService.UploadAsync(ProductConst.ProductImagesFolder, updateProductDTO.ProductImages);
+
+                var existingMainImage = product.ProductImageFiles.SingleOrDefault(i => i.IsMain);
+                int counter = 0;
+
+                foreach (var (path, fileName) in imageResults)
+                {
+                    var productImage = new ProductImageFile()
+                    {
+                        FileName = fileName,
+                        PathName = path,
+                        Storage = _storageService.StorageName,
+                    };
+
+                    if (existingMainImage == null && ++counter == 1)
+                    {
+                        productImage.IsMain = true;
+                    }
+
+                    product.ProductImageFiles.Add(productImage);
+                }
+            }
+
+            // Update the product in the repository
+            _productWriteRepository.Update(product);
+
+            // Commit changes to the database
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
     }
 }
