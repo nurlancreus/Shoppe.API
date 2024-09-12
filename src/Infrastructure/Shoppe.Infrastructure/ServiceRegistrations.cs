@@ -14,6 +14,8 @@ using Shoppe.Infrastructure.Concretes.Services.Storage.AWS;
 using Shoppe.Infrastructure.Concretes.Services.Storage;
 using Shoppe.Application.Abstractions.Pagination;
 using Shoppe.Infrastructure.Concretes.Services;
+using Shoppe.Application.Abstractions.Services.Token;
+using Shoppe.Infrastructure.Concretes.Services.Token;
 
 namespace Shoppe.Infrastructure
 {
@@ -24,6 +26,8 @@ namespace Shoppe.Infrastructure
             #region Service Registrations
             services.AddScoped<IStorageService, StorageService>();
             services.AddScoped<IPaginationService, PaginationService>();
+
+            services.AddScoped<ITokenService, TokenService>();
             #endregion
 
             return services;
