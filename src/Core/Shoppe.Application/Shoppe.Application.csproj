@@ -18,11 +18,4 @@
     <ProjectReference Include="..\Shoppe.Domain\Shoppe.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Command\Product\DeleteProduct\" />
-    <Folder Include="Features\Command\Product\UpdateProduct\" />
-    <Folder Include="Features\Query\Product\GetAllProducts\" />
-    <Folder Include="Features\Query\Product\GetProductById\" />
-  </ItemGroup>
-
 </Project>
