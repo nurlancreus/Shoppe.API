@@ -64,8 +64,8 @@ namespace Shoppe.Application.Validators.Product
                 .Must(color => EnumHelpers.IsDefinedEnum<Color>(color, out _))
                 .WithMessage("Color must be a valid enum value.");
 
-            RuleForEach(product => product.Categories)
-                .MustAsync(async (category, cancellationToken) => await _categoryReadRepository.IsExist(c => c.Name == category.Name, cancellationToken))
+            RuleForEach(product => product.CategoryIds)
+                .MustAsync(async (id, cancellationToken) => await _categoryReadRepository.IsExist(c => c.Id.ToString() == id, cancellationToken))
                 .WithMessage("Category must be defined");
 
             // Validation for product images
