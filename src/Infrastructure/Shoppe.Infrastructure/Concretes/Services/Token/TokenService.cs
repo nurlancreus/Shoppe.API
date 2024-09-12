@@ -49,12 +49,12 @@ namespace Shoppe.Infrastructure.Concretes.Services.Token
 
             var claims = new List<Claim>()
             {
-                new(ClaimTypes.Name, appUser.UserName!),
-                new(JwtRegisteredClaimNames.Sub, appUser.Id.ToString()), //Subject (user id)
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //JWT unique ID
-                new(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()), //Issued at (date and time of token generation)
-                new(ClaimTypes.NameIdentifier, appUser.UserName!), //Unique name identifier of the user (Username)
-                 new(ClaimTypes.Email, appUser.Email!) //Name of the user
+                new(ClaimTypes.Name, appUser.UserName!), // Name claim (username)
+                new(JwtRegisteredClaimNames.Sub, appUser.Id.ToString()), // Subject (user id)
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // JWT unique ID (JTI)
+                new(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString()), // Issued at (Unix timestamp)
+                new(ClaimTypes.NameIdentifier, appUser.UserName!), // Unique name identifier of the user (username)
+                new(ClaimTypes.Email, appUser.Email!) // Email of the user
             };
 
             // Add role claims for the user.
@@ -67,10 +67,10 @@ namespace Shoppe.Infrastructure.Concretes.Services.Token
 
             // Set the token's configurations.
             JwtSecurityToken securityToken = new(
-                     //audience: _tokenOptions.Access.Audience,
-                     //issuer: _tokenOptions.Access.Issuer,
+                //audience: _tokenOptions.Access.Audience,
+                //issuer: _tokenOptions.Access.Issuer,
                 audience: _configuration["Token:Access:Audience"],
-                issuer: _configuration["Token:Access:Audience"],
+                issuer: _configuration["Token:Access:Issuer"],
                 expires: token.ExpiresAt,
                 notBefore: DateTime.UtcNow,
                 signingCredentials: signingCredentials,
