@@ -21,7 +21,7 @@ namespace Shoppe.Application.Features.Command.Product.CreateProduct
         public float Width { get; set; }
         public string Material { get; set; } = null!;
         public List<string> Colors { get; set; } = [];
-        public List<GetCategoryDTO> Categories { get; set; } = [];
+        public List<string> CategoryIds { get; set; } = [];
         public FormFileCollection ProductImages { get; set; } = [];
     }
 }
