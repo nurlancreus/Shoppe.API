@@ -8,6 +8,7 @@ using Shoppe.Application.Features.Command.Product.DeleteProduct;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
 using Shoppe.Application.Features.Query.Product.GetAllProducts;
 using Shoppe.Application.Features.Query.Product.GetProductById;
+using Shoppe.Application.Features.Query.Product.GetProductReviews;
 using Shoppe.Domain.Entities;
 
 namespace Shoppe.API.Controllers.v1
@@ -70,6 +71,16 @@ namespace Shoppe.API.Controllers.v1
             };
 
             var response = await _mediator.Send(deleteProductCommandRequest);
+
+            return Ok(response);
+        }
+
+        [HttpGet("{productId}/reviews")]
+        public async Task<IActionResult> GetReviews(string productId)
+        {
+            var getProductReviewsRequest = new GetProductReviewsQueryRequest() { ProductId = productId };
+
+            var response = await _mediator.Send(getProductReviewsRequest);
 
             return Ok(response);
         }
