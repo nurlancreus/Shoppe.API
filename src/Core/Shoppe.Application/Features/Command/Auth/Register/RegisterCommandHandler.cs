@@ -27,7 +27,7 @@ namespace Shoppe.Application.Features.Command.Auth.Register
             {
                 IsSuccess = true,
                 Token = token,
-                Message = ResponseConst.RegisterSuccessMessage()
+                Message = AuthConst.RegisterSuccessMessage,
             };
         }
     }
