@@ -3,12 +3,14 @@ using Shoppe.Application.Abstractions.Pagination;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductDetailsRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
+using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.Constants;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Product;
+using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Application.Helpers;
 using Shoppe.Domain.Entities;
@@ -77,7 +79,6 @@ namespace Shoppe.Persistence.Concretes.Services
 
                     }
                 }
-
             }
 
             if (createProductDTO.ProductImages.Count > 0)
@@ -127,7 +128,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, pageSize, productsQuery);
 
-            var products = await paginatedQuery.Include(q => q.Categories).Include(q => q.ProductDetails).ThenInclude(p => p.Dimension).Include(q => q.Reviews).Include(q => q.ProductImageFiles).ToListAsync(cancellationToken);
+            var products = await paginatedQuery.Include(q => q.Categories).Include(p => p.Reviews).Include(q => q.ProductDetails).ThenInclude(p => p.Dimension).Include(q => q.Reviews).Include(q => q.ProductImageFiles).ToListAsync(cancellationToken);
 
             return new GetAllProductsDTO()
             {
@@ -135,7 +136,9 @@ namespace Shoppe.Persistence.Concretes.Services
                 PageSize = pageSize,
                 TotalItems = totalItems,
                 TotalPages = totalPages,
-                Products = products.Select(p => new GetProductDTO()
+                Products = products.Select(p =>
+
+                new GetProductDTO()
                 {
                     Id = p.Id.ToString(),
                     Name = p.Name,
@@ -155,15 +158,15 @@ namespace Shoppe.Persistence.Concretes.Services
                         IsMain = i.IsMain,
                     }).ToList(),
 
-                    Rating = 3
-
+                    Rating = FindAverageRating(p.Reviews),
+                    CreatedAt = p.CreatedAt,
                 }).ToList(),
             };
         }
 
         public async Task<GetProductDTO> GetProductAsync(string id, CancellationToken cancellationToken)
         {
-            var product = await _productReadRepository.GetByIdAsync(id, cancellationToken);
+            var product = await _productReadRepository.GetByIdAsync(id, cancellationToken, false);
 
             if (product == null)
             {
@@ -173,6 +176,8 @@ namespace Shoppe.Persistence.Concretes.Services
             await _productReadRepository.Table.Entry(product).Reference(p => p.ProductDetails).LoadAsync();
 
             await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync();
+
+            await _productReadRepository.Table.Entry(product).Collection(p => p.Reviews).LoadAsync();
 
             await _productDetailsReadRepository.Table.Entry(product.ProductDetails).Reference(p => p.Dimension).LoadAsync();
 
@@ -196,9 +201,31 @@ namespace Shoppe.Persistence.Concretes.Services
                     IsMain = i.IsMain,
                 }).ToList(),
 
-                Rating = 3
-
+                Rating = FindAverageRating(product.Reviews),
+                CreatedAt = product.CreatedAt
             };
+        }
+
+        public async Task<List<GetReviewDTO>> GetReviewsByProductAsync(string productId, CancellationToken cancellationToken)
+        {
+            var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken, false);
+
+            if (product == null)
+            {
+                throw new EntityNotFoundException(nameof(product));
+            }
+
+            await _productReadRepository.Table.Entry(product).Collection(p => p.Reviews).LoadAsync(cancellationToken);
+
+            return product.Reviews.Select(r => new GetReviewDTO()
+            {
+                Id = r.Id.ToString(),
+                FirstName = r.FirstName!,
+                LastName = r.LastName!,
+                Rating = (int)r.Rating,
+                Body = r.Body,
+                CreatedAt = r.CreatedAt,
+            }).ToList();
         }
 
         public async Task UpdateProductAsync(UpdateProductDTO updateProductDTO, CancellationToken cancellationToken)
@@ -299,11 +326,28 @@ namespace Shoppe.Persistence.Concretes.Services
             }
 
             // Update the product in the repository
-            _productWriteRepository.Update(product);
+            bool isUpdated = _productWriteRepository.Update(product);
+
+            if (!isUpdated)
+            {
+                throw new UpdateNotSucceedException(nameof(product));
+            }
+
 
             // Commit changes to the database
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
+
+        private static float FindAverageRating(ICollection<Review> reviews)
+        {
+            var ratingSum = reviews.Sum(r => (int)r.Rating);
+
+            var reviewCount = reviews.Count;
+
+            var rating = reviewCount > 0 ? (float)ratingSum / reviewCount : 0;
+
+            return (float)Math.Round(rating, 2);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Shoppe.Application.DTOs.Product;
+using Shoppe.Application.DTOs.Review;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,6 @@ namespace Shoppe.Application.Abstractions.Services
         Task DeleteProductAsync(string id, CancellationToken cancellationToken);
         Task<GetProductDTO> GetProductAsync(string id, CancellationToken cancellationToken);
         Task<GetAllProductsDTO> GetAllProductsAsync(int page, int size, CancellationToken cancellationToken);
+        Task<List<GetReviewDTO>> GetReviewsByProductAsync(string productId, CancellationToken cancellationToken);
     }
 }
