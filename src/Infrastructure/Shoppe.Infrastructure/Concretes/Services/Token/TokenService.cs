@@ -50,10 +50,12 @@ namespace Shoppe.Infrastructure.Concretes.Services.Token
             var claims = new List<Claim>()
             {
                 new(ClaimTypes.Name, appUser.UserName!), // Name claim (username)
+                new(ClaimTypes.GivenName, appUser.FirstName!),
+                new(ClaimTypes.Surname, appUser.LastName!),
                 new(JwtRegisteredClaimNames.Sub, appUser.Id.ToString()), // Subject (user id)
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // JWT unique ID (JTI)
                 new(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString()), // Issued at (Unix timestamp)
-                new(ClaimTypes.NameIdentifier, appUser.UserName!), // Unique name identifier of the user (username)
+                new(ClaimTypes.NameIdentifier, appUser.Id), // Unique name identifier of the user (id)
                 new(ClaimTypes.Email, appUser.Email!) // Email of the user
             };
 
