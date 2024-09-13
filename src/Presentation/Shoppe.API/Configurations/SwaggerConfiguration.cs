@@ -10,9 +10,9 @@ namespace Shoppe.API.Configurations
             {
                 // options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "api.xml"));
 
-                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Cities Web API", Version = "1.0" });
+                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Shoppe Web API", Version = "1.0" });
 
-                options.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Cities Web API", Version = "2.0" });
+                options.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Shoppe Web API", Version = "2.0" });
 
                 // Add JWT bearer authorization to Swagger
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
