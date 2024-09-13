@@ -24,5 +24,6 @@ namespace Shoppe.Application.DTOs.Product
         public List<GetCategoryDTO> Categories { get; set; } = [];
         public List<GetProductImageFileDTO> ProductImages { get; set; } = [];
         public float Rating { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
