@@ -1,11 +1,14 @@
 ﻿using Shoppe.Application.DTOs.Auth;
 using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Product;
+using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.Features.Command.Auth.Login;
 using Shoppe.Application.Features.Command.Auth.Register;
 using Shoppe.Application.Features.Command.Category.UpdateCategory;
 using Shoppe.Application.Features.Command.Product.CreateProduct;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
+using Shoppe.Application.Features.Command.Review.CreateReview;
+using Shoppe.Application.Features.Command.Review.UpdateReview;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,6 +85,30 @@ namespace Shoppe.Application.Extensions.Mapping
                 Email = request.Email,
                 Password = request.Password,
                 RememberMe = request.RememberMe,
+            };
+        }
+
+        public static CreateReviewDTO ToCreateReviewDTO(this CreateReviewCommandRequest request)
+        {
+            return new CreateReviewDTO
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Body = request.Body,
+                ProductId = request.ProductId,
+                Rating = request.Rating,
+                SaveMe = request.SaveMe
+            };
+        }
+
+        public static UpdateReviewDTO ToUpdateReviewDTO(this UpdateReviewCommandRequest request)
+        {
+            return new UpdateReviewDTO
+            {
+                Id = request.Id!,
+                Body = request.Body,
+                Rating = request.Rating
             };
         }
     }
