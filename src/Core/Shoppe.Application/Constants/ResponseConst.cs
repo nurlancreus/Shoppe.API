@@ -22,15 +22,5 @@ namespace Shoppe.Application.Constants
         {
             return $"{entityName} deleted successfully!";
         }
-
-        public static string RegisterSuccessMessage()
-        {
-            return $"User registered successfully!";
-        }
-
-        public static string LoginSuccessMessage()
-        {
-            return $"User signing in successfully!";
-        }
     }
 }
