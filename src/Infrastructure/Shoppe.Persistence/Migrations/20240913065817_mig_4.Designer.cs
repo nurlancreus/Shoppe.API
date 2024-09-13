@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shoppe.Persistence.Context;
 
@@ -11,9 +12,11 @@ using Shoppe.Persistence.Context;
 namespace Shoppe.Persistence.Migrations
 {
     [DbContext(typeof(ShoppeDbContext))]
-    partial class ShoppeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240913065817_mig_4")]
+    partial class mig_4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -522,7 +525,9 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasIndex("ApplicationUserId")
+                        .IsUnique()
+                        .HasFilter("[ApplicationUserId] IS NOT NULL");
 
                     b.HasIndex("ProductId");
 
@@ -728,8 +733,8 @@ namespace Shoppe.Persistence.Migrations
             modelBuilder.Entity("Shoppe.Domain.Entities.Review", b =>
                 {
                     b.HasOne("Shoppe.Domain.Entities.Identity.ApplicationUser", "Reviewer")
-                        .WithMany("Reviews")
-                        .HasForeignKey("ApplicationUserId");
+                        .WithOne("Review")
+                        .HasForeignKey("Shoppe.Domain.Entities.Review", "ApplicationUserId");
 
                     b.HasOne("Shoppe.Domain.Entities.Product", "Product")
                         .WithMany("Reviews")
@@ -757,7 +762,7 @@ namespace Shoppe.Persistence.Migrations
                 {
                     b.Navigation("Blogs");
 
-                    b.Navigation("Reviews");
+                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Product", b =>
