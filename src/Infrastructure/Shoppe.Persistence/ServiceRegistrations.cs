@@ -9,6 +9,7 @@ using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductDetailsRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductImageFileRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
+using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Auth;
 using Shoppe.Application.Abstractions.UoW;
@@ -20,6 +21,7 @@ using Shoppe.Persistence.Concretes.Repositories.CategoryRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductDetailsRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductImageFileRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductRepos;
+using Shoppe.Persistence.Concretes.Repositories.ReviewRepos;
 using Shoppe.Persistence.Concretes.Services;
 using Shoppe.Persistence.Concretes.Services.Auth;
 using Shoppe.Persistence.Concretes.UoW;
@@ -51,6 +53,9 @@ namespace Shoppe.Persistence
 
             services.AddScoped<IProductImageFileReadRepository, ProductImageFileReadRepository>();
             services.AddScoped<IProductImageFileWriteRepository, ProductImageFileWriteRepository>();
+
+            services.AddScoped<IReviewReadRepository, ReviewReadRepository>();
+            services.AddScoped<IReviewWriteRepository, ReviewWriteRepository>();
             
             services.AddScoped<IBlogImageFileReadRepository, BlogImageFileReadRepository>();
             services.AddScoped<IBlogImageFileWriteRepository, BlogImageFileWriteRepository>();
@@ -65,6 +70,7 @@ namespace Shoppe.Persistence
             #region Services Registrations
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IReviewService, ReviewService>();
 
             services.AddScoped<IInternalAuthService, AuthService>();
             services.AddScoped<IAuthService, AuthService>();
