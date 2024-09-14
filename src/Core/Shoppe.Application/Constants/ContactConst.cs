@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Constants
 {
-    public class ReviewConst
+    public class ContactConst
     {
-        public const int MaxBodyLength = 300;
+        public const int MaxMessageLength = 500;
         public const int MaxFirstNameLength = 50;
+        public const int MaxSubjectLength = 50;
         public const int MaxLastNameLength = 50;
-        public const int SavedReviewsExpireDate = 7;
     }
 }
