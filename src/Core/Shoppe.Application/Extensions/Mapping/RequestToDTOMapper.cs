@@ -1,10 +1,13 @@
 ﻿using Shoppe.Application.DTOs.Auth;
 using Shoppe.Application.DTOs.Category;
+using Shoppe.Application.DTOs.Contact;
 using Shoppe.Application.DTOs.Product;
 using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.Features.Command.Auth.Login;
 using Shoppe.Application.Features.Command.Auth.Register;
 using Shoppe.Application.Features.Command.Category.UpdateCategory;
+using Shoppe.Application.Features.Command.Contact.CreateContact;
+using Shoppe.Application.Features.Command.Contact.UpdateContact;
 using Shoppe.Application.Features.Command.Product.CreateProduct;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
 using Shoppe.Application.Features.Command.Review.CreateReview;
@@ -109,6 +112,31 @@ namespace Shoppe.Application.Extensions.Mapping
                 Id = request.Id!,
                 Body = request.Body,
                 Rating = request.Rating
+            };
+        }
+
+        public static CreateContactDTO ToCreateContactDTO(this CreateContactCommandRequest request)
+        {
+            return new CreateContactDTO
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Subject = request.Subject,
+                Message = request.Message
+            };
+        }
+
+        public static UpdateContactDTO ToUpdateContactDTO(this UpdateContactCommandRequest request)
+        {
+            return new UpdateContactDTO
+            {
+                Id = request.Id!,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Subject = request.Subject,
+                Message = request.Message
             };
         }
     }
