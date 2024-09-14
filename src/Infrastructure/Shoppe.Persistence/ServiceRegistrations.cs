@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Shoppe.Application.Abstractions.Repositories.BlogImageFileRepos;
 using Shoppe.Application.Abstractions.Repositories.BlogRepos;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
+using Shoppe.Application.Abstractions.Repositories.ContactRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductDetailsRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductImageFileRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
@@ -18,6 +19,7 @@ using Shoppe.Persistence.Concretes.Repositories;
 using Shoppe.Persistence.Concretes.Repositories.BlogImageFileRepos;
 using Shoppe.Persistence.Concretes.Repositories.BlogRepos;
 using Shoppe.Persistence.Concretes.Repositories.CategoryRepos;
+using Shoppe.Persistence.Concretes.Repositories.ContactRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductDetailsRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductImageFileRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductRepos;
@@ -63,6 +65,9 @@ namespace Shoppe.Persistence
             services.AddScoped<IBlogReadRepository, BlogReadRepository>();
             services.AddScoped<IBlogWriteRepository, BlogWriteRepository>();
 
+            services.AddScoped<IContactReadRepository, ContactReadRepository>();
+            services.AddScoped<IContactWriteRepository, ContactWriteRepository>();
+
             #endregion
             // Register UnitOfWork
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -71,6 +76,7 @@ namespace Shoppe.Persistence
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IReviewService, ReviewService>();
+            services.AddScoped<IContactService, ContactService>();
 
             services.AddScoped<IInternalAuthService, AuthService>();
             services.AddScoped<IAuthService, AuthService>();

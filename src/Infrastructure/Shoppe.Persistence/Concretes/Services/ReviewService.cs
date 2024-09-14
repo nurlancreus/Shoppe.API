@@ -6,7 +6,9 @@ using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.UoW;
+using Shoppe.Application.Constants;
 using Shoppe.Application.DTOs.Review;
+using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Application.Helpers;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Identity;
@@ -56,7 +58,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var user = _httpContextAccessor.HttpContext?.User;
 
-            
+
             if (user != null && (user.Identity?.IsAuthenticated ?? false))
             {
                 // Assuming first name and last name are stored as claims
@@ -70,7 +72,20 @@ namespace Shoppe.Persistence.Concretes.Services
                 review.FirstName = createReviewDTO.FirstName;
                 review.LastName = createReviewDTO.LastName;
                 review.Email = createReviewDTO.Email;
-                review.SaveMe = createReviewDTO.SaveMe;
+                //review.SaveMe = createReviewDTO.SaveMe;
+
+                if (createReviewDTO.SaveMe == true)
+                {
+                    var cookieOptions = new CookieOptions
+                    {
+                        Expires = DateTime.UtcNow.AddDays(ReviewConst.SavedReviewsExpireDate),
+                        Secure = true  
+                    };
+
+                    _httpContextAccessor.HttpContext?.Response.Cookies.Append("FirstName", createReviewDTO.FirstName!, cookieOptions);
+                    _httpContextAccessor.HttpContext?.Response.Cookies.Append("LastName", createReviewDTO.LastName!, cookieOptions);
+                    _httpContextAccessor.HttpContext?.Response.Cookies.Append("Email", createReviewDTO.Email!, cookieOptions);
+                }
             }
 
             review.Rating = (Rating)createReviewDTO.Rating;
@@ -105,14 +120,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, size, query);
 
-            var reviews = await paginatedQuery.Select(r => new GetReviewDTO()
-            {
-                Id = r.Id.ToString(),
-                FirstName = r.FirstName!,
-                LastName = r.LastName!,
-                Rating = (int)r.Rating,
-                Body = r.Body,
-            }).ToListAsync(cancellationToken);
+            var reviews = await paginatedQuery.Select(r => r.ToGetReviewDTO()).ToListAsync(cancellationToken);
 
             return new GetAllReviewsDTO()
             {
@@ -134,15 +142,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(cancellationToken));
             }
 
-            return new GetReviewDTO()
-            {
-                Id = review.Id.ToString(),
-                FirstName = review.FirstName!,
-                LastName = review.LastName!,
-                Body = review.Body,
-                CreatedAt = DateTime.UtcNow,
-                Rating = (int)review.Rating
-            };
+            return review.ToGetReviewDTO();
         }
 
         public async Task UpdateReviewAsync(UpdateReviewDTO updateReviewDTO, CancellationToken cancellationToken)
