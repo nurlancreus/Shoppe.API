@@ -15,7 +15,6 @@ namespace Shoppe.Domain.Entities
         public string? LastName { get; set; }
         public string? Email { get; set; }
         public string? Body { get; set; } = null!;
-        public bool? SaveMe { get; set; } 
         public Rating Rating { get; set; }
         public Guid ProductId { get; set; }
         public Product Product { get; set; } = null!;
