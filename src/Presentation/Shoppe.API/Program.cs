@@ -30,10 +30,11 @@ namespace Shoppe.API
                 .RegisterPersistenceServices(builder.Configuration)
                 .RegisterInfrastructureServices();
 
-            builder.Services.AddStorage(StorageType.Local, builder.Configuration);
+            builder.Services.AddStorage(StorageType.AWS, builder.Configuration);
 
             builder.ConfigureLogging();
             builder.ConfigureOptions();
+            builder.ConfigureCors();
 
             builder.Services//AddFluentValidationAutoValidation()
                 .AddFluentValidationClientsideAdapters();
@@ -56,6 +57,7 @@ namespace Shoppe.API
             builder.ConfigureAuth();
 
             var app = builder.Build();
+            app.UseCors("AllowShoppeClient");
 
             //Use rate limiter
             app.UseRateLimiter();
@@ -77,6 +79,7 @@ namespace Shoppe.API
             // for http logging
             app.UseHttpLogging();
 
+            app.UseHsts();
             app.UseHttpsRedirection();
 
             app.UseAuthentication();

@@ -14,8 +14,6 @@ namespace Shoppe.API.Configurations
     {
         public static void ConfigureLogging(this WebApplicationBuilder builder)
         {
-            // Register IHttpContextAccessor for the UsernameEnricher
-            builder.Services.AddHttpContextAccessor();
 
             // Create and configure the logger with the UsernameEnricher
             Logger log = new LoggerConfiguration()

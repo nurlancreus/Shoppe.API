@@ -10,6 +10,7 @@ using Shoppe.Application.Features.Query.Product.GetAllProducts;
 using Shoppe.Application.Features.Query.Product.GetProductById;
 using Shoppe.Application.Features.Query.Product.GetProductReviews;
 using Shoppe.Domain.Entities;
+using Shoppe.Domain.Enums;
 
 namespace Shoppe.API.Controllers.v1
 {
@@ -32,6 +33,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet]
+        // [ServiceFilter(typeof(SortByProductsActionFilter))]
         public async Task<IActionResult> GetAll([FromQuery] GetAllProductsQueryRequest getAllProductsQueryRequest)
         {
             var response = await _mediator.Send(getAllProductsQueryRequest);
@@ -83,6 +85,32 @@ namespace Shoppe.API.Controllers.v1
             var response = await _mediator.Send(getProductReviewsRequest);
 
             return Ok(response);
+        }
+
+        [HttpGet("colors")]
+        public async Task<IActionResult> GetColors()
+        {
+            List<string> colors = [];
+
+            foreach (var color in Enum.GetNames<Color>())
+            {
+                colors.Add(color);
+            }
+
+            return await Task.FromResult(Ok(colors));
+        }
+
+        [HttpGet("materials")]
+        public async Task<IActionResult> GetMaterials()
+        {
+            List<string> materials= [];
+
+            foreach (var material in Enum.GetNames<Material>())
+            {
+                materials.Add(material);
+            }
+
+            return await Task.FromResult(Ok(materials));
         }
     }
 }

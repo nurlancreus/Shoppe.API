@@ -59,11 +59,11 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] string id, [FromBody] DeleteCategoryCommandRequest deleteCategoryCommandRequest)
+        public async Task<IActionResult> Delete([FromRoute] string id)
         {
-            deleteCategoryCommandRequest.Id = id;
+            var request = new DeleteCategoryCommandRequest { Id = id };
 
-            var response = await _mediator.Send(deleteCategoryCommandRequest);
+            var response = await _mediator.Send(request);
 
             return Ok(response);
         }
