@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Constants;
+using Shoppe.Application.Extensions.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,8 @@ namespace Shoppe.Application.Features.Command.Category.CreateCategory
 
         public async Task<CreateCategoryCommandResponse> Handle(CreateCategoryCommandRequest request, CancellationToken cancellationToken)
         {
-            await _categoryService.CreateCategoryAsync(request.Name, cancellationToken);
+
+            await _categoryService.CreateCategoryAsync(request.ToCreateCategoryDTO(), cancellationToken);
 
             return new CreateCategoryCommandResponse()
             {

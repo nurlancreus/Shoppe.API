@@ -78,9 +78,9 @@ namespace Shoppe.Application.Validators.Product
             });
 
             // Validate Material using EnumHelper (Optional, but if provided, must be valid)
-            When(product => !string.IsNullOrWhiteSpace(product.Material), () =>
+            When(product => product.Materials != null && product.Materials.Any(), () =>
             {
-                RuleFor(product => product.Material)
+                RuleForEach(product => product.Materials)
                     .Must(material => EnumHelpers.IsDefinedEnum<Material>(material, out _))
                     .WithMessage("Material must be a valid enum value.");
             });

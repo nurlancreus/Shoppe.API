@@ -1,4 +1,5 @@
-﻿using Shoppe.Application.DTOs.Auth;
+﻿using Microsoft.AspNetCore.Http;
+using Shoppe.Application.DTOs.Auth;
 using Shoppe.Application.DTOs.Token;
 using Shoppe.Domain.Entities.Identity;
 using System;

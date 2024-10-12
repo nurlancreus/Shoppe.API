@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Category
 {
-    public record UpdateCategoryDTO
+    public class CreateCategoryDTO
     {
-        public string Id { get; set; } = null!;
-        public string? Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public CategoryType? Type { get; set; }
+        public CategoryType Type { get; set; } = CategoryType.Product;
     }
 }

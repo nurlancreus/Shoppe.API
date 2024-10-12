@@ -50,15 +50,10 @@ namespace Shoppe.Application.Validators.Product
 
             RuleFor(product => product.Width)
                 .GreaterThan(0).WithMessage("Width must be greater than zero.");
-
-            // Validate Material using IsDefinedEnum
-            RuleFor(product => product.Material)
-                .Must(material => EnumHelpers.IsDefinedEnum<Material>(material, out _))
-                .WithMessage("Material must be a valid enum value.");
-
-            // Validate Colors using IsDefinedEnum
-            RuleFor(product => product.Colors)
-                .NotEmpty().WithMessage("At least one color is required.");
+;
+            RuleForEach(product => product.Materials)
+                    .Must(material => EnumHelpers.IsDefinedEnum<Material>(material, out _))
+                    .WithMessage("Material must be a valid enum value.");
 
             RuleForEach(product => product.Colors)
                 .Must(color => EnumHelpers.IsDefinedEnum<Color>(color, out _))

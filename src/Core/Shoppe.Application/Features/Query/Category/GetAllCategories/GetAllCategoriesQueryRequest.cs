@@ -10,5 +10,6 @@ namespace Shoppe.Application.Features.Query.Category.GetAllCategories
 {
     public class GetAllCategoriesQueryRequest : PaginationRequestParams, IRequest<GetAllCategoriesQueryResponse> 
     {
+        public string? Type { get; set; }
     }
 }

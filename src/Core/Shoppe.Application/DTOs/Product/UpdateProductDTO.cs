@@ -18,7 +18,7 @@ namespace Shoppe.Application.DTOs.Product
         public float? Weigth { get; set; }
         public float? Height { get; set; }
         public float? Width { get; set; }
-        public string? Material { get; set; } = null!;
+        public List<string> Materials { get; set; } = [];
         public List<string> Colors { get; set; } = [];
         public List<string> CategoryIds { get; set; } = [];
         public FormFileCollection ProductImages { get; set; } = [];

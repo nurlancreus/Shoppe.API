@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Shoppe.Application.Abstractions.Services;
+using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Application.Features.Query.Category.GetAllCategories;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace Shoppe.Application.Features.Query.Product.GetAllProducts
 
         public async Task<GetAllProductsQueryResponse> Handle(GetAllProductsQueryRequest request, CancellationToken cancellationToken)
         {
-            var result = await _productService.GetAllProductsAsync(request.Page, request.PageSize, cancellationToken);
+            var result = await _productService.GetAllProductsAsync(request.ToProductFilterParamsDTO(), cancellationToken);
 
             return new GetAllProductsQueryResponse()
             {

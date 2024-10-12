@@ -14,7 +14,7 @@ namespace Shoppe.Application.Abstractions.Services
         Task UpdateProductAsync(UpdateProductDTO updateProductDTO, CancellationToken cancellationToken);
         Task DeleteProductAsync(string id, CancellationToken cancellationToken);
         Task<GetProductDTO> GetProductAsync(string id, CancellationToken cancellationToken);
-        Task<GetAllProductsDTO> GetAllProductsAsync(int page, int size, CancellationToken cancellationToken);
+        Task<GetAllProductsDTO> GetAllProductsAsync(ProductFilterParamsDTO filtersDTO, CancellationToken cancellationToken);
         Task<List<GetReviewDTO>> GetReviewsByProductAsync(string productId, CancellationToken cancellationToken);
     }
 }

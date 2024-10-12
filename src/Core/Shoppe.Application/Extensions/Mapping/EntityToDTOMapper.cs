@@ -17,7 +17,9 @@ namespace Shoppe.Application.Extensions.Mapping
             return new GetCategoryDTO
             {
                 Id = category.Id.ToString(),
-                Name = category.Name
+                Name = category.Name,
+                Description = category.Description,
+                Type = category.Discriminator,
             };
         }
 

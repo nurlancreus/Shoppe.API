@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Constants;
+using Shoppe.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,11 @@ namespace Shoppe.Application.Features.Query.Category.GetAllCategories
 
         public async Task<GetAllCategoriesQueryResponse> Handle(GetAllCategoriesQueryRequest request, CancellationToken cancellationToken)
         {
-            var result = await _categoryService.GetAllCategoriesAsync(request.Page, request.PageSize, cancellationToken);
+            CategoryType? type = null;
+
+            if (Enum.TryParse(request.Type, true, out CategoryType categoryType)) type = categoryType;
+
+            var result = await _categoryService.GetAllCategoriesAsync(request.Page, request.PageSize, type, cancellationToken);
 
             return new GetAllCategoriesQueryResponse()
             {

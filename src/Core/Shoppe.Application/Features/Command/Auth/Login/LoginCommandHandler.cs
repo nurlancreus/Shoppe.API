@@ -23,6 +23,7 @@ namespace Shoppe.Application.Features.Command.Auth.Login
         {
             var token = await _authService.LoginAsync(request.ToLoginRequestDTO());
 
+
             return new LoginCommandResponse()
             {
                 IsSuccess = true,

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Features.Query.Product.GetAllProducts
 {
-    public class GetAllProductsQueryRequest : PaginationRequestParams, IRequest<GetAllProductsQueryResponse>
+    public class GetAllProductsQueryRequest : ProductFilterParams, IRequest<GetAllProductsQueryResponse>
     {
     }
 }

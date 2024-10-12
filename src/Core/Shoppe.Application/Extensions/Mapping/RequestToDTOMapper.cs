@@ -3,8 +3,10 @@ using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Contact;
 using Shoppe.Application.DTOs.Product;
 using Shoppe.Application.DTOs.Review;
+using Shoppe.Application.Extensions.Helpers;
 using Shoppe.Application.Features.Command.Auth.Login;
 using Shoppe.Application.Features.Command.Auth.Register;
+using Shoppe.Application.Features.Command.Category.CreateCategory;
 using Shoppe.Application.Features.Command.Category.UpdateCategory;
 using Shoppe.Application.Features.Command.Contact.CreateContact;
 using Shoppe.Application.Features.Command.Contact.UpdateContact;
@@ -12,6 +14,8 @@ using Shoppe.Application.Features.Command.Product.CreateProduct;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
 using Shoppe.Application.Features.Command.Review.CreateReview;
 using Shoppe.Application.Features.Command.Review.UpdateReview;
+using Shoppe.Application.Features.Query.Product.GetAllProducts;
+using Shoppe.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +26,18 @@ namespace Shoppe.Application.Extensions.Mapping
 {
     public static class RequestToDTOMapper
     {
+        public static CreateCategoryDTO ToCreateCategoryDTO(this CreateCategoryCommandRequest request)
+        {
+            var categoryDTO = new CreateCategoryDTO()
+            {
+                Name = request.Name,
+                Description = request.Description,
+            };
+
+            if (Enum.TryParse(request.Type, true, out CategoryType categoryType)) categoryDTO.Type = categoryType;
+
+            return categoryDTO;
+        }
         public static CreateProductDTO ToCreateProductDTO(this CreateProductCommandRequest request)
         {
             return new CreateProductDTO
@@ -33,20 +49,39 @@ namespace Shoppe.Application.Extensions.Mapping
                 Weigth = request.Weigth,
                 Height = request.Height,
                 Width = request.Width,
-                Material = request.Material,
+                Materials = request.Materials,
                 Colors = request.Colors,
                 CategoryIds = request.CategoryIds,
                 ProductImages = request.ProductImages,
             };
         }
 
+        public static ProductFilterParamsDTO ToProductFilterParamsDTO(this GetAllProductsQueryRequest request)
+        {
+            return new ProductFilterParamsDTO
+            {
+                Page = request.Page,
+                PageSize = request.PageSize,
+                CategoryName = request.CategoryName,
+                InStock = request.InStock,
+                MaxPrice = request.MaxPrice,
+                MinPrice = request.MinPrice,
+                SortOptions = ParsingHelpers.ParseSortByQuery(request.SortBy),
+            };
+        }
+
         public static UpdateCategoryDTO ToUpdateCategoryDTO(this UpdateCategoryCommandRequest request)
         {
-            return new UpdateCategoryDTO
+            var categoryDTO = new UpdateCategoryDTO
             {
                 Id = request.Id!,
                 Name = request.Name,
+                Description = request.Description,
             };
+
+            if (Enum.TryParse(request.Type, true, out CategoryType categoryType)) categoryDTO.Type = categoryType;
+
+            return categoryDTO;
         }
 
         public static UpdateProductDTO ToUpdateProductDTO(this UpdateProductCommandRequest request)
@@ -58,7 +93,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 Price = request.Price,
                 Stock = request.Stock,
                 Colors = request.Colors,
-                Material = request.Material,
+                Materials = request.Materials,
                 CategoryIds = request.CategoryIds,
                 Description = request.Description,
                 ProductImages = request.ProductImages,
