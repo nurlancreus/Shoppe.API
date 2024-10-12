@@ -11,7 +11,7 @@ namespace Shoppe.Domain.Entities
     public class ProductDetails : BaseEntity
     {
         public float Weigth { get; set; }
-        public Material Material { get; set; }
+        public ICollection<Material> Materials { get; set; } = [];
         public ICollection<Color> Colors { get; set; } = [];
         public ProductDimension Dimension { get; set; } = null!;
         public Product Product { get; set; } = null!;

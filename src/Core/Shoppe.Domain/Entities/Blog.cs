@@ -16,7 +16,7 @@ namespace Shoppe.Domain.Entities
         public string AuthorId { get; set; } = null!;
         public ApplicationUser Author { get; set; } = null!;
         public ICollection<BlogImageFile> BlogImageFiles { get; set; } = [];
-        public ICollection<Category> Categories { get; set; } = [];
+        public ICollection<BlogCategory> Categories { get; set; } = [];
 
     }
 }

@@ -16,7 +16,7 @@ namespace Shoppe.Domain.Entities
         public int Stock { get; set; }
         public Guid ProductDetailsId { get; set; }
         public ProductDetails ProductDetails { get; set; } = null!;
-        public ICollection<Category> Categories { get; set; } = [];
+        public ICollection<ProductCategory> Categories { get; set; } = [];
         public ICollection<ProductImageFile> ProductImageFiles { get; set; } = [];
         public ICollection<Review> Reviews { get; set; } = [];
     }

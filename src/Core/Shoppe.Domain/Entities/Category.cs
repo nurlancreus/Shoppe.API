@@ -1,4 +1,5 @@
 ﻿using Shoppe.Domain.Entities.Base;
+using Shoppe.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Shoppe.Domain.Entities
     public class Category : BaseEntity
     {
         public string Name { get; set; } = null!;
-        public ICollection<Product> Products { get; set; } = [];
-        public ICollection<Blog> Blogs { get; set; } = [];
+        public string? Description { get; set; }
+        public string Discriminator { get; set; }
     }
 }
