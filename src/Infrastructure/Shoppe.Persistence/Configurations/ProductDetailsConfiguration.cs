@@ -20,8 +20,12 @@ namespace Shoppe.Persistence.Configurations
               .HasForeignKey<ProductDimension>(d => d.Id);
 
             builder
-                .Property(pd => pd.Material)
-                .HasConversion<string>();
+                   .Property(pd => pd.Materials)
+                   .HasConversion(
+                   v => string.Join(',', v),
+                   v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                   .Select(c => (Material)Enum.Parse(typeof(Material), c)).ToList() 
+           );
 
             builder
                     .Property(pd => pd.Colors)

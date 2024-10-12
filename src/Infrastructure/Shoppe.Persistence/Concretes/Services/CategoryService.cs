@@ -6,6 +6,7 @@ using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Domain.Entities;
+using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -30,21 +31,38 @@ namespace Shoppe.Persistence.Concretes.Services
             _paginationService = paginationService;
         }
 
-        public async Task CreateCategoryAsync(string name, CancellationToken cancellationToken)
+        public async Task CreateCategoryAsync(CreateCategoryDTO createCategoryDTO, CancellationToken cancellationToken)
         {
-            var existedCategory = await _categoryReadRepository.GetAsync(c => c.Name == name, cancellationToken, false);
+            var existedCategory = await _categoryReadRepository.GetAsync(c => c.Name == createCategoryDTO.Name, cancellationToken, false);
 
             if (existedCategory != null)
             {
                 throw new Exception("Category already exists.");
             }
 
-            var category = new Category()
-            {
-                Name = name,
-            };
+            Category? category = null;
 
-            await _categoryWriteRepository.AddAsync(category, cancellationToken);
+
+            if (createCategoryDTO.Type == CategoryType.Product)
+            {
+                category = new ProductCategory
+                {
+                    Name = createCategoryDTO.Name,
+                    Description = createCategoryDTO.Description,
+                };
+            }
+            else if (createCategoryDTO.Type == CategoryType.Blog)
+            {
+                category = new BlogCategory
+                {
+                    Name = createCategoryDTO.Name,
+                    Description = createCategoryDTO.Description,
+                };
+            }
+
+
+
+            await _categoryWriteRepository.AddAsync(category!, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
@@ -68,11 +86,30 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<GetAllCategoriesDTO> GetAllCategoriesAsync(int page, int pageSize, CancellationToken cancellationToken)
+        public async Task<GetAllCategoriesDTO> GetAllCategoriesAsync(int page, int pageSize, CategoryType? type, CancellationToken cancellationToken)
         {
-            var categoriesQuery = await _categoryReadRepository.GetAllAsync(false);
+            IQueryable<Category>? query = null;
 
-            var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, pageSize, categoriesQuery);
+            if (type == CategoryType.Product)
+            {
+                query = _categoryReadRepository.Table.OfType<ProductCategory>().AsNoTrackingWithIdentityResolution();
+            }
+            else if (type == CategoryType.Blog)
+            {
+                query = _categoryReadRepository.Table.OfType<BlogCategory>().AsNoTrackingWithIdentityResolution();
+            }
+
+            else
+            {
+                query = await _categoryReadRepository.GetAllAsync(false);
+            }
+
+            if (query == null)
+            {
+                throw new InvalidOperationException("Query not found, operation invalid");
+            }
+
+            var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, pageSize, query);
 
             var categories = await paginatedQuery.Select(c => c.ToGetCategoryDTO()).ToListAsync(cancellationToken);
 
@@ -105,19 +142,61 @@ namespace Shoppe.Persistence.Concretes.Services
             if (category == null)
             {
                 throw new EntityNotFoundException(nameof(category));
-
             }
 
-            category.Name = updateCategoryDTO.Name;
-
-            var isUpdated = _categoryWriteRepository.Update(category);
-
-            if (!isUpdated)
+            if (!string.IsNullOrWhiteSpace(updateCategoryDTO.Name) && !category.Name.Equals(updateCategoryDTO.Name))
             {
-                throw new UpdateNotSucceedException();
+                category.Name = updateCategoryDTO.Name;
+            }
+
+            if (!string.IsNullOrWhiteSpace(updateCategoryDTO.Description))
+            {
+                category.Description = updateCategoryDTO.Description;
+            }
+
+            var existingType = category.Discriminator;
+
+            if (updateCategoryDTO.Type.ToString() != existingType && updateCategoryDTO.Type == CategoryType.Product)
+            {
+                _categoryReadRepository.Table.Entry(category).State = EntityState.Detached;
+
+                var productCategory = new ProductCategory
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    Description = category.Description,
+                    Discriminator = CategoryType.Product.ToString(),
+                };
+
+                _categoryWriteRepository.Update(productCategory);
+
+
+            }
+            else if (updateCategoryDTO.Type.ToString() != existingType && updateCategoryDTO.Type == CategoryType.Blog)
+            {
+                _categoryReadRepository.Table.Entry(category).State = EntityState.Detached;
+
+                var blogCategory = new BlogCategory
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    Description = category.Description,
+                    Discriminator = CategoryType.Blog.ToString(),
+                };
+
+                _categoryWriteRepository.Update(blogCategory);
+            }
+            else
+            {
+                var isUpdated = _categoryWriteRepository.Update(category);
+                if (!isUpdated)
+                {
+                    throw new UpdateNotSucceedException();
+                }
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
+
     }
 }

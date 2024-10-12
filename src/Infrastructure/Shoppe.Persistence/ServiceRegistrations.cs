@@ -65,6 +65,7 @@ namespace Shoppe.Persistence
             services.AddScoped<IBlogReadRepository, BlogReadRepository>();
             services.AddScoped<IBlogWriteRepository, BlogWriteRepository>();
 
+
             services.AddScoped<IContactReadRepository, ContactReadRepository>();
             services.AddScoped<IContactWriteRepository, ContactWriteRepository>();
 

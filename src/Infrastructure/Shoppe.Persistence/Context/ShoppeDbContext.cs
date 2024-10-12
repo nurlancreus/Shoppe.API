@@ -26,6 +26,8 @@ namespace Shoppe.Persistence.Context
         public DbSet<ProductDimension> ProductDimensions { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<ProductCategory> ProductCategories { get; set; }
+        public DbSet<BlogCategory> BlogCategories { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<SocialLink> SocialLinks { get; set; }

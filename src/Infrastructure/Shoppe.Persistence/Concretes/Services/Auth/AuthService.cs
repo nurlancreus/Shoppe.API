@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http; // Add this for IHttpContextAccessor
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -9,8 +10,6 @@ using Shoppe.Application.DTOs.Token;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Exceptions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,13 +24,22 @@ namespace Shoppe.Persistence.Concretes.Services.Auth
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenService _tokenService;
         private readonly IConfiguration _configuration;
-        public AuthService(UserManager<ApplicationUser> userManager, ITokenService tokenService, SignInManager<ApplicationUser> signInManager, IOptions<Shoppe.Application.Options.Token.TokenOptions> tokenOptions, IConfiguration configuration)
+        private readonly HttpContext? _httpContext;
+
+        public AuthService(
+            UserManager<ApplicationUser> userManager,
+            ITokenService tokenService,
+            SignInManager<ApplicationUser> signInManager,
+            IOptions<Shoppe.Application.Options.Token.TokenOptions> tokenOptions,
+            IConfiguration configuration,
+            IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
             _tokenOptions = tokenOptions.Value;
             _configuration = configuration;
+            _httpContext = httpContextAccessor.HttpContext;
         }
 
         public async Task<TokenDTO> RegisterAsync(RegisterRequestDTO registerRequest)
@@ -53,23 +61,20 @@ namespace Shoppe.Persistence.Concretes.Services.Auth
             {
                 using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    // Create user
                     var result = await _userManager.CreateAsync(user, registerRequest.Password);
                     if (!result.Succeeded)
                     {
                         throw new AuthException(AuthErrorType.Register);
                     }
 
-                    // Sign in user
                     await _signInManager.SignInAsync(user, isPersistent: false);
 
-                    // Create token
                     var token = await _tokenService.CreateAccessTokenAsync(user);
-
-                    // Update refresh token
                     await UpdateRefreshTokenAsync(token.RefreshToken, user, token.ExpiresAt);
 
-                    // Complete transaction
+                    // Save tokens in cookies
+              //      SaveTokensInCookies(_httpContext, token);
+
                     transaction.Complete();
 
                     return token;
@@ -77,21 +82,25 @@ namespace Shoppe.Persistence.Concretes.Services.Auth
             }
             catch (Exception)
             {
-                // If something fails, remove the created user
                 if (user.Id != null)
                 {
                     await _userManager.DeleteAsync(user);
                 }
 
-                throw; // Re-throw the exception after cleanup
+                throw;
             }
         }
 
         public async Task<TokenDTO> LoginAsync(LoginRequestDTO loginUserRequestDTO)
         {
             var user = await _userManager.FindByEmailAsync(loginUserRequestDTO.Email)
-           ?? throw new AuthException(AuthErrorType.Login);
-            var signInResult = await _signInManager.PasswordSignInAsync(user.UserName!, loginUserRequestDTO.Password, loginUserRequestDTO.RememberMe, lockoutOnFailure: false);
+                ?? throw new AuthException(AuthErrorType.Login);
+
+            var signInResult = await _signInManager.PasswordSignInAsync(
+                user.UserName!,
+                loginUserRequestDTO.Password,
+                loginUserRequestDTO.RememberMe,
+                lockoutOnFailure: false);
 
             if (!signInResult.Succeeded)
             {
@@ -99,18 +108,38 @@ namespace Shoppe.Persistence.Concretes.Services.Auth
             }
 
             var token = await _tokenService.CreateAccessTokenAsync(user);
-
             await UpdateRefreshTokenAsync(token.RefreshToken, user, token.ExpiresAt);
+
+            // Save tokens in cookies
+           // SaveTokensInCookies(_httpContext, token);
 
             return token;
         }
 
+        private static void SaveTokensInCookies(HttpContext? httpContext, TokenDTO token)
+        {
+            if (httpContext != null)
+            {
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true, // Prevents client-side scripts from accessing the cookie
+                    //Secure = true,   // Set to true if using HTTPS
+                    Expires = DateTime.UtcNow.AddDays(1), // Set the cookie expiration to the token expiration
+                    SameSite = SameSiteMode.None,
+                };
+
+                // Set access token and refresh token in cookies
+                httpContext.Response.Cookies.Append("AccessToken", token.AccessToken, cookieOptions);
+                httpContext.Response.Cookies.Append("RefreshToken", token.RefreshToken, cookieOptions);
+            }
+        }
+
         public async Task<TokenDTO> RefreshTokenLoginAsync(string accessToken, string refreshToken)
         {
-            ClaimsPrincipal? principal = _tokenService.GetPrincipalFromAccessToken(accessToken) ?? throw new Exception("Invalid jwt access token");
+            ClaimsPrincipal? principal = _tokenService.GetPrincipalFromAccessToken(accessToken)
+                ?? throw new Exception("Invalid jwt access token");
 
             string? name = principal.FindFirstValue(ClaimTypes.Name);
-
             ApplicationUser? user = await _userManager.FindByNameAsync(name);
 
             if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenEndDate <= DateTime.UtcNow)
@@ -119,7 +148,6 @@ namespace Shoppe.Persistence.Concretes.Services.Auth
             }
 
             var token = await _tokenService.CreateAccessTokenAsync(user);
-
             await UpdateRefreshTokenAsync(token.RefreshToken, user, token.ExpiresAt);
 
             return token;
@@ -129,7 +157,6 @@ namespace Shoppe.Persistence.Concretes.Services.Auth
         {
             if (user != null)
             {
-                //double refreshTokenLifeTime = Convert.ToDouble(_tokenOptions.Refresh.RefreshTokenLifeTimeInMinutes);
                 double refreshTokenLifeTime = Convert.ToDouble(_configuration["Token:Refresh:RefreshTokenLifeTimeInMinutes"]);
 
                 user.RefreshToken = refreshToken;

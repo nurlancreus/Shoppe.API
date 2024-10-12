@@ -12,8 +12,8 @@ using Shoppe.Persistence.Context;
 namespace Shoppe.Persistence.Migrations
 {
     [DbContext(typeof(ShoppeDbContext))]
-    [Migration("20240913063549_mig_3")]
-    partial class mig_3
+    [Migration("20241012083623_mig_1")]
+    partial class mig_1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace Shoppe.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BlogCategory", b =>
+            modelBuilder.Entity("BlogBlogCategory", b =>
                 {
                     b.Property<Guid>("BlogsId")
                         .HasColumnType("uniqueidentifier");
@@ -37,22 +37,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("CategoriesId");
 
-                    b.ToTable("BlogCategory");
-                });
-
-            modelBuilder.Entity("CategoryProduct", b =>
-                {
-                    b.Property<Guid>("CategoriesId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ProductsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("CategoriesId", "ProductsId");
-
-                    b.HasIndex("ProductsId");
-
-                    b.ToTable("CategoryProduct");
+                    b.ToTable("BlogBlogCategory");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -161,6 +146,21 @@ namespace Shoppe.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ProductProductCategory", b =>
+                {
+                    b.Property<Guid>("CategoriesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CategoriesId", "ProductsId");
+
+                    b.HasIndex("ProductsId");
+
+                    b.ToTable("ProductProductCategory");
+                });
+
             modelBuilder.Entity("Shoppe.Domain.Entities.Address", b =>
                 {
                     b.Property<Guid>("Id")
@@ -254,6 +254,14 @@ namespace Shoppe.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -264,6 +272,10 @@ namespace Shoppe.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasDiscriminator().HasValue("Category");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Files.ApplicationFile", b =>
@@ -497,7 +509,6 @@ namespace Shoppe.Persistence.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Body")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -518,17 +529,12 @@ namespace Shoppe.Persistence.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<bool?>("SaveMe")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId")
-                        .IsUnique()
-                        .HasFilter("[ApplicationUserId] IS NOT NULL");
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("ProductId");
 
@@ -558,6 +564,20 @@ namespace Shoppe.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SocialLinks");
+                });
+
+            modelBuilder.Entity("Shoppe.Domain.Entities.BlogCategory", b =>
+                {
+                    b.HasBaseType("Shoppe.Domain.Entities.Category");
+
+                    b.HasDiscriminator().HasValue("Blog");
+                });
+
+            modelBuilder.Entity("Shoppe.Domain.Entities.ProductCategory", b =>
+                {
+                    b.HasBaseType("Shoppe.Domain.Entities.Category");
+
+                    b.HasDiscriminator().HasValue("Product");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Files.ImageFile", b =>
@@ -598,7 +618,7 @@ namespace Shoppe.Persistence.Migrations
                     b.HasDiscriminator().HasValue("ProductImageFile");
                 });
 
-            modelBuilder.Entity("BlogCategory", b =>
+            modelBuilder.Entity("BlogBlogCategory", b =>
                 {
                     b.HasOne("Shoppe.Domain.Entities.Blog", null)
                         .WithMany()
@@ -606,24 +626,9 @@ namespace Shoppe.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Shoppe.Domain.Entities.Category", null)
+                    b.HasOne("Shoppe.Domain.Entities.BlogCategory", null)
                         .WithMany()
                         .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("CategoryProduct", b =>
-                {
-                    b.HasOne("Shoppe.Domain.Entities.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Shoppe.Domain.Entities.Product", null)
-                        .WithMany()
-                        .HasForeignKey("ProductsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -675,6 +680,21 @@ namespace Shoppe.Persistence.Migrations
                     b.HasOne("Shoppe.Domain.Entities.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProductProductCategory", b =>
+                {
+                    b.HasOne("Shoppe.Domain.Entities.ProductCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Shoppe.Domain.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -734,8 +754,8 @@ namespace Shoppe.Persistence.Migrations
             modelBuilder.Entity("Shoppe.Domain.Entities.Review", b =>
                 {
                     b.HasOne("Shoppe.Domain.Entities.Identity.ApplicationUser", "Reviewer")
-                        .WithOne("Review")
-                        .HasForeignKey("Shoppe.Domain.Entities.Review", "ApplicationUserId");
+                        .WithMany("Reviews")
+                        .HasForeignKey("ApplicationUserId");
 
                     b.HasOne("Shoppe.Domain.Entities.Product", "Product")
                         .WithMany("Reviews")
@@ -763,7 +783,7 @@ namespace Shoppe.Persistence.Migrations
                 {
                     b.Navigation("Blogs");
 
-                    b.Navigation("Review");
+                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Product", b =>

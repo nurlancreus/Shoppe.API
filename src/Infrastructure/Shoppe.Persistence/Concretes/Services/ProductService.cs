@@ -55,8 +55,8 @@ namespace Shoppe.Persistence.Concretes.Services
                 Stock = createProductDTO.Stock,
                 ProductDetails = new ProductDetails()
                 {
-                    Colors = createProductDTO.Colors.Select(color => Enum.Parse<Color>(color)).ToList(),
-                    Material = Enum.Parse<Material>(createProductDTO.Material),
+                    Colors = createProductDTO.Colors.Select(Enum.Parse<Color>).ToList(),
+                    Materials = createProductDTO.Materials.Select(Enum.Parse<Material>).ToList(),
                     Weigth = createProductDTO.Weigth,
 
                     Dimension = new ProductDimension()
@@ -73,9 +73,9 @@ namespace Shoppe.Persistence.Concretes.Services
                 {
                     var category = await _categoryReadRepository.GetByIdAsync(id, cancellationToken);
 
-                    if (category != null)
+                    if (category != null && category is ProductCategory productCategory)
                     {
-                        product.Categories.Add(category);
+                        product.Categories.Add(productCategory);
 
                     }
                 }
@@ -122,13 +122,58 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<GetAllProductsDTO> GetAllProductsAsync(int page, int pageSize, CancellationToken cancellationToken)
+        public async Task<GetAllProductsDTO> GetAllProductsAsync(ProductFilterParamsDTO filtersDTO, CancellationToken cancellationToken)
         {
-            var productsQuery = await _productReadRepository.GetAllAsync(false);
+            var productsQuery = _productReadRepository.Table
+                .Include(q => q.Categories)
+                .Include(p => p.Reviews)
+                .Include(q => q.ProductDetails)
+                .ThenInclude(p => p.Dimension)
+                .Include(q => q.ProductImageFiles)
+                .AsNoTrackingWithIdentityResolution()
+                .AsQueryable();
 
-            var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, pageSize, productsQuery);
+            if (!string.IsNullOrEmpty(filtersDTO.CategoryName))
+            {
+                productsQuery = productsQuery.Where(p => p.Categories.Any(c => c.Name == filtersDTO.CategoryName));
+            }
 
-            var products = await paginatedQuery.Include(q => q.Categories).Include(p => p.Reviews).Include(q => q.ProductDetails).ThenInclude(p => p.Dimension).Include(q => q.Reviews).Include(q => q.ProductImageFiles).ToListAsync(cancellationToken);
+            if (filtersDTO.InStock == true)
+            {
+                productsQuery = productsQuery.Where(p => p.Stock > 0);
+            }
+
+            if (filtersDTO.MinPrice.HasValue && filtersDTO.MaxPrice.HasValue)
+            {
+                if (filtersDTO.MaxPrice < filtersDTO.MinPrice)
+                {
+                    throw new InvalidFilterException($"MaxPrice ({filtersDTO.MaxPrice}) cannot be less than MinPrice ({filtersDTO.MinPrice}).");
+                }
+
+                productsQuery = productsQuery.Where(p => p.Price >= filtersDTO.MinPrice.Value && p.Price <= filtersDTO.MaxPrice.Value);
+            }
+
+            if (filtersDTO.SortOptions.Count > 0)
+            {
+                foreach (var sortBy in filtersDTO.SortOptions)
+                {
+                    if (sortBy is SortOption sortOption)
+                    {
+                        productsQuery = sortOption switch
+                        {
+                            SortOption.PriceDesc => productsQuery.OrderByDescending(p => p.Price),
+                            SortOption.PriceAsc => productsQuery.OrderBy(p => p.Price),
+                            SortOption.CreatedAtDesc => productsQuery.OrderByDescending(p => p.CreatedAt),
+                            SortOption.CreatedAtAsc => productsQuery.OrderBy(p => p.CreatedAt),
+                            _ => productsQuery
+                        };
+                    }
+                }
+            }
+
+            (int totalItems, int pageSize, int page, int totalPages, IQueryable<Product> paginatedQuery) = await _paginationService.ConfigurePaginationAsync(filtersDTO.Page, filtersDTO.PageSize, productsQuery);
+
+            var products = await paginatedQuery.ToListAsync(cancellationToken);
 
             return new GetAllProductsDTO()
             {
@@ -136,9 +181,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 PageSize = pageSize,
                 TotalItems = totalItems,
                 TotalPages = totalPages,
-                Products = products.Select(p =>
-
-                new GetProductDTO()
+                Products = products.Select(p => new GetProductDTO()
                 {
                     Id = p.Id.ToString(),
                     Name = p.Name,
@@ -149,7 +192,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     Height = p.ProductDetails.Dimension.Height,
                     Width = p.ProductDetails.Dimension.Width,
                     Colors = p.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
-                    Material = p.ProductDetails.Material.ToString(),
+                    Materials = p.ProductDetails.Materials.Select(m => m.ToString()).ToList(),
                     Categories = p.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
                     ProductImages = p.ProductImageFiles.Select(i => new GetProductImageFileDTO()
                     {
@@ -159,7 +202,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     }).ToList(),
 
                     Rating = FindAverageRating(p.Reviews),
-                    CreatedAt = p.CreatedAt,
+                    CreatedAt = p.CreatedAt
                 }).ToList(),
             };
         }
@@ -192,7 +235,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 Height = product.ProductDetails.Dimension.Height,
                 Width = product.ProductDetails.Dimension.Width,
                 Colors = product.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
-                Material = product.ProductDetails.Material.ToString(),
+                Materials = product.ProductDetails.Materials.Select(m => m.ToString()).ToList(),
                 Categories = product.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
                 ProductImages = product.ProductImageFiles.Select(i => new GetProductImageFileDTO()
                 {
@@ -265,10 +308,16 @@ namespace Shoppe.Persistence.Concretes.Services
             }
 
             // Update material if the material is provided
-            if (!string.IsNullOrEmpty(updateProductDTO.Material) &&
-                EnumHelpers.TryParseEnum(updateProductDTO.Material, out Material parsedMaterial))
+            if (updateProductDTO.Materials.Count > 0)
             {
-                product.ProductDetails.Material = parsedMaterial;
+                product.ProductDetails.Materials.Clear(); // Clear existing colors
+                foreach (var material in updateProductDTO.Materials)
+                {
+                    if (EnumHelpers.TryParseEnum(material, out Material parsedMaterial))
+                    {
+                        product.ProductDetails.Materials.Add(parsedMaterial);
+                    }
+                }
             }
 
             // Update colors if any colors are provided
@@ -291,9 +340,9 @@ namespace Shoppe.Persistence.Concretes.Services
                 {
                     var category = await _categoryReadRepository.GetByIdAsync(id, cancellationToken);
 
-                    if (category != null)
+                    if (category is ProductCategory productCategory )
                     {
-                        product.Categories.Add(category);
+                        product.Categories.Add(productCategory);
 
                     }
                 }
