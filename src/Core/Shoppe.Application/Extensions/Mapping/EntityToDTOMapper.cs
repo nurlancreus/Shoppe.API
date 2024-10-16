@@ -2,6 +2,8 @@
 using Shoppe.Application.DTOs.Contact;
 using Shoppe.Application.DTOs.Review;
 using Shoppe.Domain.Entities;
+using Shoppe.Domain.Entities.Categories;
+using Shoppe.Domain.Entities.Reviews;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,8 +30,8 @@ namespace Shoppe.Application.Extensions.Mapping
             return new GetReviewDTO()
             {
                 Id = review.Id.ToString(),
-                FirstName = review.FirstName!,
-                LastName = review.LastName!,
+                FirstName = review.Reviewer?.FirstName!,
+                LastName = review.Reviewer?.LastName!,
                 Rating = (int)review.Rating,
                 Body = review.Body,
                 CreatedAt = review.CreatedAt,

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Entities.Base
 {
-    public abstract class BaseEntity
+    public abstract class BaseEntity : IBase
     {
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }

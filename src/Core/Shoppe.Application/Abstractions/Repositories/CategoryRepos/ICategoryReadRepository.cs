@@ -1,4 +1,4 @@
-﻿using Shoppe.Domain.Entities;
+﻿using Shoppe.Domain.Entities.Categories;
 using System;
 using System.Collections.Generic;
 using System.Linq;

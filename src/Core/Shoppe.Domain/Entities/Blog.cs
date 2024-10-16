@@ -1,6 +1,8 @@
 ﻿using Shoppe.Domain.Entities.Base;
+using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Identity;
+using Shoppe.Domain.Entities.Reviews;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +19,7 @@ namespace Shoppe.Domain.Entities
         public ApplicationUser Author { get; set; } = null!;
         public ICollection<BlogImageFile> BlogImageFiles { get; set; } = [];
         public ICollection<BlogCategory> Categories { get; set; } = [];
+       // public ICollection<BlogReview> Reviews { get; set; } = [];
 
     }
 }

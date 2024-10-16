@@ -21,13 +21,14 @@ namespace Shoppe.Application.Features.Command.Review.CreateReview
 
         public async Task<CreateReviewCommandResponse> Handle(CreateReviewCommandRequest request, CancellationToken cancellationToken)
         {
+
             await _reviewService.CreateReviewAsync(request.ToCreateReviewDTO(), cancellationToken);
 
             return new CreateReviewCommandResponse()
             {
                 IsSuccess = true,
                 Message = ResponseConst.AddedSuccessMessage("Review")
-            }; 
+            };
         }
     }
 }

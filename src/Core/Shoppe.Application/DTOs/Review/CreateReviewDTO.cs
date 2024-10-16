@@ -10,12 +10,13 @@ namespace Shoppe.Application.DTOs.Review
 {
     public class CreateReviewDTO
     {
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Email { get; set; }
+        //public string? FirstName { get; set; }
+        //public string? LastName { get; set; }
+        //public string? Email { get; set; }
         public string? Body { get; set; } = null!;
-        public bool? SaveMe { get; set; }
+       // public bool? SaveMe { get; set; }
         public int Rating { get; set; }
-        public string ProductId { get; set; } = null!;
+        public string EntityId { get; set; } = null!;
+        public ReviewType ReviewType { get; set; }
     }
 }

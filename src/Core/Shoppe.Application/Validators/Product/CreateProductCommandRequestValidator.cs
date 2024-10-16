@@ -26,6 +26,12 @@ namespace Shoppe.Application.Validators.Product
                 .MaximumLength(ProductConst.MaxNameLength)
                 .WithMessage($"Name must be less than {ProductConst.MaxNameLength} characters.");
 
+            RuleFor(product => product.Info)
+                .NotEmpty()
+                .WithMessage("Info is required.")
+                .MaximumLength(ProductConst.MaxInfoLength)
+                .WithMessage($"Info must be less than {ProductConst.MaxInfoLength} characters.");
+
             // Validate Description
             RuleFor(product => product.Description)
                 .NotEmpty()
@@ -42,7 +48,7 @@ namespace Shoppe.Application.Validators.Product
                 .GreaterThanOrEqualTo(0).WithMessage("Stock cannot be negative.");
 
             // Validate Weigth, Height, and Width
-            RuleFor(product => product.Weigth)
+            RuleFor(product => product.Weight)
                 .GreaterThan(0).WithMessage("Weight must be greater than zero.");
 
             RuleFor(product => product.Height)
@@ -59,8 +65,8 @@ namespace Shoppe.Application.Validators.Product
                 .Must(color => EnumHelpers.IsDefinedEnum<Color>(color, out _))
                 .WithMessage("Color must be a valid enum value.");
 
-            RuleForEach(product => product.CategoryIds)
-                .MustAsync(async (id, cancellationToken) => await _categoryReadRepository.IsExist(c => c.Id.ToString() == id, cancellationToken))
+            RuleForEach(product => product.Categories)
+                .MustAsync(async (name, cancellationToken) => await _categoryReadRepository.IsExist(c => c.Name == name, cancellationToken))
                 .WithMessage("Category must be defined");
 
             // Validation for product images

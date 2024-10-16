@@ -31,6 +31,15 @@ namespace Shoppe.Application.Validators.Product
                     .WithMessage($"Name must be less than {ProductConst.MaxNameLength} characters.");
             });
 
+            When(product => !string.IsNullOrWhiteSpace(product.Description), () =>
+            {
+                RuleFor(product => product.Info)
+                .NotEmpty()
+                .WithMessage("Info is required.")
+                .MaximumLength(ProductConst.MaxInfoLength)
+                .WithMessage($"Info must be less than {ProductConst.MaxInfoLength} characters.");
+            });
+
             // Validate Description (Optional, but if provided, it must follow the rules)
             When(product => !string.IsNullOrWhiteSpace(product.Description), () =>
             {
@@ -56,9 +65,9 @@ namespace Shoppe.Application.Validators.Product
             });
 
             // Validate Weigth, Height, and Width (Optional, but if provided, must be greater than zero)
-            When(product => product.Weigth.HasValue, () =>
+            When(product => product.Weight.HasValue, () =>
             {
-                RuleFor(product => product.Weigth.Value)
+                RuleFor(product => product.Weight.Value)
                     .GreaterThan(0)
                     .WithMessage("Weight must be greater than zero.");
             });
@@ -94,10 +103,10 @@ namespace Shoppe.Application.Validators.Product
             });
 
             // Validate Categories: Must exist in the database (Optional, but if provided, must be valid)
-            When(product => product.CategoryIds.Count != 0, () =>
+            When(product => product.Categories.Count != 0, () =>
             {
-                RuleForEach(product => product.CategoryIds)
-                .MustAsync(async (id, cancellationToken) => await _categoryReadRepository.IsExist(c => c.Id.ToString() == id, cancellationToken))
+                RuleForEach(product => product.Categories)
+                .MustAsync(async (name, cancellationToken) => await _categoryReadRepository.IsExist(c => c.Name == name, cancellationToken))
                 .WithMessage("Category must be defined");
             });
 

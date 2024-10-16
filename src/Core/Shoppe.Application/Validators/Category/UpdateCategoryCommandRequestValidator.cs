@@ -26,8 +26,8 @@ namespace Shoppe.Application.Validators.Category
                 .WithMessage("Category with this name already exists.");
 
             RuleFor(category => category.Description)
-                .MaximumLength(300)
-                .WithMessage($"Description must be less than {300} characters.")
+                .MaximumLength(CategoryConst.MaxDescLength)
+                .WithMessage($"Description must be less than {CategoryConst.MaxDescLength} characters.")
                 .When(category => !string.IsNullOrEmpty(category.Description));
 
             RuleFor(category => category.Type)

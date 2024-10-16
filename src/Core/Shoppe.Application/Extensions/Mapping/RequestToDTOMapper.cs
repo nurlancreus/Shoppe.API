@@ -43,15 +43,16 @@ namespace Shoppe.Application.Extensions.Mapping
             return new CreateProductDTO
             {
                 Name = request.Name,
+                Info = request.Info,
                 Description = request.Description,
                 Price = request.Price,
                 Stock = request.Stock,
-                Weigth = request.Weigth,
+                Weight = request.Weight,
                 Height = request.Height,
                 Width = request.Width,
                 Materials = request.Materials,
                 Colors = request.Colors,
-                CategoryIds = request.CategoryIds,
+                Categories = request.Categories,
                 ProductImages = request.ProductImages,
             };
         }
@@ -94,12 +95,13 @@ namespace Shoppe.Application.Extensions.Mapping
                 Stock = request.Stock,
                 Colors = request.Colors,
                 Materials = request.Materials,
-                CategoryIds = request.CategoryIds,
+                Categories = request.Categories,
+                Info = request.Info,
                 Description = request.Description,
                 ProductImages = request.ProductImages,
                 Width = request.Width,
                 Height = request.Height,
-                Weigth = request.Weigth
+                Weight = request.Weight
             };
         }
 
@@ -128,16 +130,16 @@ namespace Shoppe.Application.Extensions.Mapping
 
         public static CreateReviewDTO ToCreateReviewDTO(this CreateReviewCommandRequest request)
         {
-            return new CreateReviewDTO
+            var reviewDTO = new CreateReviewDTO()
             {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Email = request.Email,
-                Body = request.Body,
-                ProductId = request.ProductId,
-                Rating = request.Rating,
-                SaveMe = request.SaveMe
+               Body = request.Body,
+               EntityId = request.EntityId!,
+               Rating = request.Rating,
             };
+
+            if (Enum.TryParse(request.Type, true, out ReviewType reviewType)) reviewDTO.ReviewType = reviewType;
+
+            return reviewDTO;
         }
 
         public static UpdateReviewDTO ToUpdateReviewDTO(this UpdateReviewCommandRequest request)
