@@ -1,5 +1,5 @@
 ﻿using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
-using Shoppe.Domain.Entities;
+using Shoppe.Domain.Entities.Categories;
 using Shoppe.Persistence.Context;
 using System;
 using System.Collections.Generic;

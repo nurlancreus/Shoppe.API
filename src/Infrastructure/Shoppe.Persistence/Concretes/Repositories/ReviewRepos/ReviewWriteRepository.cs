@@ -1,5 +1,5 @@
 ﻿using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
-using Shoppe.Domain.Entities;
+using Shoppe.Domain.Entities.Reviews;
 using Shoppe.Persistence.Context;
 using System;
 using System.Collections.Generic;

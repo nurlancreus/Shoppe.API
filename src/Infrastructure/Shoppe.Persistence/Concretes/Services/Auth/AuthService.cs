@@ -19,7 +19,6 @@ namespace Shoppe.Persistence.Concretes.Services.Auth
 {
     public class AuthService : IAuthService
     {
-        private readonly Shoppe.Application.Options.Token.TokenOptions _tokenOptions;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenService _tokenService;
@@ -30,14 +29,12 @@ namespace Shoppe.Persistence.Concretes.Services.Auth
             UserManager<ApplicationUser> userManager,
             ITokenService tokenService,
             SignInManager<ApplicationUser> signInManager,
-            IOptions<Shoppe.Application.Options.Token.TokenOptions> tokenOptions,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
-            _tokenOptions = tokenOptions.Value;
             _configuration = configuration;
             _httpContext = httpContextAccessor.HttpContext;
         }

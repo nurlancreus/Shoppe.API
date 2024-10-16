@@ -19,26 +19,7 @@ namespace Shoppe.Persistence.Concretes.UoW
         }
         public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            UpdateDateTimesWhileSavingInterceptor();
-
             await _context.SaveChangesAsync(cancellationToken);
-        }
-
-        private void UpdateDateTimesWhileSavingInterceptor()
-        {
-            var changedEntries = _context.ChangeTracker.Entries<BaseEntity>().Where(e => e.State == EntityState.Modified || e.State == EntityState.Added);
-
-            foreach (var entry in changedEntries)
-            {
-                if (entry.State == EntityState.Added)
-                {
-                    entry.Entity.CreatedAt = DateTime.UtcNow;
-                }
-                else if (entry.State == EntityState.Modified)
-                {
-                    entry.Entity.UpdatedAt = DateTime.UtcNow;
-                }
-            }
         }
     }
 }

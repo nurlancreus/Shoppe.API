@@ -5,7 +5,7 @@ using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.Extensions.Mapping;
-using Shoppe.Domain.Entities;
+using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
 using System;

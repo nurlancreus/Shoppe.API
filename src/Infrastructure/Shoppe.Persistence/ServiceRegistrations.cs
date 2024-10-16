@@ -26,6 +26,7 @@ using Shoppe.Persistence.Concretes.Repositories.ProductRepos;
 using Shoppe.Persistence.Concretes.Repositories.ReviewRepos;
 using Shoppe.Persistence.Concretes.Services;
 using Shoppe.Persistence.Concretes.Services.Auth;
+using Shoppe.Persistence.Concretes.Services.Shoppe.Persistence.Concretes.Services;
 using Shoppe.Persistence.Concretes.UoW;
 using Shoppe.Persistence.Context;
 using System;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Shoppe.Domain.Entities;
+using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Enums;
 using System;
 using System.Collections.Generic;

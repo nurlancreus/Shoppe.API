@@ -12,8 +12,8 @@ using Shoppe.Persistence.Context;
 namespace Shoppe.Persistence.Migrations
 {
     [DbContext(typeof(ShoppeDbContext))]
-    [Migration("20241012115627_mig_2")]
-    partial class mig_2
+    [Migration("20241016112217_mig_1")]
+    partial class mig_1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -245,7 +245,7 @@ namespace Shoppe.Persistence.Migrations
                     b.ToTable("BlogBlogImage");
                 });
 
-            modelBuilder.Entity("Shoppe.Domain.Entities.Category", b =>
+            modelBuilder.Entity("Shoppe.Domain.Entities.Categories.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -321,6 +321,9 @@ namespace Shoppe.Persistence.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -328,6 +331,9 @@ namespace Shoppe.Persistence.Migrations
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -350,6 +356,9 @@ namespace Shoppe.Persistence.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -399,6 +408,9 @@ namespace Shoppe.Persistence.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -426,6 +438,10 @@ namespace Shoppe.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Info")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -469,7 +485,7 @@ namespace Shoppe.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<float>("Weigth")
+                    b.Property<float>("Weight")
                         .HasColumnType("real");
 
                     b.HasKey("Id");
@@ -499,7 +515,7 @@ namespace Shoppe.Persistence.Migrations
                     b.ToTable("ProductDimensions");
                 });
 
-            modelBuilder.Entity("Shoppe.Domain.Entities.Review", b =>
+            modelBuilder.Entity("Shoppe.Domain.Entities.Reviews.Review", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -514,17 +530,10 @@ namespace Shoppe.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
@@ -536,9 +545,11 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("ProductId");
-
                     b.ToTable("Reviews");
+
+                    b.HasDiscriminator().HasValue("Review");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.SocialLink", b =>
@@ -566,16 +577,16 @@ namespace Shoppe.Persistence.Migrations
                     b.ToTable("SocialLinks");
                 });
 
-            modelBuilder.Entity("Shoppe.Domain.Entities.BlogCategory", b =>
+            modelBuilder.Entity("Shoppe.Domain.Entities.Categories.BlogCategory", b =>
                 {
-                    b.HasBaseType("Shoppe.Domain.Entities.Category");
+                    b.HasBaseType("Shoppe.Domain.Entities.Categories.Category");
 
                     b.HasDiscriminator().HasValue("Blog");
                 });
 
-            modelBuilder.Entity("Shoppe.Domain.Entities.ProductCategory", b =>
+            modelBuilder.Entity("Shoppe.Domain.Entities.Categories.ProductCategory", b =>
                 {
-                    b.HasBaseType("Shoppe.Domain.Entities.Category");
+                    b.HasBaseType("Shoppe.Domain.Entities.Categories.Category");
 
                     b.HasDiscriminator().HasValue("Product");
                 });
@@ -588,6 +599,18 @@ namespace Shoppe.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.HasDiscriminator().HasValue("ImageFile");
+                });
+
+            modelBuilder.Entity("Shoppe.Domain.Entities.Reviews.ProductReview", b =>
+                {
+                    b.HasBaseType("Shoppe.Domain.Entities.Reviews.Review");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasDiscriminator().HasValue("ProductReview");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Files.BlogImageFile", b =>
@@ -626,7 +649,7 @@ namespace Shoppe.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Shoppe.Domain.Entities.BlogCategory", null)
+                    b.HasOne("Shoppe.Domain.Entities.Categories.BlogCategory", null)
                         .WithMany()
                         .HasForeignKey("CategoriesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -686,7 +709,7 @@ namespace Shoppe.Persistence.Migrations
 
             modelBuilder.Entity("ProductProductCategory", b =>
                 {
-                    b.HasOne("Shoppe.Domain.Entities.ProductCategory", null)
+                    b.HasOne("Shoppe.Domain.Entities.Categories.ProductCategory", null)
                         .WithMany()
                         .HasForeignKey("CategoriesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -751,12 +774,17 @@ namespace Shoppe.Persistence.Migrations
                     b.Navigation("ProductDetails");
                 });
 
-            modelBuilder.Entity("Shoppe.Domain.Entities.Review", b =>
+            modelBuilder.Entity("Shoppe.Domain.Entities.Reviews.Review", b =>
                 {
                     b.HasOne("Shoppe.Domain.Entities.Identity.ApplicationUser", "Reviewer")
                         .WithMany("Reviews")
                         .HasForeignKey("ApplicationUserId");
 
+                    b.Navigation("Reviewer");
+                });
+
+            modelBuilder.Entity("Shoppe.Domain.Entities.Reviews.ProductReview", b =>
+                {
                     b.HasOne("Shoppe.Domain.Entities.Product", "Product")
                         .WithMany("Reviews")
                         .HasForeignKey("ProductId")
@@ -764,8 +792,6 @@ namespace Shoppe.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
-
-                    b.Navigation("Reviewer");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Files.ProductImageFile", b =>
