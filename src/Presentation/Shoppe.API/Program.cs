@@ -83,6 +83,7 @@ namespace Shoppe.API
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
+            app.UseMyJwtCookieMiddleware();
             app.UseAuthorization();
 
             // should put after UseAuth* middlewares

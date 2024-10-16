@@ -22,12 +22,4 @@ namespace Shoppe.API.Middlewares
             }
         }
     }
-
-    public static class CustomMiddlewareExtension
-    {
-        public static void UseMyLoggingMiddleware(this WebApplication app)
-        {
-            app.UseMiddleware<LoggingMiddleware>();
-        }
-    }
 }

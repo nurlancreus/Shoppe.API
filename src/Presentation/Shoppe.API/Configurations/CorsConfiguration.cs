@@ -8,12 +8,12 @@
             {
                 options.AddPolicy("AllowShoppeClient", builder =>
                 {
-                    //builder.WithOrigins("http://localhost:3000/") // Add allowed origins
-                    //       .AllowAnyHeader()
-                    //       .AllowAnyMethod()
-                    //       .AllowCredentials(); // Allow cookies, authorization headers, etc.
+                    builder.WithOrigins("http://localhost:3000/") // Add allowed origins
+                           .AllowAnyHeader()
+                           .AllowAnyMethod()
+                           .AllowCredentials(); // Allow cookies, authorization headers, etc.
 
-                    builder.AllowAnyOrigin();
+                    //builder.AllowAnyOrigin();
                 });
             });
         }

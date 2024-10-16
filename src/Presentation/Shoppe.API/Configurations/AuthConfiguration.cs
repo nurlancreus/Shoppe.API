@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
@@ -13,7 +14,20 @@ namespace Shoppe.API.Configurations
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+                //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
+              //.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+              //{
+              //    options.Cookie.HttpOnly = true;
+              //    options.Cookie.SecurePolicy = builder.Environment.IsProduction()
+              //        ? CookieSecurePolicy.Always // Use this in production
+              //        : CookieSecurePolicy.SameAsRequest; // For local development
+              //    options.Cookie.SameSite = SameSiteMode.None; // Consider setting to SameSiteMode.None if cookies are not being sent
+              //    options.Cookie.Name = "accessToken"; // Ensure this matches your client-side cookie name
+              //})
              .AddJwtBearer(options =>
              {
                  options.TokenValidationParameters = new TokenValidationParameters()

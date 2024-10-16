@@ -1,11 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Shoppe.Application.Features.Command.Review.CreateReview;
-using Shoppe.Application.Features.Command.Review.DeleteReview;
-using Shoppe.Application.Features.Command.Review.UpdateReview;
 using Shoppe.Application.Features.Query.Review.GetAllReviews;
 using Shoppe.Application.Features.Query.Review.GetReviewById;
+using Shoppe.Application.Features.Command.Review.CreateReview;
+using Shoppe.Application.Features.Command.Review.UpdateReview;
+using Shoppe.Application.Features.Command.Review.DeleteReview;
 
 namespace Shoppe.API.Controllers.v1
 {
@@ -20,9 +20,9 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] GetAllReviewsQueryRequest getAllReviewsQueryRequest)
+        public async Task<IActionResult> GetAll([FromQuery] GetAllReviewsQueryRequest request)
         {
-            var response = await _mediator.Send(getAllReviewsQueryRequest);
+            var response = await _mediator.Send(request);
 
             return Ok(response);
         }
@@ -30,28 +30,28 @@ namespace Shoppe.API.Controllers.v1
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
         {
-            var getReviewByIdRequest = new GetReviewByIdQueryRequest { Id = id };
+            var request = new GetReviewByIdQueryRequest { Id = id };
 
-            var response = await _mediator.Send(getReviewByIdRequest);
+            var response = await _mediator.Send(request);
 
             return Ok(response);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateReviewCommandRequest createReviewCommandRequest)
+        public async Task<IActionResult> Create([FromQuery] string type, [FromBody] CreateReviewCommandRequest request)
         {
-
-            var response = await _mediator.Send(createReviewCommandRequest);
+            request.Type = type;
+            var response = await _mediator.Send(request);
 
             return Ok(response);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdateReviewCommandRequest updateReviewCommandRequest)
+        public async Task<IActionResult> Update(string id, [FromBody] UpdateReviewCommandRequest request)
         {
-            updateReviewCommandRequest.Id = id;
+            request.Id = id;
 
-            var response = await _mediator.Send(updateReviewCommandRequest);
+            var response = await _mediator.Send(request);
 
             return Ok(response);
         }
@@ -59,9 +59,9 @@ namespace Shoppe.API.Controllers.v1
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var deleteReviewCommandRequest = new DeleteReviewCommandRequest { Id = id };
+            var request = new DeleteReviewCommandRequest { Id = id };
 
-            var response = await _mediator.Send(deleteReviewCommandRequest);
+            var response = await _mediator.Send(request);
 
             return Ok(response);
         }

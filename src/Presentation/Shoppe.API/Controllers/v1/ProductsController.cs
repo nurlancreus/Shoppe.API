@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Abstractions.Repositories;
 using Shoppe.Application.Abstractions.UoW;
+using Shoppe.Application.Features.Command.Product.ChangeMainImage;
 using Shoppe.Application.Features.Command.Product.CreateProduct;
 using Shoppe.Application.Features.Command.Product.DeleteProduct;
+using Shoppe.Application.Features.Command.Product.RemoveImage;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
+using Shoppe.Application.Features.Command.Review.CreateReview;
 using Shoppe.Application.Features.Query.Product.GetAllProducts;
 using Shoppe.Application.Features.Query.Product.GetProductById;
 using Shoppe.Application.Features.Query.Product.GetProductReviews;
@@ -54,7 +57,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         public async Task<IActionResult> Update([FromRoute] string id, [FromForm] UpdateProductCommandRequest updateProductCommandRequest)
         {
             updateProductCommandRequest.Id = id;
@@ -87,6 +90,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+
         [HttpGet("colors")]
         public async Task<IActionResult> GetColors()
         {
@@ -103,7 +107,7 @@ namespace Shoppe.API.Controllers.v1
         [HttpGet("materials")]
         public async Task<IActionResult> GetMaterials()
         {
-            List<string> materials= [];
+            List<string> materials = [];
 
             foreach (var material in Enum.GetNames<Material>())
             {
@@ -111,6 +115,34 @@ namespace Shoppe.API.Controllers.v1
             }
 
             return await Task.FromResult(Ok(materials));
+        }
+
+        [HttpPatch("{productId}/images/{imageId}")]
+        public async Task<IActionResult> ChangeMainImage(string productId, string imageId)
+        {
+            var request = new ChangeMainImageCommandRequest
+            {
+                ProductId = productId,
+                ImageId = imageId
+            };
+
+            var response = await _mediator.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpDelete("{productId}/images/{imageId}")]
+        public async Task<IActionResult> RemoveImage(string productId, string imageId)
+        {
+            var request = new RemoveImageCommandRequest
+            {
+                ProductId = productId,
+                ImageId = imageId
+            };
+
+            var response = await _mediator.Send(request);
+
+            return Ok(response);
         }
     }
 }
