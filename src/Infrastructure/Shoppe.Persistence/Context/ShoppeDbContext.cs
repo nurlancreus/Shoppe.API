@@ -30,21 +30,39 @@ namespace Shoppe.Persistence.Context
 
             base.OnModelCreating(builder);
         }
+        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<SocialLink> SocialLinks { get; set; }
+
         public DbSet<Product> Products { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
         public DbSet<ProductDetails> ProductDetails { get; set; }
         public DbSet<ProductDimension> ProductDimensions { get; set; }
+
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<Basket> Baskets { get; set; }
+        public DbSet<BasketItem> BasketItems { get; set; }
+        public DbSet<Coupon> Coupons { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+
+
         public DbSet<Review> Reviews { get; set; }
         public DbSet<ProductReview> ProductReviews { get; set; }
+
+
         public DbSet<Category> Categories { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<BlogCategory> BlogCategories { get; set; }
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Address> Addresses { get; set; }
-        public DbSet<SocialLink> SocialLinks { get; set; }
+
+
         public DbSet<ApplicationFile> ApplicationFiles { get; set; }
         public DbSet<ImageFile> ImageFiles { get; set; } 
         public DbSet<ProductImageFile> ProductImageFiles { get; set; }
         public DbSet<BlogImageFile> BlogImageFiles { get; set; }
+
+
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<DeliveryAddress> DeliveryAddresses { get; set; }
+        public DbSet<BillingAddress> BillingAddresses { get; set; }
 
         private void UpdateDateTimesWhileSavingInterceptor()
         {

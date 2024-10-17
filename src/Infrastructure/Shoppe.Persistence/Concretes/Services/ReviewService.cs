@@ -73,7 +73,7 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 if (createReviewDTO.ReviewType == ReviewType.Product)
                 {
-                    bool isExist = await _productReadRepository.IsExist(p => p.Id.ToString() == createReviewDTO.EntityId, cancellationToken);
+                    bool isExist = await _productReadRepository.IsExistAsync(p => p.Id.ToString() == createReviewDTO.EntityId, cancellationToken);
                     if (!isExist) throw new AddNotSucceedException("Product does not exist");
 
                     return new ProductReview { ProductId = Guid.Parse(createReviewDTO.EntityId) };

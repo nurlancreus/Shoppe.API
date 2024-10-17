@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Shoppe.Application.Abstractions.Pagination;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
+using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductDetailsRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
@@ -40,7 +41,8 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IPaginationService _paginationService;
         private readonly IProductDetailsReadRepository _productDetailsReadRepository;
         private readonly ICategoryReadRepository _categoryReadRepository;
-        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IProductDetailsReadRepository productDetailsReadRepository, ICategoryReadRepository categoryReadRepository, IReviewService reviewService)
+        private readonly IDiscountReadRepository _discountReadRepository;
+        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IProductDetailsReadRepository productDetailsReadRepository, ICategoryReadRepository categoryReadRepository, IReviewService reviewService, IDiscountReadRepository discountReadRepository)
         {
             _productReadRepository = productReadRepository;
             _productWriteRepository = productWriteRepository;
@@ -50,6 +52,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _productDetailsReadRepository = productDetailsReadRepository;
             _categoryReadRepository = categoryReadRepository;
             _reviewService = reviewService;
+            _discountReadRepository = discountReadRepository;
         }
 
         public async Task CreateProductAsync(CreateProductDTO createProductDTO, CancellationToken cancellationToken)
@@ -76,6 +79,20 @@ namespace Shoppe.Persistence.Concretes.Services
                         }
                     }
                 };
+
+                if (createProductDTO.Discounts.Count > 0)
+                {
+                    foreach (var name in createProductDTO.Discounts)
+                    {
+                        var discount = await _discountReadRepository.GetAsync(c => c.Name == name, cancellationToken);
+
+                        if (discount != null)
+                        {
+                            product.Discounts.Add(discount);
+                        }
+
+                    }
+                }
 
                 if (createProductDTO.Categories.Count > 0)
                 {
@@ -381,6 +398,28 @@ namespace Shoppe.Persistence.Concretes.Services
                     }
                 }
 
+                if (updateProductDTO.Discounts.Count > 0)
+                {
+                    var discountsToRemove = product.Discounts
+                        .Where(existingCategory => !updateProductDTO.Discounts.Contains(existingCategory.Name))
+                        .ToList();
+
+                    foreach (var discount in discountsToRemove)
+                    {
+                        product.Discounts.Remove(discount);
+                    }
+
+                    foreach (var name in updateProductDTO.Discounts)
+                    {
+                        var discount = await _discountReadRepository.GetAsync(c => c.Name == name, cancellationToken);
+
+                        if (discount != null && !product.Discounts.Contains(discount))
+                        {
+                            product.Discounts.Add(discount);
+                        }
+                    }
+                }
+
                 // Handle product images
                 if (updateProductDTO.ProductImages.Count > 0)
                 {
@@ -512,6 +551,6 @@ namespace Shoppe.Persistence.Concretes.Services
             return (float)Math.Round(rating, 2);
         }
 
-       
+
     }
 }
