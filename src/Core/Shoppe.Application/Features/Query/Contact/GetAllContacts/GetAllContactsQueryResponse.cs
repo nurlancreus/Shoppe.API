@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Features.Query.Contact.GetAllContacts
 {
-    public class GetAllContactsQueryResponse : AppPaginatedResponse<List<GetContactDTO>>
+    public class GetAllContactsQueryResponse : AppResponseWithPaginatedData<List<GetContactDTO>>
     {
     }
 }

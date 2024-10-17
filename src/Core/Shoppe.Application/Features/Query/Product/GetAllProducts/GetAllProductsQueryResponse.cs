@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Features.Query.Product.GetAllProducts
 {
-    public class GetAllProductsQueryResponse : AppPaginatedResponse<List<GetProductDTO>>
+    public class GetAllProductsQueryResponse : AppResponseWithPaginatedData<List<GetProductDTO>>
     {
     }
 }

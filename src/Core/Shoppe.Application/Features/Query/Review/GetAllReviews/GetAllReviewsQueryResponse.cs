@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Features.Query.Review.GetAllReviews
 {
-    public class GetAllReviewsQueryResponse : AppPaginatedResponse<List<GetReviewDTO>>
+    public class GetAllReviewsQueryResponse : AppResponseWithPaginatedData<List<GetReviewDTO>>
     {
     }
 }
