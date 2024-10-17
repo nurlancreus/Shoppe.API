@@ -16,13 +16,15 @@ namespace Shoppe.Application.Validators.Category
 
             RuleFor(category => category.Id)
                 .NotEmpty()
-                .WithMessage("Category ID is required.");
+                .WithMessage("Category ID is required.")
+                .MustAsync(async (id,cancellationToken) => await _categoryReadRepository.IsExistAsync(c => c.Id.ToString() == id, cancellationToken))
+                .WithMessage("The category does not exist.");
 
             RuleFor(category => category.Name)
                 .MaximumLength(CategoryConst.MaxNameLength)
                 .WithMessage($"Name must be less than {CategoryConst.MaxNameLength} characters.")
                 .MustAsync(async (name, cancellationToken) =>
-                    !await _categoryReadRepository.IsExist(c => c.Name == name, cancellationToken))
+                    !await _categoryReadRepository.IsExistAsync(c => c.Name == name, cancellationToken))
                 .WithMessage("Category with this name already exists.");
 
             RuleFor(category => category.Description)

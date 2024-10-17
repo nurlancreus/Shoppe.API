@@ -43,7 +43,7 @@ namespace Shoppe.Application.Validators.Review
         {
             if (request.Type == ReviewType.Product.ToString().ToLower())
             {
-                return await _productReadRepository.IsExist(p => p.Id.ToString() == entityId, cancellationToken);
+                return await _productReadRepository.IsExistAsync(p => p.Id.ToString() == entityId, cancellationToken);
             }
             //else if (request.Type == ReviewType.Blog.ToString())
             //{

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
+using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
 using Shoppe.Application.Constants;
 using Shoppe.Application.Features.Command.Product.CreateProduct;
 using Shoppe.Application.Helpers;
@@ -15,9 +16,11 @@ namespace Shoppe.Application.Validators.Product
     public class CreateProductCommandRequestValidator : AbstractValidator<CreateProductCommandRequest>
     {
         private readonly ICategoryReadRepository _categoryReadRepository;
-        public CreateProductCommandRequestValidator(ICategoryReadRepository categoryReadRepository)
+        private readonly IDiscountReadRepository _discountReadRepository;
+        public CreateProductCommandRequestValidator(ICategoryReadRepository categoryReadRepository, IDiscountReadRepository discountReadRepository)
         {
             _categoryReadRepository = categoryReadRepository;
+            _discountReadRepository = discountReadRepository;
 
             // Validate Name
             RuleFor(product => product.Name)
@@ -56,7 +59,7 @@ namespace Shoppe.Application.Validators.Product
 
             RuleFor(product => product.Width)
                 .GreaterThan(0).WithMessage("Width must be greater than zero.");
-;
+            ;
             RuleForEach(product => product.Materials)
                     .Must(material => EnumHelpers.IsDefinedEnum<Material>(material, out _))
                     .WithMessage("Material must be a valid enum value.");
@@ -66,8 +69,15 @@ namespace Shoppe.Application.Validators.Product
                 .WithMessage("Color must be a valid enum value.");
 
             RuleForEach(product => product.Categories)
-                .MustAsync(async (name, cancellationToken) => await _categoryReadRepository.IsExist(c => c.Name == name, cancellationToken))
+                .MustAsync(async (name, cancellationToken) => await _categoryReadRepository.IsExistAsync(c => c.Name == name, cancellationToken))
                 .WithMessage("Category must be defined");
+
+            When(product => product.Discounts.Count != 0, () =>
+            {
+                RuleForEach(product => product.Discounts)
+                .MustAsync(async (name, cancellationToken) => await _discountReadRepository.IsExistAsync(c => c.Name == name, cancellationToken))
+                .WithMessage("Discount must be defined");
+            });
 
             // Validation for product images
             RuleForEach(p => p.ProductImages)

@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
+using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
 using Shoppe.Application.Constants;
 using Shoppe.Application.DTOs.Product;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
@@ -13,10 +14,13 @@ namespace Shoppe.Application.Validators.Product
     public class UpdateProductCommandRequestValidator : AbstractValidator<UpdateProductCommandRequest>
     {
         private readonly ICategoryReadRepository _categoryReadRepository;
+        private readonly IDiscountReadRepository _discountReadRepository; 
 
-        public UpdateProductCommandRequestValidator(ICategoryReadRepository categoryReadRepository)
+        public UpdateProductCommandRequestValidator(ICategoryReadRepository categoryReadRepository, IDiscountReadRepository discountReadRepository)
         {
             _categoryReadRepository = categoryReadRepository;
+            _discountReadRepository = discountReadRepository;
+
 
             // Validate Id
             RuleFor(product => product.Id)
@@ -86,6 +90,13 @@ namespace Shoppe.Application.Validators.Product
                     .WithMessage("Width must be greater than zero.");
             });
 
+            When(product => product.Discounts.Count != 0, () =>
+            {
+                RuleForEach(product => product.Discounts)
+                .MustAsync(async (name, cancellationToken) => await _discountReadRepository.IsExistAsync(c => c.Name == name, cancellationToken))
+                .WithMessage("Discount must be defined");
+            });
+
             // Validate Material using EnumHelper (Optional, but if provided, must be valid)
             When(product => product.Materials != null && product.Materials.Any(), () =>
             {
@@ -106,7 +117,7 @@ namespace Shoppe.Application.Validators.Product
             When(product => product.Categories.Count != 0, () =>
             {
                 RuleForEach(product => product.Categories)
-                .MustAsync(async (name, cancellationToken) => await _categoryReadRepository.IsExist(c => c.Name == name, cancellationToken))
+                .MustAsync(async (name, cancellationToken) => await _categoryReadRepository.IsExistAsync(c => c.Name == name, cancellationToken))
                 .WithMessage("Category must be defined");
             });
 
@@ -116,13 +127,14 @@ namespace Shoppe.Application.Validators.Product
                 RuleForEach(p => p.ProductImages)
                     .NotNull()
                     .WithMessage("Each product image is required.")
-                    .Must(file => file.Length <= ProductConst.MaxFileSizeInMb * 1024 * 1024)
+                    .Must(file => file.IsSizeOk(ProductConst.MaxFileSizeInMb))
                     .WithMessage($"File size should not exceed {ProductConst.MaxFileSizeInMb} MB.")
-                    .Must(file => new[] { ".jpg", ".png", ".gif" }.Contains(System.IO.Path.GetExtension(file.FileName).ToLower()))
+                    .Must(file => file.RestrictExtension([".jpg", ".png", ".gif"]))
                     .WithMessage("Only .jpg, .png, and .gif files are allowed.")
-                    .Must(file => new[] { "image/jpeg", "image/png", "image/gif" }.Contains(file.ContentType))
+                    .Must(file => file.RestrictMimeTypes(["image/jpeg", "image/png", "image/gif"]))
                     .WithMessage("Only image files (JPEG, PNG, GIF) are allowed.");
             });
+
         }
     }
 }

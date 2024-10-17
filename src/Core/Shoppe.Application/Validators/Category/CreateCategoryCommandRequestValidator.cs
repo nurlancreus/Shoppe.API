@@ -22,7 +22,7 @@ namespace Shoppe.Application.Validators.Category
               .WithMessage("Name is required.")
               .MaximumLength(CategoryConst.MaxNameLength)
               .WithMessage($"Name must be less than {CategoryConst.MaxNameLength} characters.")
-              .MustAsync(async (name, cancellationToken) => !await _categoryReadRepository.IsExist(c => c.Name == name, cancellationToken))
+              .MustAsync(async (name, cancellationToken) => !await _categoryReadRepository.IsExistAsync(c => c.Name == name, cancellationToken))
               .WithMessage("Category is already defined.");
 
             RuleFor(category => category.Description)
