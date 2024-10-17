@@ -20,6 +20,7 @@ namespace Shoppe.Application.Features.Command.Product.UpdateProduct
         public float? Weight { get; set; }
         public float? Height { get; set; }
         public float? Width { get; set; }
+        public List<string> Discounts { get; set; } = [];
         public List<string> Materials { get; set; } = [];
         public List<string> Colors { get; set; } = [];
         public List<string> Categories { get; set; } = [];

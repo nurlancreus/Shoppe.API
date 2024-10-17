@@ -12,9 +12,9 @@ namespace Shoppe.Application.Features.Command.Product.CreateProduct
 {
     public class CreateProductCommandRequest : IRequest<CreateProductCommandResponse>
     {
-        public string Name { get; set; } = null!;
-        public string Info { get; set; } = null!;
-        public string Description { get; set; } = null!;
+        public string Name { get; set; } = string.Empty;
+        public string Info { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public double Price { get; set; }
         public int Stock { get; set; }
         public float Weight { get; set; }
@@ -23,6 +23,7 @@ namespace Shoppe.Application.Features.Command.Product.CreateProduct
         public List<string> Materials { get; set; } = []; 
         public List<string> Colors { get; set; } = [];
         public List<string> Categories { get; set; } = [];
+        public List<string> Discounts { get; set; } = [];
         public FormFileCollection ProductImages { get; set; } = [];
     }
 }
