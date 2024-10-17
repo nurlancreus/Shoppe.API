@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Files
 {
-    public class GetProductImageFileDTO
+    public record GetProductImageFileDTO : GetImageFileDTO
     {
-        public string Id { get; set; } = null!;
-        public string FileName { get; set; } = null!;
-        public string PathName { get; set; } = null!;
-        public bool IsMain { get; set; }
+        
     }
 }
