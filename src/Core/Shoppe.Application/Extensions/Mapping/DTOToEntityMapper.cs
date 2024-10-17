@@ -1,7 +1,7 @@
 ﻿using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Product;
-using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Categories;
+using Shoppe.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

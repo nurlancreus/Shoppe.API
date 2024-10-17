@@ -50,6 +50,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 Weight = request.Weight,
                 Height = request.Height,
                 Width = request.Width,
+                Discounts = request.Discounts,
                 Materials = request.Materials,
                 Colors = request.Colors,
                 Categories = request.Categories,
@@ -101,7 +102,8 @@ namespace Shoppe.Application.Extensions.Mapping
                 ProductImages = request.ProductImages,
                 Width = request.Width,
                 Height = request.Height,
-                Weight = request.Weight
+                Weight = request.Weight,
+                Discounts = request.Discounts,
             };
         }
 
