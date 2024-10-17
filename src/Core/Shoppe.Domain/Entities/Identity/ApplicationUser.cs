@@ -17,6 +17,7 @@ namespace Shoppe.Domain.Entities.Identity
         public DateTime? RefreshTokenEndDate { get; set; }
         public ICollection<Blog> Blogs { get; set; } = [];
         public ICollection<Review> Reviews { get; set; } = [];
+        public ICollection<Basket> Baskets { get; set; } = [];
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }

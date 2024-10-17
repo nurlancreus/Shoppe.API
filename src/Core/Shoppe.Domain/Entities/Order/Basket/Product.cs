@@ -22,5 +22,6 @@ namespace Shoppe.Domain.Entities
         public ICollection<ProductCategory> Categories { get; set; } = [];
         public ICollection<ProductImageFile> ProductImageFiles { get; set; } = [];
         public ICollection<ProductReview> Reviews { get; set; } = [];
+        public ICollection<Discount> Discounts { get; set; } = [];
     }
 }

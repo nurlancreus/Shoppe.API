@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Entities
 {
-    public class Address : BaseEntity
+    public class BillingAddress : Address
     {
-        public string Country { get; set; } = null!;
-        public string City { get; set; } = null!;
-        public string PostCode { get; set; } = null!;
+       
     }
 }
