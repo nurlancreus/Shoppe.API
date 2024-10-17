@@ -3,10 +3,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shoppe.Application.Abstractions.Repositories.AddressRepos;
+using Shoppe.Application.Abstractions.Repositories.BasketItemRepos;
+using Shoppe.Application.Abstractions.Repositories.BasketRepos;
 using Shoppe.Application.Abstractions.Repositories.BlogImageFileRepos;
 using Shoppe.Application.Abstractions.Repositories.BlogRepos;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Application.Abstractions.Repositories.ContactRepos;
+using Shoppe.Application.Abstractions.Repositories.CouponRepos;
+using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
+using Shoppe.Application.Abstractions.Repositories.OrderRepos;
+using Shoppe.Application.Abstractions.Repositories.PaymentRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductDetailsRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductImageFileRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
@@ -16,10 +23,17 @@ using Shoppe.Application.Abstractions.Services.Auth;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Persistence.Concretes.Repositories;
+using Shoppe.Persistence.Concretes.Repositories.AddressRepos;
+using Shoppe.Persistence.Concretes.Repositories.BasketItemRepos;
+using Shoppe.Persistence.Concretes.Repositories.BasketRepos;
 using Shoppe.Persistence.Concretes.Repositories.BlogImageFileRepos;
 using Shoppe.Persistence.Concretes.Repositories.BlogRepos;
 using Shoppe.Persistence.Concretes.Repositories.CategoryRepos;
 using Shoppe.Persistence.Concretes.Repositories.ContactRepos;
+using Shoppe.Persistence.Concretes.Repositories.CouponRepos;
+using Shoppe.Persistence.Concretes.Repositories.DiscountRepos;
+using Shoppe.Persistence.Concretes.Repositories.OrderRepos;
+using Shoppe.Persistence.Concretes.Repositories.PaymentRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductDetailsRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductImageFileRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductRepos;
@@ -66,9 +80,30 @@ namespace Shoppe.Persistence
             services.AddScoped<IBlogReadRepository, BlogReadRepository>();
             services.AddScoped<IBlogWriteRepository, BlogWriteRepository>();
 
-
             services.AddScoped<IContactReadRepository, ContactReadRepository>();
             services.AddScoped<IContactWriteRepository, ContactWriteRepository>();
+
+            services.AddScoped<ICouponReadRepository, CouponReadRepository>();
+            services.AddScoped<ICouponWriteRepository, CouponWriteRepository>();
+
+            services.AddScoped<IOrderReadRepository, OrderReadRepository>();
+            services.AddScoped<IOrderWriteRepository, OrderWriteRepository>();
+
+            services.AddScoped<IBasketReadRepository, BasketReadRepository>();
+            services.AddScoped<IBasketWriteRepository, BasketWriteRepository>();
+
+            services.AddScoped<IBasketItemReadRepository, BasketItemReadRepository>();
+            services.AddScoped<IBasketItemWriteRepository, BasketItemWriteRepository>();
+
+            services.AddScoped<IPaymentReadRepository, PaymentReadRepository>();
+            services.AddScoped<IPaymentWriteRepository, PaymentWriteRepository>();
+
+            services.AddScoped<IDiscountReadRepository, DiscountReadRepository>();
+            services.AddScoped<IDiscountWriteRepository, DiscountWriteRepository>();
+            
+            services.AddScoped<IAddressReadRepository, AddressReadRepository>();
+            services.AddScoped<IAddressWriteRepository, AddressWriteRepository>();
+
 
             #endregion
             // Register UnitOfWork

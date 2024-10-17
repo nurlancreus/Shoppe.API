@@ -56,7 +56,7 @@ namespace Shoppe.Persistence.Concretes.Repositories
             return await query.FirstOrDefaultAsync(e => e.Id == parsedId, cancellationToken);
         }
 
-        public async Task<bool> IsExist(Expression<Func<T, bool>> method, CancellationToken cancellationToken, bool isTracking = false)
+        public async Task<bool> IsExistAsync(Expression<Func<T, bool>> method, CancellationToken cancellationToken)
         {
             return await Table.AnyAsync(method, cancellationToken);
         }

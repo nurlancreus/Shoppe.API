@@ -14,6 +14,6 @@ namespace Shoppe.Application.Abstractions.Repositories
         Task<IQueryable<T>> GetAllWhereAsync(Expression<Func<T, bool>> method, bool isTracking = true);
         Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken, bool isTracking = true);
         Task<T?> GetAsync(Expression<Func<T, bool>> method, CancellationToken cancellationToken, bool isTracking = true);
-        Task<bool> IsExist(Expression<Func<T, bool>> method, CancellationToken cancellationToken, bool isTracking = false);
+        Task<bool> IsExistAsync(Expression<Func<T, bool>> method, CancellationToken cancellationToken);
     }
 }
