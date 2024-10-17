@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Responses
 {
-    public class AppPaginatedResponse<T> : AppResponseWithData<T>, IPaginationInfo where T : class
+    public class AppResponseWithPaginatedData<T> : AppResponseWithData<T>, IPaginationInfo where T : class
     {
         public int Page { get; set; }
         public int PageSize { get; set; }
