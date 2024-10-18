@@ -1,4 +1,5 @@
 ﻿using Shoppe.Domain.Entities.Base;
+using Shoppe.Domain.Entities.Categories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +14,11 @@ namespace Shoppe.Domain.Entities
         public string Description { get; set; } = string.Empty;
         public decimal DiscountPercentage { get; set; } 
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; } 
+        public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
 
-        public ICollection<Product> Products { get; set; } = [];
+        public ICollection<DiscountProduct> ProductMappings { get; set; } = [];
+        public ICollection<DiscountCategory> CategoryMappings { get; set; } = [];
 
     }
 

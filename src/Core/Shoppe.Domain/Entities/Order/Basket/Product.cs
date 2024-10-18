@@ -2,6 +2,7 @@
 using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Reviews;
+using Shoppe.Domain.Flags;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Entities
 {
-    public class Product : BaseEntity
+    public class Product : BaseEntity, IDiscountable
     {
         public string Name { get; set; } = null!;
         public string Info { get; set; } = null!;
@@ -22,6 +23,6 @@ namespace Shoppe.Domain.Entities
         public ICollection<ProductCategory> Categories { get; set; } = [];
         public ICollection<ProductImageFile> ProductImageFiles { get; set; } = [];
         public ICollection<ProductReview> Reviews { get; set; } = [];
-        public ICollection<Discount> Discounts { get; set; } = [];
+        public ICollection<DiscountProduct> DiscountMappings { get; set; } = [];
     }
 }

@@ -90,10 +90,10 @@ namespace Shoppe.Application.Validators.Product
                     .WithMessage("Width must be greater than zero.");
             });
 
-            When(product => product.Discounts.Count != 0, () =>
+            When(product => !string.IsNullOrEmpty(product.DiscountId), () =>
             {
-                RuleForEach(product => product.Discounts)
-                .MustAsync(async (name, cancellationToken) => await _discountReadRepository.IsExistAsync(c => c.Name == name, cancellationToken))
+                RuleFor(product => product.DiscountId)
+                .MustAsync(async (id, cancellationToken) => await _discountReadRepository.IsExistAsync(c => c.Id.ToString() == id, cancellationToken))
                 .WithMessage("Discount must be defined");
             });
 

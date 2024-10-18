@@ -1,4 +1,7 @@
 ﻿using MediatR;
+using Shoppe.Application.Abstractions.Services;
+using Shoppe.Application.Constants;
+using Shoppe.Application.Extensions.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +12,22 @@ namespace Shoppe.Application.Features.Command.Discount.CreateDiscount
 {
     public class CreateDiscountCommandHandler : IRequestHandler<CreateDiscountCommandRequest, CreateDiscountCommandResponse>
     {
-        public Task<CreateDiscountCommandResponse> Handle(CreateDiscountCommandRequest request, CancellationToken cancellationToken)
+        private readonly IDiscountService _discountService;
+
+        public CreateDiscountCommandHandler(IDiscountService discountService)
         {
-            throw new NotImplementedException();
+            _discountService = discountService;
+        }
+
+        public async Task<CreateDiscountCommandResponse> Handle(CreateDiscountCommandRequest request, CancellationToken cancellationToken)
+        {
+            await _discountService.CreateAsync(request.ToCreateDiscountDTO(), cancellationToken);
+
+            return new CreateDiscountCommandResponse
+            {
+                IsSuccess = true,
+                Message = ResponseConst.AddedSuccessMessage("Discount")
+            };
         }
     }
 }

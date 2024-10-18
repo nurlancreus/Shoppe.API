@@ -1,6 +1,7 @@
 ﻿using Shoppe.Application.DTOs.Auth;
 using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Contact;
+using Shoppe.Application.DTOs.Discount;
 using Shoppe.Application.DTOs.Product;
 using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.Extensions.Helpers;
@@ -10,6 +11,8 @@ using Shoppe.Application.Features.Command.Category.CreateCategory;
 using Shoppe.Application.Features.Command.Category.UpdateCategory;
 using Shoppe.Application.Features.Command.Contact.CreateContact;
 using Shoppe.Application.Features.Command.Contact.UpdateContact;
+using Shoppe.Application.Features.Command.Discount.CreateDiscount;
+using Shoppe.Application.Features.Command.Discount.UpdateDiscount;
 using Shoppe.Application.Features.Command.Product.CreateProduct;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
 using Shoppe.Application.Features.Command.Review.CreateReview;
@@ -50,7 +53,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 Weight = request.Weight,
                 Height = request.Height,
                 Width = request.Width,
-                Discounts = request.Discounts,
+                DiscountId = request.DiscountId,
                 Materials = request.Materials,
                 Colors = request.Colors,
                 Categories = request.Categories,
@@ -103,7 +106,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 Width = request.Width,
                 Height = request.Height,
                 Weight = request.Weight,
-                Discounts = request.Discounts,
+                DiscountId = request.DiscountId,
             };
         }
 
@@ -134,9 +137,9 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             var reviewDTO = new CreateReviewDTO()
             {
-               Body = request.Body,
-               EntityId = request.EntityId!,
-               Rating = request.Rating,
+                Body = request.Body,
+                EntityId = request.EntityId!,
+                Rating = request.Rating,
             };
 
             if (Enum.TryParse(request.Type, true, out ReviewType reviewType)) reviewDTO.ReviewType = reviewType;
@@ -176,6 +179,32 @@ namespace Shoppe.Application.Extensions.Mapping
                 Email = request.Email,
                 Subject = request.Subject,
                 Message = request.Message
+            };
+        }
+
+        public static CreateDiscountDTO ToCreateDiscountDTO(this CreateDiscountCommandRequest request)
+        {
+            return new CreateDiscountDTO
+            {
+                Name = request.Name,
+                Description = request.Description,
+                DiscountPercentage = request.DiscountPercentage,
+                EndDate = request.EndDate,
+                StartDate = request.StartDate
+            };
+        }
+
+        public static UpdateDiscountDTO ToUpdateDiscountDTO(this UpdateDiscountCommandRequest request)
+        {
+            return new UpdateDiscountDTO
+            {
+                Id = request.Id!,
+                Name = request.Name,
+                Description = request.Description,
+                DiscountPercentage = request.DiscountPercentage,
+                EndDate = request.EndDate,
+                StartDate = request.StartDate,
+                IsActive = request.IsActive
             };
         }
     }

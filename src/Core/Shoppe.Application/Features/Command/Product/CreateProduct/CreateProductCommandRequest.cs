@@ -23,7 +23,7 @@ namespace Shoppe.Application.Features.Command.Product.CreateProduct
         public List<string> Materials { get; set; } = []; 
         public List<string> Colors { get; set; } = [];
         public List<string> Categories { get; set; } = [];
-        public List<string> Discounts { get; set; } = [];
+        public string? DiscountId { get; set; }
         public FormFileCollection ProductImages { get; set; } = [];
     }
 }

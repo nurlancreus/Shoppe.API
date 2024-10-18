@@ -39,10 +39,11 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IReviewService _reviewService;
         private readonly IStorageService _storageService;
         private readonly IPaginationService _paginationService;
+        private readonly IDiscountService _discountService;
         private readonly IProductDetailsReadRepository _productDetailsReadRepository;
         private readonly ICategoryReadRepository _categoryReadRepository;
         private readonly IDiscountReadRepository _discountReadRepository;
-        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IProductDetailsReadRepository productDetailsReadRepository, ICategoryReadRepository categoryReadRepository, IReviewService reviewService, IDiscountReadRepository discountReadRepository)
+        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IProductDetailsReadRepository productDetailsReadRepository, ICategoryReadRepository categoryReadRepository, IReviewService reviewService, IDiscountReadRepository discountReadRepository, IDiscountService discountService)
         {
             _productReadRepository = productReadRepository;
             _productWriteRepository = productWriteRepository;
@@ -53,6 +54,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _categoryReadRepository = categoryReadRepository;
             _reviewService = reviewService;
             _discountReadRepository = discountReadRepository;
+            _discountService = discountService;
         }
 
         public async Task CreateProductAsync(CreateProductDTO createProductDTO, CancellationToken cancellationToken)
@@ -80,18 +82,9 @@ namespace Shoppe.Persistence.Concretes.Services
                     }
                 };
 
-                if (createProductDTO.Discounts.Count > 0)
+                if(!string.IsNullOrEmpty(createProductDTO.DiscountId))
                 {
-                    foreach (var name in createProductDTO.Discounts)
-                    {
-                        var discount = await _discountReadRepository.GetAsync(c => c.Name == name, cancellationToken);
-
-                        if (discount != null)
-                        {
-                            product.Discounts.Add(discount);
-                        }
-
-                    }
+                    await _discountService.AssignDiscountAsync(product, createProductDTO.DiscountId, cancellationToken);
                 }
 
                 if (createProductDTO.Categories.Count > 0)
@@ -310,11 +303,11 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var product = await _productReadRepository.Table.Include(p => p.ProductDetails).ThenInclude(pd => pd.Dimension).Include(p => p.Categories).FirstOrDefaultAsync(p => p.Id.ToString() == updateProductDTO.Id, cancellationToken);
+                var product = await _productReadRepository.Table.Include(p => p.ProductDetails).ThenInclude(pd => pd.Dimension).Include(p => p.Categories).Include(p => p.DiscountMappings).FirstOrDefaultAsync(p => p.Id.ToString() == updateProductDTO.Id, cancellationToken);
 
                 if (product == null)
                 {
-                    throw new EntityNotFoundException("product");
+                    throw new EntityNotFoundException(nameof(product));
                 }
 
                 // Load related entities
@@ -398,26 +391,9 @@ namespace Shoppe.Persistence.Concretes.Services
                     }
                 }
 
-                if (updateProductDTO.Discounts.Count > 0)
+                if(!string.IsNullOrEmpty(updateProductDTO.DiscountId))
                 {
-                    var discountsToRemove = product.Discounts
-                        .Where(existingCategory => !updateProductDTO.Discounts.Contains(existingCategory.Name))
-                        .ToList();
-
-                    foreach (var discount in discountsToRemove)
-                    {
-                        product.Discounts.Remove(discount);
-                    }
-
-                    foreach (var name in updateProductDTO.Discounts)
-                    {
-                        var discount = await _discountReadRepository.GetAsync(c => c.Name == name, cancellationToken);
-
-                        if (discount != null && !product.Discounts.Contains(discount))
-                        {
-                            product.Discounts.Add(discount);
-                        }
-                    }
+                    await _discountService.AssignDiscountAsync(product, updateProductDTO.DiscountId, cancellationToken, update: true);
                 }
 
                 // Handle product images

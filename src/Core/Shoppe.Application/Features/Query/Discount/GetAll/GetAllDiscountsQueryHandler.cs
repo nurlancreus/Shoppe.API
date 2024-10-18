@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Shoppe.Application.Abstractions.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,26 @@ namespace Shoppe.Application.Features.Query.Discount.GetAll
 {
     public class GetAllDiscountsQueryHandler : IRequestHandler<GetAllDiscountsQueryRequest, GetAllDiscountsQueryResponse>
     {
-        public Task<GetAllDiscountsQueryResponse> Handle(GetAllDiscountsQueryRequest request, CancellationToken cancellationToken)
+        private readonly IDiscountService _discountService;
+
+        public GetAllDiscountsQueryHandler(IDiscountService discountService)
         {
-            throw new NotImplementedException();
+            _discountService = discountService;
+        }
+
+        public async Task<GetAllDiscountsQueryResponse> Handle(GetAllDiscountsQueryRequest request, CancellationToken cancellationToken)
+        {
+            var result = await _discountService.GetAllAsync(request.Page, request.PageSize, cancellationToken);
+
+            return new GetAllDiscountsQueryResponse
+            {
+                IsSuccess = true,
+                PageSize = result.PageSize,
+                Page = result.Page,
+                TotalItems = result.TotalItems,
+                TotalPages = result.TotalPages,
+                Data = result.Discounts,
+            };
         }
     }
 }

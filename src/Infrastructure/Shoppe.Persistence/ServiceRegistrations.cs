@@ -114,6 +114,7 @@ namespace Shoppe.Persistence
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<IContactService, ContactService>();
+            services.AddScoped<IDiscountService, DiscountService>();
 
             services.AddScoped<IInternalAuthService, AuthService>();
             services.AddScoped<IAuthService, AuthService>();
