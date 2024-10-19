@@ -26,22 +26,27 @@ namespace Shoppe.Persistence.Configurations
                 .HasOne(dp => dp.Product)
                 .WithMany(p => p.DiscountMappings)
                 .HasForeignKey(dp => dp.ProductId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+               // .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder
                 .HasOne(dp => dp.Discount)
                 .WithMany(d => d.ProductMappings)
                 .HasForeignKey(dp => dp.DiscountId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+                // .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasIndex(dp => new { dp.ProductId, dp.DiscountId })
                   .IsUnique();
 
-            builder.HasIndex(dp => new { dp.ProductId, dp.IsActive })
-                   .IsUnique()
-                   .HasFilter("[IsActive] = 1");
+            // Using raw SQL to filter based on Discount's IsActive property
+            //builder.HasIndex(dp => new { dp.ProductId, dp.DiscountId })
+            //       .IsUnique()
+            //       .HasFilter("DiscountId IN (SELECT Id FROM Discounts WHERE IsActive = 1)");
+
+            //builder.HasIndex(dp => new { dp.ProductId, dp.IsActive })
+            //       .IsUnique()
+            //       .HasFilter("[IsActive] = 1");
         }
     }
 
@@ -55,22 +60,27 @@ namespace Shoppe.Persistence.Configurations
                 .HasOne(dp => dp.Category)
                 .WithMany(p => p.DiscountMappings)
                 .HasForeignKey(dp => dp.CategoryId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+                //.IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder
                 .HasOne(dp => dp.Discount)
                 .WithMany(d => d.CategoryMappings)
                 .HasForeignKey(dp => dp.DiscountId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+                //.IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasIndex(dp => new { dp.CategoryId, dp.DiscountId })
                   .IsUnique();
 
-            builder.HasIndex(dp => new { dp.CategoryId, dp.IsActive })
-                   .IsUnique()
-                   .HasFilter("[IsActive] = 1");
+            // Using raw SQL to filter based on Discount's IsActive property
+            //builder.HasIndex(dp => new { dp.CategoryId, dp.DiscountId })
+            //       .IsUnique()
+            //       .HasFilter("DiscountId IN (SELECT Id FROM Discounts WHERE IsActive = 1)");
+
+            //builder.HasIndex(dp => new { dp.CategoryId, dp.IsActive })
+            //       .IsUnique()
+            //       .HasFilter("[IsActive] = 1");
         }
     }
 }

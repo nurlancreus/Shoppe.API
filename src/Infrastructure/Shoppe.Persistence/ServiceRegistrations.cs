@@ -20,6 +20,7 @@ using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Auth;
+using Shoppe.Application.Abstractions.Services.Calculator;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Persistence.Concretes.Repositories;
@@ -40,6 +41,7 @@ using Shoppe.Persistence.Concretes.Repositories.ProductRepos;
 using Shoppe.Persistence.Concretes.Repositories.ReviewRepos;
 using Shoppe.Persistence.Concretes.Services;
 using Shoppe.Persistence.Concretes.Services.Auth;
+using Shoppe.Persistence.Concretes.Services.Hosted;
 using Shoppe.Persistence.Concretes.Services.Shoppe.Persistence.Concretes.Services;
 using Shoppe.Persistence.Concretes.UoW;
 using Shoppe.Persistence.Context;
@@ -118,6 +120,10 @@ namespace Shoppe.Persistence
 
             services.AddScoped<IInternalAuthService, AuthService>();
             services.AddScoped<IAuthService, AuthService>();
+
+            services.AddScoped<IDiscountCalculatorService, CalculatorService>();
+
+            services.AddHostedService<DiscountExpiryBackgroundService>();
             #endregion
 
             return services;
