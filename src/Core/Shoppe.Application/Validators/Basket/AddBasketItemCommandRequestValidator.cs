@@ -15,10 +15,11 @@ public class AddBasketItemCommandRequestValidator : AbstractValidator<AddBasketI
             .MustAsync(ProductExists).WithMessage("The specified product does not exist.");
 
         RuleFor(x => x.Quantity)
-            .GreaterThan(0).WithMessage("Quantity must be greater than zero.");
+            .Must(q => q.HasValue && q.Value > 0).WithMessage("Quantity must be greater than zero.");
 
         RuleFor(x => x)
-            .MustAsync(HaveSufficientStock).WithMessage("Insufficient product stock for the requested quantity.");
+            .MustAsync(HaveSufficientStock).WithMessage("Insufficient product stock for the requested quantity.")
+            .When(request => request.Quantity.HasValue); 
     }
 
     private async Task<bool> ProductExists(string productId, CancellationToken cancellationToken)
@@ -35,6 +36,6 @@ public class AddBasketItemCommandRequestValidator : AbstractValidator<AddBasketI
             return false;
         }
 
-        return product.Stock >= request.Quantity;
+        return product.Stock >= request.Quantity!.Value; 
     }
 }

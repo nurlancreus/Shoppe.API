@@ -11,11 +11,11 @@ namespace Shoppe.Domain.Entities
     public class DiscountCategory
     {
         public Guid Id { get; set; }
-        public Guid? CategoryId { get; set; }
-        public Guid? DiscountId { get; set; }
-        public ProductCategory? Category { get; set; }
-        public Discount? Discount { get; set; }
-        public bool IsActive { get; set; }
+        public Guid CategoryId { get; set; }
+        public Guid DiscountId { get; set; }
+        public ProductCategory Category { get; set; } = null!;
+        public Discount Discount { get; set; } = null!;
+        // public bool IsActive { get; set; }
 
     }
 }
