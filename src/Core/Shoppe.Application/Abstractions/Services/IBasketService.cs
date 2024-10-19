@@ -9,11 +9,12 @@ namespace Shoppe.Application.Abstractions.Services
 {
     public interface IBasketService
     {
-        GetBasketDTO MyCurrentBasket { get; }
-        Task AddItemToBasketAsync(string productId, int quantity, CancellationToken cancellationToken);
+        Task<GetBasketDTO?> GetMyCurrentBasketAsync(CancellationToken cancellationToken);
+        Task AddItemToBasketAsync(string productId, int? quantity, CancellationToken cancellationToken);
         Task UpdateItemQuantityAsync(string basketItemId, int quantity, CancellationToken cancellationToken);
         Task UpdateItemQuantityAsync(string basketItemId, bool increment, CancellationToken cancellationToken);
-        Task RemoveBasketItemAsync(string basketItemId);
-        Task RemoveBasket(string basketId);
+        Task RemoveBasketItemAsync(string basketItemId, CancellationToken cancellationToken);
+        Task RemoveBasket(string basketId, CancellationToken cancellationToken);
+        Task RemoveCurrentBasket(CancellationToken cancellationToken);
     }
 }

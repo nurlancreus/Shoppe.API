@@ -73,67 +73,78 @@ namespace Shoppe.Persistence.Concretes.Services
 
             scope.Complete();
         }
-
+        
         public async Task AssignDiscountAsync(string entityId, string discountId, EntityType entityType, CancellationToken cancellationToken, bool update = false)
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             var discount = await _discountReadRepository.GetByIdAsync(discountId, cancellationToken);
             if (discount == null)
                 throw new EntityNotFoundException(nameof(discount));
 
-            if (!discount.IsActive || DateTime.UtcNow < discount.StartDate || DateTime.UtcNow > discount.EndDate)
+            if (!CheckIfIsValid(discount))
                 throw new InvalidOperationException("Discount is not valid for the current date");
 
             switch (entityType)
             {
                 case EntityType.Product:
-                    var product = await _productReadRepository.GetByIdAsync(entityId, cancellationToken);
-                    if (product == null)
-                        throw new EntityNotFoundException(nameof(product));
-
-                    if (product.DiscountMappings.Any(dp => dp.IsActive))
                     {
-                        if (!update)
-                        {
-                            throw new InvalidOperationException("This product already has the assigned discount");
-                        }
-                        else
-                        {
-                            var discountToDelete = product.DiscountMappings.FirstOrDefault(dp => dp.IsActive);
+                        var product = await _productReadRepository.GetByIdAsync(entityId, cancellationToken);
+                        if (product == null)
+                            throw new EntityNotFoundException(nameof(product));
 
-                            if (discountToDelete != null)
-                                product.DiscountMappings.Remove(discountToDelete);
+                        var activeDiscount = product.DiscountMappings.FirstOrDefault(dp => dp.Discount.IsActive);
 
+                        if (activeDiscount != null)
+                        {
+                            if (!CheckIfIsValid(activeDiscount.Discount))
+                            {
+                               // activeDiscount.IsActive = false;
+                                activeDiscount.Discount.IsActive = false;
+                            }
+                            else if (update)
+                            {
+                                product.DiscountMappings.Remove(activeDiscount);
+
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException("This product already has the assigned discount");
+                            }
                         }
+
+                        product.DiscountMappings.Add(new DiscountProduct { DiscountId = discount.Id });
+                        break;
                     }
-
-                    product.DiscountMappings.Add(new DiscountProduct { DiscountId = discount.Id });
-                    break;
-
                 case EntityType.ProductCategory:
-                    var category = await _categoryReadRepository.Table.OfType<ProductCategory>().FirstOrDefaultAsync(c => c.Id.ToString() == entityId, cancellationToken);
-                    if (category == null)
-                        throw new EntityNotFoundException(nameof(category));
-
-                    if (category.DiscountMappings.Any(dp => dp.IsActive))
                     {
-                        if (!update)
-                        {
-                            throw new InvalidOperationException("This category already has the assigned discount");
-                        }
-                        else
-                        {
-                            var discountToDelete = category.DiscountMappings.FirstOrDefault(dp => dp.IsActive);
+                        var category = await _categoryReadRepository.Table.OfType<ProductCategory>().FirstOrDefaultAsync(c => c.Id.ToString() == entityId, cancellationToken);
+                        if (category == null)
+                            throw new EntityNotFoundException(nameof(category));
 
-                            if (discountToDelete != null)
-                                category.DiscountMappings.Remove(discountToDelete);
+                        var activeDiscount = category.DiscountMappings.FirstOrDefault(dc => dc.Discount.IsActive);
 
+                        if (activeDiscount != null)
+                        {
+                            if (!CheckIfIsValid(activeDiscount.Discount))
+                            {
+                                //activeDiscount.IsActive = false;
+                                activeDiscount.Discount.IsActive = false;
+                            }
+                            else if (update)
+                            {
+                                category.DiscountMappings.Remove(activeDiscount);
+
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException("This category already has the assigned discount");
+                            }
                         }
+
+                        category.DiscountMappings.Add(new DiscountCategory { DiscountId = discount.Id });
+                        break;
                     }
-
-                    category.DiscountMappings.Add(new DiscountCategory { DiscountId = discount.Id });
-                    break;
-
                 default:
                     throw new InvalidOperationException("Invalid entity type");
             }
@@ -143,62 +154,83 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
 
+
         public async Task AssignDiscountAsync(IDiscountable entity, string discountId, CancellationToken cancellationToken, bool update = false)
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             var discount = await _discountReadRepository.GetByIdAsync(discountId, cancellationToken);
             if (discount == null)
                 throw new EntityNotFoundException(nameof(discount));
 
-            if (!discount.IsActive || DateTime.UtcNow < discount.StartDate || DateTime.UtcNow > discount.EndDate)
+            if (!CheckIfIsValid(discount))
                 throw new InvalidOperationException("Discount is not valid for the current date");
 
             if (entity is Product product)
             {
-                if (product.DiscountMappings.Any(dp => dp.IsActive))
+                var activeDiscount = product.DiscountMappings.FirstOrDefault(dp => dp.Discount.IsActive);
+
+                if (activeDiscount != null)
                 {
-                    if (!update)
+
+                    if (!CheckIfIsValid(activeDiscount.Discount))
                     {
-                        throw new InvalidOperationException("This product already has the assigned discount");
+                       // activeDiscount.IsActive = false;
+                        activeDiscount.Discount.IsActive = false;
+                    }
+
+                    else if (update)
+                    {
+                        product.DiscountMappings.Remove(activeDiscount);
+
                     }
                     else
                     {
-                        var discountToDelete = product.DiscountMappings.FirstOrDefault(dp => dp.IsActive);
-
-                        if (discountToDelete != null)
-                            product.DiscountMappings.Remove(discountToDelete);
-
+                        throw new InvalidOperationException("This product already has the assigned discount");
                     }
                 }
 
+
+                // Add the new discount to the product
                 product.DiscountMappings.Add(new DiscountProduct { DiscountId = discount.Id });
             }
             else if (entity is ProductCategory category)
             {
-                if (category.DiscountMappings.Any(dp => dp.IsActive))
+                var activeDiscount = category.DiscountMappings.FirstOrDefault(dc => dc.Discount.IsActive);
+
+                if (activeDiscount != null)
                 {
-                    if (!update)
+
+                    if (!CheckIfIsValid(activeDiscount.Discount))
                     {
-                        throw new InvalidOperationException("This category already has the assigned discount");
+                        //activeDiscount.IsActive = false;
+                        activeDiscount.Discount.IsActive = false;
                     }
+
+                    else if (update)
+                    {
+                        category.DiscountMappings.Remove(activeDiscount);
+
+                    }
+
                     else
                     {
-                        var discountToDelete = category.DiscountMappings.FirstOrDefault(dp => dp.IsActive);
-
-                        if (discountToDelete != null)
-                            category.DiscountMappings.Remove(discountToDelete);
+                        throw new InvalidOperationException("This category already has the assigned discount");
                     }
                 }
 
 
                 category.DiscountMappings.Add(new DiscountCategory { DiscountId = discount.Id });
             }
-            else throw new InvalidOperationException("Invalid entity type");
+            else
+            {
+                throw new InvalidOperationException("Invalid entity type");
+            }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
             scope.Complete();
         }
+
 
         public async Task DeleteAsync(string id, CancellationToken cancellationToken)
         {
@@ -223,12 +255,13 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var paginatedResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, discountsQuery);
 
+
             var discounts = await paginatedResult.PaginatedQuery.Select(d => new GetDiscountDTO
             {
                 Id = d.Id.ToString(),
                 Name = d.Name,
                 Description = d.Description,
-                IsActive = d.IsActive,
+                IsActive = CheckIfIsValid(d),
                 DiscountPercentage = d.DiscountPercentage,
                 StartDate = d.StartDate,
                 EndDate = d.EndDate,
@@ -257,7 +290,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 Name = discount.Name,
                 Description = discount.Description,
                 DiscountPercentage = discount.DiscountPercentage,
-                IsActive = discount.IsActive,
+                IsActive = CheckIfIsValid(discount),
                 StartDate = discount.StartDate,
                 EndDate = discount.EndDate,
                 CreatedAt = discount.CreatedAt,
@@ -312,6 +345,16 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             scope.Complete();
+        }
+
+        private static bool CheckIfIsValid(Discount? discount)
+        {
+            ArgumentNullException.ThrowIfNull(discount);
+
+            return discount.IsActive &&
+                   discount.StartDate < discount.EndDate &&
+                   DateTime.UtcNow >= discount.StartDate &&
+                   DateTime.UtcNow < discount.EndDate;
         }
     }
 }

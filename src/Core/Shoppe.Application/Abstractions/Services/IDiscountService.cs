@@ -19,5 +19,6 @@ namespace Shoppe.Application.Abstractions.Services
         Task DeleteAsync(string id, CancellationToken cancellationToken);
         Task AssignDiscountAsync(string entityId, string discountId, EntityType entityType, CancellationToken cancellationToken, bool update = false);
         Task AssignDiscountAsync(IDiscountable entity, string discountId, CancellationToken cancellationToken, bool update = false);
+
     }
 }
