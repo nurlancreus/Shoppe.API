@@ -8,7 +8,6 @@ namespace Shoppe.Domain.Entities.Files
 {
     public class BlogImageFile : ImageFile
     {
-        public Guid BlogId { get; set; }
-        public ICollection<Blog> Blogs { get; set; } = [];
+        public ICollection<BlogBlogImage> BlogMappings { get; set; } = [];
     }
 }
