@@ -13,6 +13,8 @@ namespace Shoppe.Persistence.Configurations
             builder.Property(d => d.DiscountPercentage)
                    .HasColumnType("decimal(5, 2)")
                    .IsRequired();
+
+            builder.ToTable(bi => bi.HasCheckConstraint("CK_Discount_DiscountPercentage", "[DiscountPercentage] > 0 AND [DiscountPercentage] <= 100"));
         }
     }
 
