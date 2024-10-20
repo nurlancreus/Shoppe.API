@@ -11,6 +11,6 @@ namespace Shoppe.Application.Abstractions.Pagination
 {
     public interface IPaginationService
     {
-        Task<PaginatedQueryDTO<T>> ConfigurePaginationAsync<T>(int page, int pageSize, IQueryable<T> entities) where T : BaseEntity;
+        Task<PaginatedQueryDTO<T>> ConfigurePaginationAsync<T>(int page, int pageSize, IQueryable<T> entities, CancellationToken cancellationToken) where T : IBase;
     }
 }

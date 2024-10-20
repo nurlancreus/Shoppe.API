@@ -46,7 +46,10 @@ namespace Shoppe.Infrastructure.Concretes.Services.Storage
         public Task<bool> HasFileAsync(string path, string fileName)
             => _storage.HasFileAsync(path, fileName);
 
-        public Task<List<(string path, string fileName)>> UploadAsync(string path, IFormFileCollection files)
-            => _storage.UploadAsync(path, files);
+        public Task<(string path, string fileName)> UploadAsync(string path, IFormFile formFile)
+         => _storage.UploadAsync(path, formFile);
+
+        public Task<List<(string path, string fileName)>> UploadMultipleAsync(string path, IFormFileCollection files)
+            => _storage.UploadMultipleAsync(path, files);
     }
 }

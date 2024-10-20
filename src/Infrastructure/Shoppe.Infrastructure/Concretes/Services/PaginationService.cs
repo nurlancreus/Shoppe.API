@@ -10,13 +10,13 @@ namespace Shoppe.Infrastructure.Concretes.Services
 {
     public class PaginationService : IPaginationService
     {
-        public async Task<PaginatedQueryDTO<T>> ConfigurePaginationAsync<T>(int page, int pageSize, IQueryable<T> entities) where T : BaseEntity
+        public async Task<PaginatedQueryDTO<T>> ConfigurePaginationAsync<T>(int page, int pageSize, IQueryable<T> entities, CancellationToken cancellationToken) where T : IBase
         {
             // Handle the case where both page and pageSize are -1
             if (page == -1 && pageSize == -1)
             {
                 // Return all entities without pagination
-                var total = await entities.CountAsync();
+                var total = await entities.CountAsync(cancellationToken: cancellationToken);
 
                 return new PaginatedQueryDTO<T>()
                 {
@@ -35,7 +35,7 @@ namespace Shoppe.Infrastructure.Concretes.Services
             }
 
             // Get total items count
-            var totalItems = await entities.CountAsync();
+            var totalItems = await entities.CountAsync(cancellationToken);
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
             // Adjust totalPages to be at least 1
