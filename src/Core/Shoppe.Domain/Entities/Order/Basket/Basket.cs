@@ -15,7 +15,7 @@ namespace Shoppe.Domain.Entities
         public string UserId { get; set; } = null!;
         public ApplicationUser User { get; set; } = null!;
         public ICollection<BasketItem> Items { get; set; } = [];
-        public Order Order { get; set; } = null!;
+        public Order? Order { get; set; } = null!;
         public Guid? CouponId { get; set; }
         public Coupon? Coupon { get; set; }
     }
