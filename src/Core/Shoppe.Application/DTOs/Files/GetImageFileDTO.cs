@@ -12,5 +12,6 @@ namespace Shoppe.Application.DTOs.Files
         public string FileName { get; set; } = string.Empty;
         public string PathName { get; set; } = string.Empty;
         public bool IsMain { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

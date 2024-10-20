@@ -1,4 +1,5 @@
 ﻿using Shoppe.Application.DTOs.Files;
+using Shoppe.Application.DTOs.Role;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,9 @@ namespace Shoppe.Application.DTOs.User
         public string UserName {  get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public List<GetImageFileDTO> ProfilePictures { get; set; } = [];
+        public List<GetRoleDTO> Roles { get; set; } = [];
         public DateTime CreatedAt { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime? DeactivatedAt { get; set; }
     }
 }
