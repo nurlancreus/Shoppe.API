@@ -18,6 +18,8 @@ using Shoppe.Application.Abstractions.Repositories.ProductDetailsRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductImageFileRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
+using Shoppe.Application.Abstractions.Repositories.UserProfilePictureFileRepos;
+using Shoppe.Application.Abstractions.Repositories.UserProfilePictureRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Auth;
 using Shoppe.Application.Abstractions.Services.Calculator;
@@ -39,6 +41,7 @@ using Shoppe.Persistence.Concretes.Repositories.ProductDetailsRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductImageFileRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductRepos;
 using Shoppe.Persistence.Concretes.Repositories.ReviewRepos;
+using Shoppe.Persistence.Concretes.Repositories.UserProfilePictureFileRepos;
 using Shoppe.Persistence.Concretes.Services;
 using Shoppe.Persistence.Concretes.Services.Auth;
 using Shoppe.Persistence.Concretes.Services.Hosted;
@@ -72,6 +75,9 @@ namespace Shoppe.Persistence
 
             services.AddScoped<IProductImageFileReadRepository, ProductImageFileReadRepository>();
             services.AddScoped<IProductImageFileWriteRepository, ProductImageFileWriteRepository>();
+
+            services.AddScoped<IUserProfilePictureFileReadRepository, UserProfilePictureFileReadRepository>();
+            services.AddScoped<IUserProfilePictureFileWriteRepository, UserProfilePictureFileWriteRepository>();
 
             services.AddScoped<IReviewReadRepository, ReviewReadRepository>();
             services.AddScoped<IReviewWriteRepository, ReviewWriteRepository>();
@@ -120,6 +126,8 @@ namespace Shoppe.Persistence
 
             services.AddScoped<IInternalAuthService, AuthService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRoleService, RoleService>();
 
             services.AddScoped<IDiscountCalculatorService, CalculatorService>();
 

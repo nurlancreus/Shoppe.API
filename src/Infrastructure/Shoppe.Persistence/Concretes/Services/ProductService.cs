@@ -102,7 +102,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 if (createProductDTO.ProductImages.Count > 0)
                 {
-                    List<(string path, string fileName)> imageResults = await _storageService.UploadAsync(ProductConst.ProductImagesFolder, createProductDTO.ProductImages);
+                    List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ProductImagesFolder, createProductDTO.ProductImages);
 
                     int counter = 0;
 
@@ -194,7 +194,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 }
             }
 
-            (int totalItems, int pageSize, int page, int totalPages, IQueryable<Product> paginatedQuery) = await _paginationService.ConfigurePaginationAsync(filtersDTO.Page, filtersDTO.PageSize, productsQuery);
+            (int totalItems, int pageSize, int page, int totalPages, IQueryable<Product> paginatedQuery) = await _paginationService.ConfigurePaginationAsync(filtersDTO.Page, filtersDTO.PageSize, productsQuery, cancellationToken);
 
             var products = await paginatedQuery.ToListAsync(cancellationToken);
 
@@ -399,7 +399,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 // Handle product images
                 if (updateProductDTO.ProductImages.Count > 0)
                 {
-                    List<(string path, string fileName)> imageResults = await _storageService.UploadAsync(ProductConst.ProductImagesFolder, updateProductDTO.ProductImages);
+                    List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ProductImagesFolder, updateProductDTO.ProductImages);
 
                     var existingMainImage = product.ProductImageFiles.SingleOrDefault(i => i.IsMain);
                     int counter = 0;

@@ -253,7 +253,7 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             var discountsQuery = await _discountReadRepository.GetAllAsync(false);
 
-            var paginatedResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, discountsQuery);
+            var paginatedResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, discountsQuery, cancellationToken);
 
 
             var discounts = await paginatedResult.PaginatedQuery.Select(d => new GetDiscountDTO

@@ -76,7 +76,7 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             var query = await _contactReadRepository.GetAllAsync(false);
 
-            var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, size, query);
+            var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, size, query, cancellationToken);
 
             var contacts = await paginatedQuery.Select(c => c.ToGetContactDTO()).ToListAsync(cancellationToken);
 

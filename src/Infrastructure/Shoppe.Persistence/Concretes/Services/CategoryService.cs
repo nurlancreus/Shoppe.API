@@ -109,7 +109,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new InvalidOperationException("Query not found, operation invalid");
             }
 
-            var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, pageSize, query);
+            var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, pageSize, query, cancellationToken);
 
             var categories = await paginatedQuery.Select(c => c.ToGetCategoryDTO()).ToListAsync(cancellationToken);
 

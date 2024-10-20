@@ -117,7 +117,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 var query = _reviewReadRepository.Table.Include(r => r.Reviewer).AsNoTrackingWithIdentityResolution().AsQueryable();
 
                 var (totalItems, _pageSize, _page, totalPages, paginatedQuery) =
-                    await _paginationService.ConfigurePaginationAsync(page, size, query);
+                    await _paginationService.ConfigurePaginationAsync(page, size, query, cancellationToken);
 
                 var reviews = await paginatedQuery
                     .Select(r => r.ToGetReviewDTO())
