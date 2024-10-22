@@ -1,5 +1,5 @@
-﻿using Amazon.S3.Model;
-using Amazon.S3;
+﻿using Amazon.S3;
+using Amazon.S3.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Shoppe.Application.Abstractions.Services.Storage.AWS;
@@ -8,7 +8,9 @@ using Shoppe.Application.Options.Storage;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Shoppe.Infrastructure.Concretes.Services.Storage.AWS
 {
@@ -16,11 +18,13 @@ namespace Shoppe.Infrastructure.Concretes.Services.Storage.AWS
     {
         private readonly IAmazonS3 _s3Client;
         private readonly string _bucketName;
+        private readonly List<string> _uploadedFiles; // Track uploaded files for rollback
 
         public AWSStorage(IAmazonS3 s3Client, IOptions<StorageOptions> storageOptions)
         {
             _bucketName = storageOptions.Value.AWS.AWSS3.BucketName;
             _s3Client = s3Client;
+            _uploadedFiles = [];
         }
 
         public async Task DeleteAsync(string path, string fileName)
@@ -107,39 +111,29 @@ namespace Shoppe.Infrastructure.Concretes.Services.Storage.AWS
 
             await UploadFileToS3Async(formFile, key);
 
+            // Enlist this operation in the current transaction
+            EnlistInTransaction(key);
+
             return (path, newFileName);
         }
 
         public async Task<List<(string path, string fileName)>> UploadMultipleAsync(string path, IFormFileCollection formFiles)
         {
             var uploadedFiles = new List<(string path, string fileName)>();
-            var successfulUploads = new List<string>(); // Track uploaded file keys for rollback
 
-            try
+            foreach (var formFile in formFiles)
             {
-                foreach (var formFile in formFiles)
+                if (formFile.Length > 0)
                 {
-                    if (formFile.Length > 0)
-                    {
-                        var (pathName, fileName) = await UploadAsync(path, formFile);
-                        uploadedFiles.Add((pathName, fileName));
-
-                        // Track the uploaded file's S3 key
-                        string key = GetS3Key(pathName, fileName);
-                        successfulUploads.Add(key);
-                    }
+                    var (pathName, fileName) = await UploadAsync(path, formFile);
+                    uploadedFiles.Add((pathName, fileName));
                 }
+            }
 
-                return uploadedFiles;
-            }
-            catch (Exception)
-            {
-                // Rollback previously uploaded files in case of failure
-                await RollbackUploadedFiles(successfulUploads);
-                throw new Exception("File upload transaction failed. Rolled back successful uploads.");
-            }
+            return uploadedFiles;
         }
 
+        // Helper methods to work with S3 keys and file operations
         private string GetS3Key(string path, string fileName)
         {
             return Path.Combine(path, fileName).Replace("\\", "/");
@@ -157,6 +151,9 @@ namespace Shoppe.Infrastructure.Concretes.Services.Storage.AWS
             };
 
             await _s3Client.PutObjectAsync(uploadRequest);
+
+            // Track uploaded file for possible rollback
+            _uploadedFiles.Add(key);
         }
 
         private string GetFileNameFromKey(string key)
@@ -169,6 +166,43 @@ namespace Shoppe.Infrastructure.Concretes.Services.Storage.AWS
         {
             var keyParts = key.Split('/');
             return string.Join("/", keyParts.Take(keyParts.Length - 1));
+        }
+
+        private void EnlistInTransaction(string key)
+        {
+            if (Transaction.Current != null)
+            {
+                // Enlist this service in the current transaction
+                Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
+            }
+        }
+
+        // IEnlistmentNotification Implementation for TransactionScope
+        public void Prepare(PreparingEnlistment preparingEnlistment)
+        {
+            // Nothing specific to prepare for S3, so we mark it as prepared
+            preparingEnlistment.Prepared();
+        }
+
+        public void Commit(Enlistment enlistment)
+        {
+            // Transaction has been successfully committed, nothing to do
+            _uploadedFiles.Clear(); // Clear the rollback list
+            enlistment.Done();
+        }
+
+        public async void Rollback(Enlistment enlistment)
+        {
+            // Rollback: Delete all uploaded files from S3
+            await RollbackUploadedFiles(_uploadedFiles);
+            _uploadedFiles.Clear(); // Clear the rollback list
+            enlistment.Done();
+        }
+
+        public void InDoubt(Enlistment enlistment)
+        {
+            // Handle any "in doubt" situation (rare in most cases)
+            enlistment.Done();
         }
 
         // Helper method to rollback all uploaded files in case of failure

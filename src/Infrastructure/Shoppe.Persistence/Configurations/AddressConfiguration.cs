@@ -17,7 +17,7 @@ namespace Shoppe.Persistence.Configurations
             builder
                 .HasDiscriminator<string>("AddressType")
                 .HasValue<BillingAddress>("Billing")
-                .HasValue<DeliveryAddress>("Delivery");
+                .HasValue<ShippingAddress>("Delivery");
         }
     }
 }

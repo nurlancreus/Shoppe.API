@@ -16,6 +16,8 @@ using Shoppe.Application.Abstractions.Pagination;
 using Shoppe.Infrastructure.Concretes.Services;
 using Shoppe.Application.Abstractions.Services.Token;
 using Shoppe.Infrastructure.Concretes.Services.Token;
+using Shoppe.Application.Abstractions.Services.Session;
+using Shoppe.Infrastructure.Concretes.Services.Session;
 
 namespace Shoppe.Infrastructure
 {
@@ -28,6 +30,7 @@ namespace Shoppe.Infrastructure
             services.AddScoped<IPaginationService, PaginationService>();
 
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IJwtSession, JwtSession>();
             #endregion
 
             return services;

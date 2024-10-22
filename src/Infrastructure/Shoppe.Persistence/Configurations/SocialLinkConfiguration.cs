@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Persistence.Configurations
 {
-    public class SocialLinkConfiguration : IEntityTypeConfiguration<SocialLink>
+    public class SocialLinkConfiguration : IEntityTypeConfiguration<SocialMediaLink>
     {
-        public void Configure(EntityTypeBuilder<SocialLink> builder)
+        public void Configure(EntityTypeBuilder<SocialMediaLink> builder)
         {
             builder.Property(l => l.SocialPlatform)
             .HasConversion<string>();

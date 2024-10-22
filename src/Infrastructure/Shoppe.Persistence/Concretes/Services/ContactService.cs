@@ -111,27 +111,27 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(contact));
             }
 
-            if (contact.FirstName != updateContactDTO.FirstName)
+            if (updateContactDTO.FirstName != null && contact.FirstName != updateContactDTO.FirstName)
             {
                 contact.FirstName = updateContactDTO.FirstName;
             }
 
-            if (contact.LastName != updateContactDTO.LastName)
+            if (updateContactDTO.LastName != null &&contact.LastName != updateContactDTO.LastName)
             {
                 contact.LastName = updateContactDTO.LastName;
             }
 
-            if (contact.Email != updateContactDTO.Email)
+            if (updateContactDTO.Email != null && contact.Email != updateContactDTO.Email)
             {
                 contact.Email = updateContactDTO.Email;
             }
 
-            if (contact.Subject != updateContactDTO.Subject)
+            if (updateContactDTO.Subject != null && contact.Subject != updateContactDTO.Subject)
             {
                 contact.Subject = updateContactDTO.Subject;
             }
 
-            if (contact.Message != updateContactDTO.Message)
+            if (updateContactDTO.Message != null && contact.Message != updateContactDTO.Message)
             {
                 contact.Message = updateContactDTO.Message;
             }

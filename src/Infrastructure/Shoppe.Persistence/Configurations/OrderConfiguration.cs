@@ -35,7 +35,7 @@ namespace Shoppe.Persistence.Configurations
                 .WithMany(a => a.Orders)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            builder.HasOne(o => o.DeliveryAddress)
+            builder.HasOne(o => o.ShippingAddress)
                 .WithMany(a => a.Orders)
                 .OnDelete(DeleteBehavior.NoAction);
 

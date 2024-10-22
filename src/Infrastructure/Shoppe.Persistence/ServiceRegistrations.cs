@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shoppe.Application.Abstractions.Repositories.AboutRepos;
 using Shoppe.Application.Abstractions.Repositories.AddressRepos;
 using Shoppe.Application.Abstractions.Repositories.BasketItemRepos;
 using Shoppe.Application.Abstractions.Repositories.BasketRepos;
@@ -18,6 +19,7 @@ using Shoppe.Application.Abstractions.Repositories.ProductDetailsRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductImageFileRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
+using Shoppe.Application.Abstractions.Repositories.SliderRepository;
 using Shoppe.Application.Abstractions.Repositories.UserProfilePictureFileRepos;
 using Shoppe.Application.Abstractions.Repositories.UserProfilePictureRepos;
 using Shoppe.Application.Abstractions.Services;
@@ -26,6 +28,7 @@ using Shoppe.Application.Abstractions.Services.Calculator;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Persistence.Concretes.Repositories;
+using Shoppe.Persistence.Concretes.Repositories.AboutRepos;
 using Shoppe.Persistence.Concretes.Repositories.AddressRepos;
 using Shoppe.Persistence.Concretes.Repositories.BasketItemRepos;
 using Shoppe.Persistence.Concretes.Repositories.BasketRepos;
@@ -41,6 +44,7 @@ using Shoppe.Persistence.Concretes.Repositories.ProductDetailsRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductImageFileRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductRepos;
 using Shoppe.Persistence.Concretes.Repositories.ReviewRepos;
+using Shoppe.Persistence.Concretes.Repositories.SliderRepos;
 using Shoppe.Persistence.Concretes.Repositories.UserProfilePictureFileRepos;
 using Shoppe.Persistence.Concretes.Services;
 using Shoppe.Persistence.Concretes.Services.Auth;
@@ -64,6 +68,12 @@ namespace Shoppe.Persistence
             services.AddDbContext<ShoppeDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("Default")));
 
             #region Repo Registrations
+            services.AddScoped<IAboutReadRepository, AboutReadRepository>();
+            services.AddScoped<IAboutWriteRepository, AboutWriteRepository>();
+
+            services.AddScoped<ISliderReadRepository, SliderReadRepository>();
+            services.AddScoped<ISliderWriteRepository, SliderWriteRepository>();
+
             services.AddScoped<ICategoryReadRepository, CategoryReadRepository>();
             services.AddScoped<ICategoryWriteRepository, CategoryWriteRepository>();
             

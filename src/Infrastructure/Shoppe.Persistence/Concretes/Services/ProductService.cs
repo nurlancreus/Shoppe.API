@@ -102,7 +102,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 if (createProductDTO.ProductImages.Count > 0)
                 {
-                    List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ProductImagesFolder, createProductDTO.ProductImages);
+                    List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ImagesFolder, createProductDTO.ProductImages);
 
                     int counter = 0;
 
@@ -399,7 +399,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 // Handle product images
                 if (updateProductDTO.ProductImages.Count > 0)
                 {
-                    List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ProductImagesFolder, updateProductDTO.ProductImages);
+                    List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ImagesFolder, updateProductDTO.ProductImages);
 
                     var existingMainImage = product.ProductImageFiles.SingleOrDefault(i => i.IsMain);
                     int counter = 0;

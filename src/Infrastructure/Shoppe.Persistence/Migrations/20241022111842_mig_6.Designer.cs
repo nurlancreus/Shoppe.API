@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shoppe.Persistence.Context;
 
@@ -11,9 +12,11 @@ using Shoppe.Persistence.Context;
 namespace Shoppe.Persistence.Migrations
 {
     [DbContext(typeof(ShoppeDbContext))]
-    partial class ShoppeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241022111842_mig_6")]
+    partial class mig_6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,25 +172,11 @@ namespace Shoppe.Persistence.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasAnnotation("RegexPattern", "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasAnnotation("RegexPattern", "^\\+?\\d{1,3}?[-.●]?\\(?\\d{1,4}?\\)?[-.●]?\\d{1,4}[-.●]?\\d{1,9}$");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -198,22 +187,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id")
-                        .IsUnique();
-
                     b.ToTable("About");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("3e725483-8b3c-4d73-b6a0-7962e4b9071e"),
-                            CreatedAt = new DateTime(2024, 10, 22, 11, 31, 0, 551, DateTimeKind.Utc).AddTicks(8862),
-                            Description = "Who we are and why we do what we do!",
-                            Email = "contact@shoppe.com",
-                            Name = "Shoppe",
-                            Phone = "123-456-7890",
-                            Title = ""
-                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Address", b =>

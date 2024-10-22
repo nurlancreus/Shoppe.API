@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Shoppe.Application.Abstractions.Services.Storage.Local;
-using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Helpers;
 using System;
 using System.Collections.Generic;
@@ -8,16 +7,19 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using System.Transactions;
 
 namespace Shoppe.Infrastructure.Concretes.Services.Storage.Local
 {
     public class LocalStorage : ILocalStorage
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly List<(string path, string fileName)> _uploadedFiles; // Track uploaded files for rollback
 
         public LocalStorage(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
+            _uploadedFiles = [];
         }
 
         public async Task DeleteAsync(string path, string fileName)
@@ -53,6 +55,12 @@ namespace Shoppe.Infrastructure.Concretes.Services.Storage.Local
             if (!isCopied)
                 throw new Exception("File copy failed.");
 
+            // Track the uploaded file for potential rollback
+            _uploadedFiles.Add((path, newFileName));
+
+            // Enlist the operation in the current transaction
+            EnlistInTransaction();
+
             return (path, newFileName);
         }
 
@@ -64,7 +72,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Storage.Local
             }
 
             string uploadPath = GetFullPath(path);
-            await FileHelpers.EnsureDirectoryExists(uploadPath);
+            FileHelpers.EnsureDirectoryExists(uploadPath);
 
             var uploadedFiles = new List<(string path, string fileName)>();
 
@@ -82,7 +90,11 @@ namespace Shoppe.Infrastructure.Concretes.Services.Storage.Local
                 }
 
                 uploadedFiles.Add((path, newFileName));
+                _uploadedFiles.Add((path, newFileName)); // Track for rollback
             }
+
+            // Enlist the operation in the current transaction
+            EnlistInTransaction();
 
             return uploadedFiles;
         }
@@ -131,6 +143,43 @@ namespace Shoppe.Infrastructure.Concretes.Services.Storage.Local
                 }
             }
             await Task.CompletedTask;
+        }
+
+        private void EnlistInTransaction()
+        {
+            if (Transaction.Current != null)
+            {
+                // Enlist this service in the current transaction
+                Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
+            }
+        }
+
+        // IEnlistmentNotification Implementation for TransactionScope
+        public void Prepare(PreparingEnlistment preparingEnlistment)
+        {
+            // No specific preparation needed for local file operations, so mark as prepared
+            preparingEnlistment.Prepared();
+        }
+
+        public void Commit(Enlistment enlistment)
+        {
+            // Clear the uploaded files list because the transaction succeeded
+            _uploadedFiles.Clear();
+            enlistment.Done();
+        }
+
+        public async void Rollback(Enlistment enlistment)
+        {
+            // Delete all files uploaded during the transaction if it fails
+            await RollbackUploads(_uploadedFiles);
+            _uploadedFiles.Clear();
+            enlistment.Done();
+        }
+
+        public void InDoubt(Enlistment enlistment)
+        {
+            // Handle any "in doubt" cases, though they are rare
+            enlistment.Done();
         }
     }
 }

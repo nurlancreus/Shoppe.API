@@ -6,6 +6,8 @@ using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Entities.Reviews;
+using Shoppe.Domain.Entities.Sections;
+using Shoppe.Domain.Entities.Sliders;
 using Shoppe.Persistence.Configurations;
 using System;
 using System.Collections.Generic;
@@ -30,8 +32,17 @@ namespace Shoppe.Persistence.Context
 
             base.OnModelCreating(builder);
         }
+        public DbSet<About> About { get; set; }
+
+        public DbSet<Section> Sections { get; set; }
+        public DbSet<AboutSection> AboutSections {  get; set; } 
+
+        public DbSet<Slider> Sliders { get; set; }
+        public DbSet<HeroSlider> HeroSlider { get; set; }
+        public DbSet<Slide> Slides { get; set; }
+
         public DbSet<Blog> Blogs { get; set; }
-        public DbSet<SocialLink> SocialLinks { get; set; }
+        public DbSet<SocialMediaLink> SocialMediaLinks { get; set; }
 
         public DbSet<Product> Products { get; set; }
         public DbSet<Discount> Discounts { get; set; }
@@ -57,11 +68,13 @@ namespace Shoppe.Persistence.Context
         public DbSet<ApplicationFile> ApplicationFiles { get; set; }
         public DbSet<ImageFile> ImageFiles { get; set; } 
         public DbSet<ProductImageFile> ProductImageFiles { get; set; }
+        public DbSet<SlideImageFile> SlideImageFiles { get; set; }
         public DbSet<BlogImageFile> BlogImageFiles { get; set; }
+        public DbSet<SectionImageFile> SectionImageFiles { get; set; }
 
 
         public DbSet<Address> Addresses { get; set; }
-        public DbSet<DeliveryAddress> DeliveryAddresses { get; set; }
+        public DbSet<ShippingAddress> ShippingAddresses { get; set; }
         public DbSet<BillingAddress> BillingAddresses { get; set; }
 
         private void UpdateDateTimesWhileSavingInterceptor()

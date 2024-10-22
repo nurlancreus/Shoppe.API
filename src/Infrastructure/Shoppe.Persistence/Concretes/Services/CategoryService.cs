@@ -144,56 +144,24 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(category));
             }
 
-            if (!string.IsNullOrWhiteSpace(updateCategoryDTO.Name) && !category.Name.Equals(updateCategoryDTO.Name))
+            if (!string.IsNullOrWhiteSpace(updateCategoryDTO.Name) && category.Name.ToLower() != updateCategoryDTO.Name.ToLower())
             {
                 category.Name = updateCategoryDTO.Name;
             }
 
-            if (!string.IsNullOrWhiteSpace(updateCategoryDTO.Description))
+            if (!string.IsNullOrWhiteSpace(updateCategoryDTO.Description) && category.Description?.ToLower() != updateCategoryDTO.Description.ToLower())
             {
                 category.Description = updateCategoryDTO.Description;
             }
 
-            var existingType = category.Discriminator;
 
-            if (updateCategoryDTO.Type.ToString() != existingType && updateCategoryDTO.Type == CategoryType.Product)
+            var isUpdated = _categoryWriteRepository.Update(category);
+
+            if (!isUpdated)
             {
-                _categoryReadRepository.Table.Entry(category).State = EntityState.Detached;
-
-                var productCategory = new ProductCategory
-                {
-                    Id = category.Id,
-                    Name = category.Name,
-                    Description = category.Description,
-                    Discriminator = CategoryType.Product.ToString(),
-                };
-
-                _categoryWriteRepository.Update(productCategory);
-
-
+                throw new UpdateNotSucceedException();
             }
-            else if (updateCategoryDTO.Type.ToString() != existingType && updateCategoryDTO.Type == CategoryType.Blog)
-            {
-                _categoryReadRepository.Table.Entry(category).State = EntityState.Detached;
 
-                var blogCategory = new BlogCategory
-                {
-                    Id = category.Id,
-                    Name = category.Name,
-                    Description = category.Description,
-                    Discriminator = CategoryType.Blog.ToString(),
-                };
-
-                _categoryWriteRepository.Update(blogCategory);
-            }
-            else
-            {
-                var isUpdated = _categoryWriteRepository.Update(category);
-                if (!isUpdated)
-                {
-                    throw new UpdateNotSucceedException();
-                }
-            }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
