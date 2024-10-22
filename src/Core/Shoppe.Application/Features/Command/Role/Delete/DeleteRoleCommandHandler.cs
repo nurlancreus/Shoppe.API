@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Shoppe.Application.Abstractions.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,21 @@ namespace Shoppe.Application.Features.Command.Role.Delete
 {
     public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommandRequest, DeleteRoleCommandResponse>
     {
-        public Task<DeleteRoleCommandResponse> Handle(DeleteRoleCommandRequest request, CancellationToken cancellationToken)
+        private readonly IRoleService _roleService;
+
+        public DeleteRoleCommandHandler(IRoleService roleService)
         {
-            throw new NotImplementedException();
+            _roleService = roleService;
+        }
+
+        public async Task<DeleteRoleCommandResponse> Handle(DeleteRoleCommandRequest request, CancellationToken cancellationToken)
+        {
+            await _roleService.DeleteAsync(request.RoleId!, cancellationToken);
+
+            return new DeleteRoleCommandResponse
+            {
+                IsSuccess = true,
+            };
         }
     }
 }

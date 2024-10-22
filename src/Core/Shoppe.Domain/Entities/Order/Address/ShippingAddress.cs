@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Entities
 {
-    public class DeliveryAddress : Address
+    public class ShippingAddress : Address
     {
     }
 }

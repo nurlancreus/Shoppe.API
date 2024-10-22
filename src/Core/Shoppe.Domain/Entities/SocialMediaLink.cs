@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Entities
 {
-    public class SocialLink : BaseEntity
+    public class SocialMediaLink : BaseEntity
     {
         public string URL { get; set; } = null!;
         public SocialPlatform SocialPlatform { get; set; }

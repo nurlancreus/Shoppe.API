@@ -14,24 +14,24 @@ namespace Shoppe.Application.Validators.Contact
         public UpdateContactCommandRequestValidator()
         {
             RuleFor(x => x.FirstName)
-                .NotEmpty().WithMessage("First Name is required.")
-                .MaximumLength(ContactConst.MaxFirstNameLength).WithMessage($"First Name cannot exceed {ContactConst.MaxFirstNameLength} characters.");
+                .MaximumLength(ContactConst.MaxFirstNameLength).WithMessage($"First Name cannot exceed {ContactConst.MaxFirstNameLength} characters.")
+                .When(x => !string.IsNullOrEmpty(x.FirstName));
 
             RuleFor(x => x.LastName)
-                .NotEmpty().WithMessage("Last Name is required.")
-                .MaximumLength(ContactConst.MaxLastNameLength).WithMessage($"Last Name cannot exceed {ContactConst.MaxLastNameLength} characters.");
+                .MaximumLength(ContactConst.MaxLastNameLength).WithMessage($"Last Name cannot exceed {ContactConst.MaxLastNameLength} characters.")
+                .When(x => !string.IsNullOrEmpty(x.LastName));
 
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email is required.")
-                .EmailAddress().WithMessage("Invalid email format.");
+                .EmailAddress().WithMessage("Invalid email format.")
+                .When(x => !string.IsNullOrEmpty(x.Email));
 
             RuleFor(x => x.Subject)
-                .NotEmpty().WithMessage("Subject is required.")
-                .MaximumLength(ContactConst.MaxSubjectLength).WithMessage($"Subject cannot exceed {ContactConst.MaxSubjectLength} characters.");
+                .MaximumLength(ContactConst.MaxSubjectLength).WithMessage($"Subject cannot exceed {ContactConst.MaxSubjectLength} characters.")
+                .When(x => !string.IsNullOrEmpty(x.Subject));
 
             RuleFor(x => x.Message)
-                .NotEmpty().WithMessage("Message is required.")
-                .MaximumLength(ContactConst.MaxMessageLength).WithMessage($"Message cannot exceed {ContactConst.MaxMessageLength} characters.");
+                .MaximumLength(ContactConst.MaxMessageLength).WithMessage($"Message cannot exceed {ContactConst.MaxMessageLength} characters.")
+                .When(x => !string.IsNullOrEmpty(x.Message));
         }
     }
 }

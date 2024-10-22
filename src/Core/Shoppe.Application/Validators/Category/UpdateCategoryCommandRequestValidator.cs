@@ -31,12 +31,6 @@ namespace Shoppe.Application.Validators.Category
                 .MaximumLength(CategoryConst.MaxDescLength)
                 .WithMessage($"Description must be less than {CategoryConst.MaxDescLength} characters.")
                 .When(category => !string.IsNullOrEmpty(category.Description));
-
-            RuleFor(category => category.Type)
-                .NotEmpty()
-                .WithMessage("Category type is required.")
-                .Must(type => type == "Product" || type == "Blog")
-                .WithMessage("Category type must be either 'Product' or 'Blog'.");
         }
     }
 }

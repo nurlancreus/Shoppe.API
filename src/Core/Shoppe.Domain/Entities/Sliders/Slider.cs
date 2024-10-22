@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Domain.Entities
+namespace Shoppe.Domain.Entities.Sliders
 {
     public class Slider : BaseEntity
     {

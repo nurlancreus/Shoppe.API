@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Shoppe.Application.Abstractions.Services.Storage
 {
-    public interface IStorage
+    public interface IStorage : IEnlistmentNotification
     {
         Task<(string path, string fileName)> UploadAsync(string path, IFormFile formFile);
         Task<List<(string path, string fileName)>> UploadMultipleAsync(string path, IFormFileCollection formFiles);

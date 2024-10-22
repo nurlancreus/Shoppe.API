@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Entities.Files
 {
-    public class BlogImageFile : ImageFile
+    public class BlogImageFile : ApplicationFile
     {
         public ICollection<BlogBlogImage> BlogMappings { get; set; } = [];
     }

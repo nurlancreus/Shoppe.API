@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using Shoppe.Application.Abstractions.Services;
+using Shoppe.Application.Extensions.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +11,22 @@ namespace Shoppe.Application.Features.Command.User.Update
 {
     public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommandRequest, UpdateUserCommandResponse>
     {
-        public Task<UpdateUserCommandResponse> Handle(UpdateUserCommandRequest request, CancellationToken cancellationToken)
+        private readonly IUserService _userService;
+
+        public UpdateUserCommandHandler(IUserService userService)
         {
-            throw new NotImplementedException();
+            _userService = userService;
         }
+
+        public async Task<UpdateUserCommandResponse> Handle(UpdateUserCommandRequest request, CancellationToken cancellationToken)
+        {
+            var token = await _userService.UpdateAsync(request.ToUpdateUserDTO(), cancellationToken);
+
+            return new UpdateUserCommandResponse
+            {
+                IsSuccess = true,
+                Token = token,
+        };
     }
+}
 }

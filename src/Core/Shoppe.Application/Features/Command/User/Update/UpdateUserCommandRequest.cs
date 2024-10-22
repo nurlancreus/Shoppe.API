@@ -16,6 +16,7 @@ namespace Shoppe.Application.Features.Command.User.Update
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public string? UserName { get; set; }
-        public IFormFile? ProfilePictureFile { get; set; }
+        public IFormFile? NewProfilePictureFile { get; set; }
+        public string? AlreadyExistingImageId { get; set; }
     }
 }

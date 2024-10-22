@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Shoppe.Application.Abstractions.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,22 @@ namespace Shoppe.Application.Features.Query.User.GetUserPictures
 {
     public class GetUserPicturesQueryHandler : IRequestHandler<GetUserPicturesQueryRequest, GetUserPicturesQueryResponse>
     {
-        public Task<GetUserPicturesQueryResponse> Handle(GetUserPicturesQueryRequest request, CancellationToken cancellationToken)
+        private readonly IUserService _userService;
+
+        public GetUserPicturesQueryHandler(IUserService userService)
         {
-            throw new NotImplementedException();
+            _userService = userService;
+        }
+
+        public async Task<GetUserPicturesQueryResponse> Handle(GetUserPicturesQueryRequest request, CancellationToken cancellationToken)
+        {
+            var pictures = await _userService.GetImagesAsync(request.UserId!,cancellationToken);
+
+            return new GetUserPicturesQueryResponse
+            {
+                IsSuccess = true,
+                Data = pictures
+            };
         }
     }
 }

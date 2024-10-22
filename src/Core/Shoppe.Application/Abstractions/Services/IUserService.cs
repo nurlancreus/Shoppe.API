@@ -1,5 +1,6 @@
 ﻿using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Role;
+using Shoppe.Application.DTOs.Token;
 using Shoppe.Application.DTOs.User;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Shoppe.Application.Abstractions.Services
     public interface IUserService
     {
         Task AssignRolesAsync(string userId, List<string> roles, CancellationToken cancellationToken);
-        Task UpdateAsync(UpdateUserDTO updateUserDTO, CancellationToken cancellationToken);
+        Task<TokenDTO?> UpdateAsync(UpdateUserDTO updateUserDTO, CancellationToken cancellationToken);
         Task DeleteAsync (string userId, CancellationToken cancellationToken);
         Task RemovePictureAsync (string userId, string pictureId, CancellationToken cancellationToken);
         Task ChangeProfilePictureAsync (string userId, string newPictureId, CancellationToken cancellationToken);

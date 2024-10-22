@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Shoppe.Application.Abstractions.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,22 @@ namespace Shoppe.Application.Features.Query.User.GetRoles
 {
     public class GetUserRolesQueryHandler : IRequestHandler<GetUserRolesQueryRequest, GetUserRolesQueryResponse>
     {
-        public Task<GetUserRolesQueryResponse> Handle(GetUserRolesQueryRequest request, CancellationToken cancellationToken)
+        private readonly IUserService _userService;
+
+        public GetUserRolesQueryHandler(IUserService userService)
         {
-            throw new NotImplementedException();
+            _userService = userService;
+        }
+
+        public async Task<GetUserRolesQueryResponse> Handle(GetUserRolesQueryRequest request, CancellationToken cancellationToken)
+        {
+            var roles = await _userService.GetRolesAsync(request.UserId!, cancellationToken);
+
+            return new GetUserRolesQueryResponse
+            {
+                IsSuccess = true,
+                Data = roles
+            };
         }
     }
 }

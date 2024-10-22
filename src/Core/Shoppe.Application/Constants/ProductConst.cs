@@ -8,7 +8,7 @@ namespace Shoppe.Application.Constants
 {
     public static class ProductConst
     {
-        public const string ProductImagesFolder = "product-images";
+        public const string ImagesFolder = "product-images";
         public const int MaxNameLength = 100;
         public const int MaxInfoLength = 300;
         public const int MaxDescLength = 500;

@@ -4,6 +4,7 @@ using Shoppe.Application.DTOs.Contact;
 using Shoppe.Application.DTOs.Discount;
 using Shoppe.Application.DTOs.Product;
 using Shoppe.Application.DTOs.Review;
+using Shoppe.Application.DTOs.User;
 using Shoppe.Application.Extensions.Helpers;
 using Shoppe.Application.Features.Command.Auth.Login;
 using Shoppe.Application.Features.Command.Auth.Register;
@@ -17,6 +18,7 @@ using Shoppe.Application.Features.Command.Product.CreateProduct;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
 using Shoppe.Application.Features.Command.Review.CreateReview;
 using Shoppe.Application.Features.Command.Review.UpdateReview;
+using Shoppe.Application.Features.Command.User.Update;
 using Shoppe.Application.Features.Query.Product.GetAllProducts;
 using Shoppe.Domain.Enums;
 using System;
@@ -83,8 +85,6 @@ namespace Shoppe.Application.Extensions.Mapping
                 Name = request.Name,
                 Description = request.Description,
             };
-
-            if (Enum.TryParse(request.Type, true, out CategoryType categoryType)) categoryDTO.Type = categoryType;
 
             return categoryDTO;
         }
@@ -205,6 +205,21 @@ namespace Shoppe.Application.Extensions.Mapping
                 EndDate = request.EndDate,
                 StartDate = request.StartDate,
                 IsActive = request.IsActive
+            };
+        }
+
+        public static UpdateUserDTO ToUpdateUserDTO(this UpdateUserCommandRequest request)
+        {
+            return new UpdateUserDTO
+            {
+                UserId = request.UserId!,
+                FirstName = request.UserName,
+                LastName = request.LastName,
+                UserName = request.UserName,
+                Email = request.Email,
+                Phone = request.Phone,
+                NewProfilePictureFile = request.NewProfilePictureFile,
+                AlreadyExistingImageId = request.AlreadyExistingImageId,
             };
         }
     }

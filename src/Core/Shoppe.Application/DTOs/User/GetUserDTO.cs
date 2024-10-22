@@ -15,7 +15,9 @@ namespace Shoppe.Application.DTOs.User
         public string LastName { get; set; } = string.Empty;
         public string UserName {  get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string Phone {  get; set; } = string.Empty;
         public List<GetImageFileDTO> ProfilePictures { get; set; } = [];
+        public GetImageFileDTO? ProfilePicture { get; set; }
         public List<GetRoleDTO> Roles { get; set; } = [];
         public DateTime CreatedAt { get; set; }
         public bool IsActive { get; set; }

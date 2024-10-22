@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,65 +11,65 @@ namespace Shoppe.Application.Helpers
     {
         private static readonly Dictionary<string, string> CharacterReplacements = new()
         {
-            {"\"", ""}, {"!", ""}, {"'", ""}, {"^", ""}, {"+", ""}, {"%", ""},
-            {"&", ""}, {"/", ""}, {"(", ""}, {")", ""}, {"=", ""}, {"?", ""},
-            {"_", ""}, {" ", "-"}, {"@", ""}, {"€", ""}, {"¨", ""}, {"~", ""},
-            {",", ""}, {";", ""}, {":", ""}, {".", "-"}, {"Ə", "e"},{"ə", "e"}, {"Ö", "o"}, {"ö", "o"},
-            {"Ü", "u"}, {"ü", "u"}, {"ı", "i"}, {"İ", "i"}, {"ğ", "g"}, {"Ğ", "g"},
-            {"æ", ""}, {"ß", ""}, {"â", "a"}, {"î", "i"}, {"ş", "s"}, {"Ş", "s"},
+            {"\"", ""}, {"!", ""}, {"'", ""}, {"^", ""}, {"+", ""}, {"%", ""}, {"&", ""}, {"/", ""}, {"(", ""}, {")", ""},
+            {"=", ""}, {"?", ""}, {"_", ""}, {" ", "-"}, {"@", ""}, {"€", ""}, {"¨", ""}, {"~", ""}, {",", ""}, {";", ""},
+            {":", ""}, {".", "-"}, {"Ə", "e"}, {"ə", "e"}, {"Ö", "o"}, {"ö", "o"}, {"Ü", "u"}, {"ü", "u"}, {"ı", "i"},
+            {"İ", "i"}, {"ğ", "g"}, {"Ğ", "g"}, {"æ", ""}, {"ß", ""}, {"â", "a"}, {"î", "i"}, {"ş", "s"}, {"Ş", "s"},
             {"Ç", "c"}, {"ç", "c"}, {"<", ""}, {">", ""}, {"|", ""}
         };
 
-        public static string CharacterRegulatory(string name)
+        public static async Task<string> CharacterRegulatoryAsync(string name)
         {
-            foreach (var replacement in CharacterReplacements)
+            return await Task.Run(() =>
             {
-                name = name.Replace(replacement.Key, replacement.Value);
-            }
-            return name;
+                var sb = new StringBuilder(name);
+                foreach (var replacement in CharacterReplacements)
+                {
+                    sb.Replace(replacement.Key, replacement.Value);
+                }
+                return sb.ToString();
+            });
         }
 
         public static async Task<string> RenameFileAsync(string path, string fileName, Func<string, string, Task<bool>> hasFileAsync)
         {
             string oldName = Path.GetFileNameWithoutExtension(fileName);
             string extension = Path.GetExtension(fileName);
-            string newFileName = $"{CharacterRegulatory(oldName)}{extension}";
+            string baseFileName = await CharacterRegulatoryAsync(oldName); // Clean the base name once
+            string newFileName = $"{baseFileName}{extension}";
 
             int counter = 1;
             while (await hasFileAsync(path, newFileName))
             {
-                newFileName = $"{CharacterRegulatory(oldName)}-{counter++}{extension}";
+                // Append counter if file exists
+                newFileName = $"{baseFileName}-{counter++}{extension}";
             }
 
             return newFileName;
         }
 
-        public static async Task EnsureDirectoryExists(string path)
+        public static void EnsureDirectoryExists(string path)
         {
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
-                await Task.CompletedTask; // Simulating async for consistency
-
             }
         }
 
-        public static async Task CleanupFailedUploads(List<(string fileName, string path)> uploadedFiles)
+        public static void CleanupFailedUploads(List<(string fileName, string path)> uploadedFiles)
         {
             foreach (var (_, path) in uploadedFiles)
             {
                 if (File.Exists(path))
                 {
                     File.Delete(path);
-
-                    await Task.CompletedTask; // Simulating async for consistency
                 }
             }
         }
 
         public static bool IsImage(this IFormFile formFile)
         {
-            return formFile.ContentType.Contains("image");
+            return formFile.ContentType.StartsWith("image/");
         }
 
         public static bool IsSizeOk(this IFormFile formFile, int mb)
@@ -81,20 +81,19 @@ namespace Shoppe.Application.Helpers
 
         public static bool RestrictExtension(this IFormFile formFile, string[]? permittedExtensions = null)
         {
-            permittedExtensions ??= [".jpg", ".png", ".gif"];
+            permittedExtensions ??= new[] { ".jpg", ".png", ".gif" };
+            var permittedSet = new HashSet<string>(permittedExtensions, StringComparer.OrdinalIgnoreCase);
 
-            string extension = Path.GetExtension(formFile.FileName).ToLowerInvariant();
-            return !string.IsNullOrEmpty(extension) && permittedExtensions.Contains(extension);
-
+            string extension = Path.GetExtension(formFile.FileName);
+            return !string.IsNullOrEmpty(extension) && permittedSet.Contains(extension);
         }
 
         public static bool RestrictMimeTypes(this IFormFile formFile, string[]? permittedMimeTypes = null)
         {
             permittedMimeTypes ??= ["image/jpeg", "image/png", "image/gif"];
+            var permittedSet = new HashSet<string>(permittedMimeTypes, StringComparer.OrdinalIgnoreCase);
 
-            string mimeType = formFile.ContentType;
-            return permittedMimeTypes.Contains(mimeType);
-
+            return permittedSet.Contains(formFile.ContentType);
         }
     }
 }

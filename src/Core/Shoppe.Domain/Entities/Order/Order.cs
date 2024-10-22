@@ -13,7 +13,7 @@ namespace Shoppe.Domain.Entities
     {
         public Basket Basket { get; set; } = null!;
         public string Note { get; set; } = string.Empty;
-        public DeliveryAddress DeliveryAddress { get; set; } = null!;
+        public ShippingAddress ShippingAddress { get; set; } = null!;
         public BillingAddress BillingAddress { get; set; } = null!;
         public Payment Payment { get; set; } = null!;
         public string ContactNumber { get; set; } = string.Empty;
