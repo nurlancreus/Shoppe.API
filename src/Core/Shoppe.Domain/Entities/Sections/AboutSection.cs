@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shoppe.Domain.Entities.Files;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace Shoppe.Domain.Entities.Sections
 {
     public class AboutSection : Section
     {
+        public ICollection<AboutSectionImageFile> SectionImageFiles { get; set; } = [];
 
     }
 }

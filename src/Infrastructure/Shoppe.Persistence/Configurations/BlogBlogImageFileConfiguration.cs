@@ -22,9 +22,9 @@ namespace Shoppe.Persistence.Configurations
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder
-                .HasOne(x => x.Blog)
+                .HasOne(x => x.BlogSection)
                 .WithMany(bi => bi.BlogImageMappings)
-                .HasForeignKey(x => x.BlogId)
+                .HasForeignKey(x => x.BlogSectionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder

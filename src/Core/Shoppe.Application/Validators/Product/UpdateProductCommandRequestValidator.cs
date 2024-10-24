@@ -114,7 +114,7 @@ namespace Shoppe.Application.Validators.Product
             });
 
             // Validate Categories: Must exist in the database (Optional, but if provided, must be valid)
-            When(product => product.Categories.Count != 0, () =>
+            When(product => product.Categories.Count > 0, () =>
             {
                 RuleForEach(product => product.Categories)
                 .MustAsync(async (name, cancellationToken) => await _categoryReadRepository.IsExistAsync(c => c.Name == name, cancellationToken))

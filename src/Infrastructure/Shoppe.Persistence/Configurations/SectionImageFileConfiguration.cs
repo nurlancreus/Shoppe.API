@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Persistence.Configurations
 {
-    public class SectionImageFileConfiguration : IEntityTypeConfiguration<SectionImageFile>
+    public class SectionImageFileConfiguration : IEntityTypeConfiguration<AboutSectionImageFile>
     {
-        public void Configure(EntityTypeBuilder<SectionImageFile> builder)
+        public void Configure(EntityTypeBuilder<AboutSectionImageFile> builder)
         {
             builder.HasIndex(sif => new { sif.SectionId, sif.IsMain })
                 .IsUnique()

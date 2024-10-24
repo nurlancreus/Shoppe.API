@@ -85,13 +85,13 @@ namespace Shoppe.Application.Features.Command.About.Update
             {
                 var uploadResults = await _storageService.UploadMultipleAsync(AboutConst.ImagesFolder, section.SectionImageFiles);
 
-                ICollection<SectionImageFile> uploadedImages = [];
+                ICollection<AboutSectionImageFile> uploadedImages = [];
 
                 bool isFirst = true;
 
                 foreach (var (path, fileName) in uploadResults)
                 {
-                    uploadedImages.Add(new SectionImageFile
+                    uploadedImages.Add(new AboutSectionImageFile
                     {
                         FileName = fileName,
                         PathName = path,
@@ -104,9 +104,11 @@ namespace Shoppe.Application.Features.Command.About.Update
 
                 about.Sections.Add(new AboutSection
                 {
-                    Title = section.Title,
+                    Title = section.Title,               
+                    TextBody = section.TextBody,
                     Description = section.Description,
                     SectionImageFiles = uploadedImages,
+                    Order = section.Order,
                 });
             }
 

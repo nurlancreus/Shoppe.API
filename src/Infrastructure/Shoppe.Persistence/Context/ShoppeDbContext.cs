@@ -70,7 +70,7 @@ namespace Shoppe.Persistence.Context
         public DbSet<ProductImageFile> ProductImageFiles { get; set; }
         public DbSet<SlideImageFile> SlideImageFiles { get; set; }
         public DbSet<BlogImageFile> BlogImageFiles { get; set; }
-        public DbSet<SectionImageFile> SectionImageFiles { get; set; }
+        public DbSet<AboutSectionImageFile> SectionImageFiles { get; set; }
 
 
         public DbSet<Address> Addresses { get; set; }

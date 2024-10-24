@@ -15,6 +15,20 @@ namespace Shoppe.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Section> builder)
         {
             builder
+                .Property(s => s.Order)
+                .HasColumnType("TINYINT") 
+                .IsRequired();
+
+            builder.ToTable(s => s.HasCheckConstraint("CK_Section_Order", "[Order] >= 0 AND [Order] <= 255"));
+
+        }
+    }
+
+    public class AboutSectionConfiguration : IEntityTypeConfiguration<AboutSection>
+    {
+        public void Configure(EntityTypeBuilder<AboutSection> builder)
+        {
+            builder
                 .HasMany(s => s.SectionImageFiles)
                 .WithOne(i => i.Section)
                 .HasForeignKey(i => i.SectionId)

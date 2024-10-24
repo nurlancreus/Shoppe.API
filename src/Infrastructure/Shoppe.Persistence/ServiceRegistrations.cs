@@ -27,6 +27,7 @@ using Shoppe.Application.Abstractions.Services.Auth;
 using Shoppe.Application.Abstractions.Services.Calculator;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Domain.Entities.Identity;
+using Shoppe.Domain.Enums;
 using Shoppe.Persistence.Concretes.Repositories;
 using Shoppe.Persistence.Concretes.Repositories.AboutRepos;
 using Shoppe.Persistence.Concretes.Repositories.AddressRepos;
@@ -138,6 +139,7 @@ namespace Shoppe.Persistence
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IBlogService, BlogService>();
 
             services.AddScoped<IDiscountCalculatorService, CalculatorService>();
 

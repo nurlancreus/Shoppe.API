@@ -43,9 +43,10 @@ namespace Shoppe.Application.Features.Query.About.Get
                     Title = about.Title,
                     Email = about.Email,
                     Phone = about.Phone,
-                    Sections = about.Sections.Select(s => new GetSectionDTO
+                    Sections = about.Sections.OrderBy(s => s.Order).Select(s => new GetSectionDTO
                     {
                         Id = s.Id.ToString(),
+                        TextBody = s.TextBody,
                         Title = s.Title,
                         SectionImageFiles = s.SectionImageFiles.Select(si => new GetImageFileDTO
                         {
@@ -56,6 +57,7 @@ namespace Shoppe.Application.Features.Query.About.Get
                             CreatedAt = si.CreatedAt
                         }).ToList(),
                         Description = s.Description,
+                        Order = s.Order,
                         CreatedAt = s.CreatedAt
                     }).ToList()
                 }

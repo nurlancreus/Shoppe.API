@@ -13,6 +13,8 @@ using Shoppe.Application.Helpers;
 using Shoppe.Application.Constants;
 using Shoppe.Application.Abstractions.Repositories.AboutRepos;
 using Microsoft.EntityFrameworkCore;
+using Shoppe.Application.Validators.Section;
+using Shoppe.Application.Extensions.Helpers;
 
 public class UpdateAboutCommandValidator : AbstractValidator<UpdateAboutCommandRequest>
 {
@@ -49,8 +51,11 @@ public class UpdateAboutCommandValidator : AbstractValidator<UpdateAboutCommandR
 
         // Validate Sections
         RuleForEach(x => x.Sections)
-            .SetValidator(new CreateSectionDTOValidator())
+            .SetValidator(new CreateSectionDTOValidator(SectionType.About.ToString()))
             .When(x => x.Sections != null && x.Sections.Count > 0);
+        RuleForEach(x => x.UpdatedSections)
+            .SetValidator(new UpdateSectionDTOValidator(SectionType.About.ToString()))
+            .When(x => x.UpdatedSections != null && x.UpdatedSections.Count > 0);
 
         // Validate SocialMediaLinks
         RuleForEach(x => x.SocialMediaLinks)
@@ -65,25 +70,7 @@ public class UpdateAboutCommandValidator : AbstractValidator<UpdateAboutCommandR
     }
 }
 
-public class CreateSectionDTOValidator : AbstractValidator<CreateSectionDTO>
-{
-    public CreateSectionDTOValidator()
-    {
-        RuleFor(x => x.Title)
-            .NotEmpty().WithMessage("Section title cannot be empty.")
-            .MaximumLength(100).WithMessage("Section title cannot be longer than 100 characters.");
 
-        RuleFor(x => x.Description)
-            .NotEmpty().WithMessage("Section description cannot be empty.")
-            .MaximumLength(500).WithMessage("Section description cannot be longer than 500 characters.");
-
-        RuleForEach(x => x.SectionImageFiles)
-            .Must(file => file.IsImage()).WithMessage("Only image files are allowed.")
-            .Must(file => file.IsSizeOk(AboutConst.MaxFileSizeInMb)).WithMessage($"Image size cannot exceed {AboutConst.MaxFileSizeInMb}MB.")
-            .Must(file => file.RestrictExtension([".jpg", ".png"])).WithMessage("Allowed file extensions are .jpg, .png.")
-            .Must(file => file.RestrictMimeTypes(["image/jpeg", "image/png"])).WithMessage("Allowed mime types are image/jpeg, image/png.");
-    }
-}
 
 public class CreateSocialMediaLinkDTOValidator : AbstractValidator<CreateSocialMediaLinkDTO>
 {
@@ -94,7 +81,7 @@ public class CreateSocialMediaLinkDTOValidator : AbstractValidator<CreateSocialM
 
         RuleFor(x => x.URL)
             .NotEmpty().WithMessage("URL cannot be empty.")
-            .Must(BeAValidUrl).WithMessage("Invalid URL format.");
+            .Must(UrlHelpers.BeAValidUrl).WithMessage("Invalid URL format.");
 
         RuleFor(x => x.SocialPlatform)
             .NotEmpty().WithMessage("Social platform cannot be empty.")
@@ -115,13 +102,6 @@ public class CreateSocialMediaLinkDTOValidator : AbstractValidator<CreateSocialM
         if (about.SocialMediaLinks.Any(sm => sm.SocialPlatform.ToString().ToLower() == platform.ToLower())) return false;
 
         return true;
-    }
-
-    private bool BeAValidUrl(string url)
-    {
-        // Basic URL validation (you can improve with more complex logic if needed)
-        return Uri.TryCreate(url, UriKind.Absolute, out var uriResult) &&
-               (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
     }
 
     private bool BeAValidPlatform(string platform)

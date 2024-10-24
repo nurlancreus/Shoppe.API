@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Entities.Files
 {
-    public class SectionImageFile : ImageFile
+    public class AboutSectionImageFile : ImageFile
     {
         [ForeignKey(nameof(Section))]
         public Guid SectionId { get; set; }
-        public Section Section { get; set; } = null!;
+        public AboutSection Section { get; set; } = null!;
     }
 }

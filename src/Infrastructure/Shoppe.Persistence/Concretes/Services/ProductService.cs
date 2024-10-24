@@ -89,9 +89,9 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 if (createProductDTO.Categories.Count > 0)
                 {
-                    foreach (var name in createProductDTO.Categories)
+                    foreach (var categoryName in createProductDTO.Categories)
                     {
-                        var category = await _categoryReadRepository.GetAsync(c => c.Name == name, cancellationToken);
+                        var category = await _categoryReadRepository.GetAsync(c => c.Name == categoryName, cancellationToken);
 
                         if (category != null && category is ProductCategory productCategory)
                         {
@@ -480,39 +480,37 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task RemoveImageAsync(string productId, string imageId, CancellationToken cancellationToken)
         {
-            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken);
+
+            if (product == null)
             {
-                var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken);
+                throw new EntityNotFoundException(nameof(product));
+            }
 
-                if (product == null)
-                {
-                    throw new EntityNotFoundException(nameof(product));
-                }
+            await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync();
 
-                await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync();
+            var imageToDelete = product.ProductImageFiles.FirstOrDefault(i => i.Id.ToString() == imageId);
 
-                var imageToDelete = product.ProductImageFiles.FirstOrDefault(i => i.Id.ToString() == imageId);
+            if (imageToDelete == null)
+            {
+                throw new EntityNotFoundException("Image not found to be deleted");
+            }
 
-                if (imageToDelete == null)
-                {
-                    throw new EntityNotFoundException("Image not found to be deleted");
-                }
+            if (imageToDelete.IsMain)
+            {
+                throw new InvalidOperationException("You cannot remove the main image. Please change the main image first.");
+            }
 
-                if (imageToDelete.IsMain)
-                {
-                    throw new InvalidOperationException("You cannot remove the main image. Please change the main image first.");
-                }
+            bool isRemoved = product.ProductImageFiles.Remove(imageToDelete);
 
-                bool isRemoved = product.ProductImageFiles.Remove(imageToDelete);
+            if (isRemoved)
+            {
+                await _storageService.DeleteAsync(imageToDelete.PathName, imageToDelete.FileName);
 
-                if (isRemoved)
-                {
-                    await _storageService.DeleteAsync(imageToDelete.PathName, imageToDelete.FileName);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                    await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                    transaction.Complete();
-                }
+                transaction.Complete();
             }
         }
 
