@@ -21,7 +21,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 Id = category.Id.ToString(),
                 Name = category.Name,
                 Description = category.Description,
-                Type = category.Discriminator,
+                Type = category.Type,
             };
         }
 

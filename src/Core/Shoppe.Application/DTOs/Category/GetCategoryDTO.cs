@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Category
 {
-    public class GetCategoryDTO
+    public record GetCategoryDTO
     {
-        public string Id { get; set; } = null!;
-        public string Name { get; set; } = null!;
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public string Type { get; set; } = null!;
+        public string Type { get; set; } = string.Empty;
     }
 }

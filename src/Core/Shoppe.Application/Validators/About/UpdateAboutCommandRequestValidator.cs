@@ -51,10 +51,10 @@ public class UpdateAboutCommandValidator : AbstractValidator<UpdateAboutCommandR
 
         // Validate Sections
         RuleForEach(x => x.Sections)
-            .SetValidator(new CreateSectionDTOValidator(SectionType.About.ToString()))
+            .SetValidator(new CreateAboutSectionDTOValidator())
             .When(x => x.Sections != null && x.Sections.Count > 0);
         RuleForEach(x => x.UpdatedSections)
-            .SetValidator(new UpdateSectionDTOValidator(SectionType.About.ToString()))
+            .SetValidator(new UpdateAboutSectionDTOValidator())
             .When(x => x.UpdatedSections != null && x.UpdatedSections.Count > 0);
 
         // Validate SocialMediaLinks
@@ -69,7 +69,6 @@ public class UpdateAboutCommandValidator : AbstractValidator<UpdateAboutCommandR
             .When(x => x.SocialMediaLinks != null && x.SocialMediaLinks.Count > 0);
     }
 }
-
 
 
 public class CreateSocialMediaLinkDTOValidator : AbstractValidator<CreateSocialMediaLinkDTO>

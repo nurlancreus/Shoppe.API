@@ -2,6 +2,7 @@
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Application.Constants;
 using Shoppe.Application.Features.Command.Category.CreateCategory;
+using Shoppe.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,8 +34,8 @@ namespace Shoppe.Application.Validators.Category
             RuleFor(category => category.Type)
                 .NotEmpty()
                 .WithMessage("Category type is required.")
-                .Must(type => type == "Product" || type == "Blog")
-                .WithMessage("Category type must be either 'Product' or 'Blog'.");
+                .Must(type => Enum.TryParse(typeof(CategoryType), type, true, out _))
+                .WithMessage("Invalid category type specified.");
         }
 
     }

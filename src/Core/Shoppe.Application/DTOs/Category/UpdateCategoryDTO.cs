@@ -9,7 +9,7 @@ namespace Shoppe.Application.DTOs.Category
 {
     public record UpdateCategoryDTO
     {
-        public string Id { get; set; } = null!;
+        public string Id { get; set; } = string.Empty;
         public string? Name { get; set; }
         public string? Description { get; set; }
     }

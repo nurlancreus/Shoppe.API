@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Category
 {
-    public class CreateCategoryDTO
+    public record CreateCategoryDTO
     {
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
