@@ -5,9 +5,12 @@ using Shoppe.Domain.Entities.Base;
 using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Identity;
+using Shoppe.Domain.Entities.Reactions;
+using Shoppe.Domain.Entities.Replies;
 using Shoppe.Domain.Entities.Reviews;
 using Shoppe.Domain.Entities.Sections;
 using Shoppe.Domain.Entities.Sliders;
+using Shoppe.Domain.Entities.Tags;
 using Shoppe.Persistence.Configurations;
 using System;
 using System.Collections.Generic;
@@ -59,10 +62,21 @@ namespace Shoppe.Persistence.Context
         public DbSet<Review> Reviews { get; set; }
         public DbSet<ProductReview> ProductReviews { get; set; }
 
+        public DbSet<Reply> Replies { get; set; }
+        public DbSet<BlogReply> BlogReplies { get; set; }
+
+        public DbSet<Reaction> Reactions { get; set; }
+        public DbSet<BlogReaction> BlogReactions { get; set; }
+        public DbSet<ReplyReaction> ReplyReactions { get; set; }
+
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<BlogCategory> BlogCategories { get; set; }
+
+
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<BlogTag> BlogTags { get; set; }
 
 
         public DbSet<ApplicationFile> ApplicationFiles { get; set; }

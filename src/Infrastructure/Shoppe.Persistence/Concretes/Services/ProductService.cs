@@ -11,6 +11,7 @@ using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.Constants;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Product;
+using Shoppe.Application.DTOs.Reply;
 using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.Extensions.Helpers;
 using Shoppe.Application.Extensions.Mapping;
@@ -279,23 +280,33 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task<List<GetReviewDTO>> GetReviewsByProductAsync(string productId, CancellationToken cancellationToken)
         {
-            var product = await _productReadRepository.Table.Include(p => p.Reviews).ThenInclude(r => r.Reviewer).FirstOrDefaultAsync(p => p.Id.ToString() == productId);
+            var product = await _productReadRepository.Table.Include(p => p.Reviews).ThenInclude(r => r.Reviewer).ThenInclude(u => u.ProfilePictureFiles).FirstOrDefaultAsync(p => p.Id.ToString() == productId, cancellationToken);
 
             if (product == null)
             {
                 throw new EntityNotFoundException(nameof(product));
             }
 
-            //await _productReadRepository.Table.Entry(product).Collection(p => p.Reviews).LoadAsync(cancellationToken);
-
-            return product.Reviews.Select(r => new GetReviewDTO()
+            return product.Reviews.Select(r =>
             {
-                Id = r.Id.ToString(),
-                FirstName = r.Reviewer?.FirstName!,
-                LastName = r.Reviewer?.LastName!,
-                Rating = (int)r.Rating,
-                Body = r.Body,
-                CreatedAt = r.CreatedAt,
+                var profilePic = r.Reviewer.ProfilePictureFiles.FirstOrDefault(i => i.IsMain);
+
+                return new GetReviewDTO()
+                {
+                    Id = r.Id.ToString(),
+                    FirstName = r.Reviewer?.FirstName!,
+                    LastName = r.Reviewer?.LastName!,
+                    Body = r.Body,
+                    Rating = (int)r.Rating,
+                    CreatedAt = r.CreatedAt,
+                    ProfilePhoto = profilePic != null ? new GetImageFileDTO
+                    {
+                        Id = profilePic.Id.ToString(),
+                        FileName = profilePic.FileName,
+                        PathName = profilePic.PathName,
+                        CreatedAt = profilePic.CreatedAt
+                    } : null
+                };
             }).ToList();
         }
 

@@ -28,7 +28,6 @@ namespace Shoppe.Persistence.Configurations
                .HasForeignKey(pif => pif.ProductId)
                .OnDelete(DeleteBehavior.Cascade);
 
-
         }
     }
 }

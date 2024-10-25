@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Shoppe.Application.Abstractions.Pagination;
+using Shoppe.Application.Abstractions.Repositories.BlogImageFileRepos;
 using Shoppe.Application.Abstractions.Repositories.BlogRepos;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
+using Shoppe.Application.Abstractions.Repositories.TagRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.Services.Storage;
@@ -9,20 +11,25 @@ using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.Constants;
 using Shoppe.Application.DTOs.Blog;
 using Shoppe.Application.DTOs.Files;
+using Shoppe.Application.DTOs.Reply;
+using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.DTOs.Section;
 using Shoppe.Application.DTOs.User;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Sections;
+using Shoppe.Domain.Entities.Tags;
 using Shoppe.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Shoppe.Persistence.Concretes.Services
 {
@@ -31,12 +38,14 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IBlogReadRepository _blogReadRepository;
         private readonly IBlogWriteRepository _blogWriteRepository;
         private readonly ICategoryReadRepository _categoryReadRepository;
+        private readonly ITagReadRepository _tagReadRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IStorageService _storageService;
         private readonly IPaginationService _paginationService;
         private readonly IJwtSession _jwtSession;
+        private readonly IBlogImageFileReadRepository _blogImageFileReadRepository;
 
-        public BlogService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, ICategoryReadRepository categoryReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IJwtSession jwtSession)
+        public BlogService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, ICategoryReadRepository categoryReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IJwtSession jwtSession, ITagReadRepository tagReadRepository, IBlogImageFileReadRepository blogImageFileReadRepository)
         {
             _blogReadRepository = blogReadRepository;
             _blogWriteRepository = blogWriteRepository;
@@ -45,13 +54,16 @@ namespace Shoppe.Persistence.Concretes.Services
             _storageService = storageService;
             _paginationService = paginationService;
             _jwtSession = jwtSession;
+            _tagReadRepository = tagReadRepository;
+            _blogImageFileReadRepository = blogImageFileReadRepository;
         }
 
-        public async Task ChangeMainImageAsync(string blogId, string newMainImageId, CancellationToken cancellationToken)
+        public async Task ChangeCoverImageAsync(string blogId, string newCoverImageId, CancellationToken cancellationToken)
         {
             ValidateAdminAccess();
 
             var blog = await _blogReadRepository.Table
+                .Include(b => b.BlogCoverImageFile)
                 .Include(b => b.Sections)
                     .ThenInclude(s => s.BlogImageMappings)
                         .ThenInclude(bi => bi.BlogImage)
@@ -63,55 +75,53 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(blog));
             }
 
-            bool anyImageExist = false;
+            var newCoverImage = blog.Sections.SelectMany(s => s.BlogImageMappings).FirstOrDefault(bi => bi.BlogImage.Id.ToString().ToLower() == newCoverImageId.ToLower())?.BlogImage;
 
-            if (blog.Sections.Count > 0)
+            if (newCoverImage == null)
             {
-                foreach (var section in blog.Sections)
-                {
-                    if (section.BlogImageMappings.Count > 0)
-                    {
-                        anyImageExist = true;
-                    }
-                }
-
+                throw new EntityNotFoundException(nameof(newCoverImage));
             }
 
-            if (!anyImageExist)
-            {
-                throw new EntityNotFoundException("blog currently has no image.");
-            }
-
-            var existingMainImage = blog.Sections.SelectMany( s => s.BlogImageMappings).FirstOrDefault(i => i.IsMain);
-
-            var newMainImage = blog.Sections.SelectMany(s => s.BlogImageMappings).FirstOrDefault(bi => bi.BlogImage.Id.ToString().ToLower() == newMainImageId.ToLower());
-
-            if (newMainImage == null)
-            {
-                throw new EntityNotFoundException(nameof(newMainImage));
-            }
-
-            if (existingMainImage == newMainImage) return;
-
-            if (existingMainImage != null)
-            {
-                existingMainImage.IsMain = false;
-
-                // temporary solution!
-                // await _unitOfWork.SaveChangesAsync(cancellationToken);
-            }
-
-            newMainImage.IsMain = true;
+            blog.BlogCoverImageFile = newCoverImage;
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         }
 
-        public Task RemoveImageAsync(string blogId, string newMainImageId, CancellationToken cancellationToken)
+        public async Task RemoveImageAsync(string blogId, string imageId, CancellationToken cancellationToken)
         {
             ValidateAdminAccess();
 
-            throw new NotImplementedException();
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            var blog = await _blogReadRepository.Table
+                .Include(b => b.Sections)
+                    .ThenInclude(s => s.BlogImageMappings)
+                    .ThenInclude(bi => bi.BlogImage)
+                .FirstOrDefaultAsync(b => b.Id.ToString() == blogId, cancellationToken);
+
+            if (blog == null)
+            {
+                throw new EntityNotFoundException(nameof(blog));
+            }
+
+            var image = blog.Sections.SelectMany(s => s.BlogImageMappings).FirstOrDefault(bi => bi.BlogImageId.ToString() == imageId);
+
+            if (image == null)
+            {
+                throw new EntityNotFoundException(nameof(image));
+            }
+
+            bool isRemoved = image.BlogSection.BlogImageMappings.Remove(image);
+
+            if (isRemoved)
+            {
+                await _storageService.DeleteAsync(image.BlogImage.PathName, image.BlogImage.FileName);
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                scope.Complete();
+            }
         }
 
         public async Task CreateAsync(CreateBlogDTO createBlogDTO, CancellationToken cancellationToken)
@@ -123,6 +133,19 @@ namespace Shoppe.Persistence.Concretes.Services
                 Title = createBlogDTO.Title,
             };
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            if (createBlogDTO.CoverImageFile != null && createBlogDTO.CoverImageFile.Length > 0)
+            {
+
+                var (path, fileName) = await _storageService.UploadAsync(BlogConst.ImagesFolder, createBlogDTO.CoverImageFile);
+
+                blog.BlogCoverImageFile = new BlogImageFile
+                {
+                    FileName = fileName,
+                    PathName = path,
+                    Storage = _storageService.StorageName
+                };
+            }
 
             if (createBlogDTO.Categories.Count > 0)
             {
@@ -137,6 +160,19 @@ namespace Shoppe.Persistence.Concretes.Services
                 }
             }
 
+            if (createBlogDTO.Tags.Count > 0)
+            {
+                foreach (var tagName in createBlogDTO.Tags)
+                {
+                    var tag = await _tagReadRepository.GetAsync(c => c.Name == tagName, cancellationToken);
+
+                    if (tag is BlogTag blogTag)
+                    {
+                        blog.Tags.Add(blogTag);
+                    }
+                }
+            }
+
             if (createBlogDTO.Sections.Count > 0)
             {
                 foreach (var section in createBlogDTO.Sections)
@@ -147,7 +183,6 @@ namespace Shoppe.Persistence.Concretes.Services
                     {
                         var uploadResults = await _storageService.UploadMultipleAsync(BlogConst.ImagesFolder, section.SectionImageFiles);
 
-                        bool isFirst = true;
                         foreach (var (path, fileName) in uploadResults)
                         {
 
@@ -159,11 +194,8 @@ namespace Shoppe.Persistence.Concretes.Services
                                     PathName = path,
                                     Storage = _storageService.StorageName,
                                 },
-                                IsMain = isFirst,
-                                BlogId = blog.Id
                             });
 
-                            isFirst = false;
                         }
 
                     }
@@ -217,14 +249,16 @@ namespace Shoppe.Persistence.Concretes.Services
                                     .Include(b => b.Sections)
                                         .ThenInclude(s => s.BlogImageMappings)
                                             .ThenInclude(bi => bi.BlogImage)
-                                    .Include(b => b.Author).AsQueryable();
+                                    .Include(b => b.Author)
+                                    .AsNoTrackingWithIdentityResolution()
+                                    .AsQueryable();
 
             var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, blogQuery, cancellationToken);
 
             var blogDtos = await blogQuery.Select(blog => new GetBlogDTO
             {
                 Id = blog.Id.ToString(),
-                Author = new Application.DTOs.User.GetUserDTO
+                Author = new GetUserDTO
                 {
                     Id = blog.Author.Id,
                     FirstName = blog.Author.FirstName!,
@@ -234,18 +268,17 @@ namespace Shoppe.Persistence.Concretes.Services
                     CreatedAt = blog.Author.CreatedAt
                 },
                 Title = blog.Title,
-                Sections = blog.Sections.Select(s => new Application.DTOs.Section.GetSectionDTO
+                Sections = blog.Sections.Select(s => new GetSectionDTO
                 {
                     Id = s.Id.ToString(),
                     Title = s.Title,
                     Description = s.Description,
                     TextBody = s.TextBody,
-                    SectionImageFiles = s.BlogImageMappings.Select(bi => new Application.DTOs.Files.GetImageFileDTO
+                    SectionImageFiles = s.BlogImageMappings.Select(bi => new GetImageFileDTO
                     {
                         Id = bi.BlogImage.Id.ToString(),
                         FileName = bi.BlogImage.FileName,
                         PathName = bi.BlogImage.PathName,
-                        IsMain = bi.IsMain,
                         CreatedAt = bi.BlogImage.CreatedAt
                     }).ToList(),
                     Order = s.Order,
@@ -271,6 +304,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     .ThenInclude(s => s.BlogImageMappings)
                         .ThenInclude(bi => bi.BlogImage)
                 .Include(b => b.Author)
+                .AsNoTrackingWithIdentityResolution()
                 .FirstOrDefaultAsync(b => b.Id.ToString() == blogId, cancellationToken);
 
 
@@ -303,7 +337,6 @@ namespace Shoppe.Persistence.Concretes.Services
                         Id = bi.BlogImage.Id.ToString(),
                         FileName = bi.BlogImage.FileName,
                         PathName = bi.BlogImage.PathName,
-                        IsMain = bi.IsMain,
                         CreatedAt = bi.BlogImage.CreatedAt
                     }).ToList(),
                     Order = s.Order,
@@ -320,6 +353,8 @@ namespace Shoppe.Persistence.Concretes.Services
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var blog = await _blogReadRepository.Table
+                .Include(b => b.Tags)
+                .Include(b => b.Categories)
                 .Include(b => b.Sections)
                     .ThenInclude(s => s.BlogImageMappings)
                         .ThenInclude(bi => bi.BlogImage)
@@ -334,6 +369,22 @@ namespace Shoppe.Persistence.Concretes.Services
             if (updateBlogDTO.Title is string title && blog.Title != title)
             {
                 blog.Title = title;
+            }
+
+            if (updateBlogDTO.CoverImageFile != null && updateBlogDTO.CoverImageFile.Length > 0)
+            {
+
+                var (path, fileName) = await _storageService.UploadAsync(BlogConst.ImagesFolder, updateBlogDTO.CoverImageFile);
+
+                // is this necessary?
+                // if (blog.BlogCoverImageFile != null) blog.BlogCoverImageFile = null;
+
+                blog.BlogCoverImageFile = new BlogImageFile
+                {
+                    FileName = fileName,
+                    PathName = path,
+                    Storage = _storageService.StorageName
+                };
             }
 
             if (updateBlogDTO.Categories.Count > 0)
@@ -359,9 +410,30 @@ namespace Shoppe.Persistence.Concretes.Services
                 }
             }
 
+            if (updateBlogDTO.Tags.Count > 0)
+            {
+                var tagsToRemove = blog.Tags
+                    .Where(existingTag => !updateBlogDTO.Tags.Contains(existingTag.Name))
+                    .ToList();
+
+                foreach (var tag in tagsToRemove)
+                {
+                    blog.Tags.Remove(tag);
+                }
+
+                // Add new categories
+                foreach (var tagName in updateBlogDTO.Tags)
+                {
+                    var tag = await _tagReadRepository.GetAsync(c => c.Name == tagName, cancellationToken);
+                    if (tag is BlogTag blogTag && !blog.Tags.Contains(tag))
+                    {
+                        blog.Tags.Add(blogTag);
+                    }
+                }
+            }
+
             if (updateBlogDTO.Sections.Count > 0)
             {
-                var isMainImageExist = blog.Sections.Any(s => s.BlogImageMappings.Any(bi => bi.IsMain));
 
                 foreach (var section in updateBlogDTO.Sections)
                 {
@@ -371,7 +443,6 @@ namespace Shoppe.Persistence.Concretes.Services
                     {
                         var uploadResults = await _storageService.UploadMultipleAsync(BlogConst.ImagesFolder, section.SectionImageFiles);
 
-                        bool isFirst = true;
                         foreach (var (path, fileName) in uploadResults)
                         {
 
@@ -382,13 +453,9 @@ namespace Shoppe.Persistence.Concretes.Services
                                     FileName = fileName,
                                     PathName = path,
                                     Storage = _storageService.StorageName,
-
                                 },
-                                IsMain = isFirst && !isMainImageExist,
-                                BlogId = blog.Id
                             });
 
-                            isFirst = false;
                         }
 
                     }
@@ -440,11 +507,9 @@ namespace Shoppe.Persistence.Concretes.Services
 
                     if (section.SectionImageFiles.Count > 0)
                     {
-                        bool isMainImageExist = existingSection.BlogImageMappings.Any(bi => bi.IsMain);
 
                         var uploadResults = await _storageService.UploadMultipleAsync(BlogConst.ImagesFolder, section.SectionImageFiles);
 
-                        bool isFirst = true;
                         List<BlogBlogImage> uploadedImageMappings = [];
 
                         foreach (var (path, fileName) in uploadResults)
@@ -458,10 +523,8 @@ namespace Shoppe.Persistence.Concretes.Services
                                     PathName = path,
                                     Storage = _storageService.StorageName,
                                 },
-                                IsMain = isFirst && !isMainImageExist,
                             });
 
-                            isFirst = false;
                         }
 
                         existingSection.BlogImageMappings = uploadedImageMappings;
@@ -476,10 +539,85 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
 
+        public async Task<List<GetImageFileDTO>> GetAllBlogImagesAsync(CancellationToken cancellationToken, string? blogId = null)
+        {
+            if (blogId != null)
+            {
+                var blog = await _blogReadRepository.Table
+                .Include(b => b.Sections)
+                    .ThenInclude(s => s.BlogImageMappings)
+                        .ThenInclude(bi => bi.BlogImage)
+                            .ThenInclude(i => i.Blogs)
+                .AsNoTrackingWithIdentityResolution()
+                .FirstOrDefaultAsync(b => b.Id.ToString() == blogId, cancellationToken);
+
+
+                if (blog == null)
+                {
+                    throw new EntityNotFoundException(nameof(blog));
+                }
+
+                var imageMappings = blog.Sections.SelectMany(s => s.BlogImageMappings.Where(bi => bi.BlogImage.Blogs.Count == 0));
+
+                return imageMappings.Select(i => new GetImageFileDTO
+                {
+                    Id = i.BlogImageId.ToString(),
+                    PathName = i.BlogImage.PathName,
+                    FileName = i.BlogImage.FileName,
+                    CreatedAt = i.BlogImage.CreatedAt,
+                }).ToList();
+            }
+            else
+            {
+                var blogImages = await _blogImageFileReadRepository.Table.Include(bi => bi.Blogs).Where(bi => bi.Blogs.Count == 0).AsNoTracking().ToListAsync(cancellationToken);
+
+                return blogImages.Select(i => new GetImageFileDTO
+                {
+                    Id = i.Id.ToString(),
+                    PathName = i.PathName,
+                    FileName = i.FileName,
+                    CreatedAt = i.CreatedAt,
+                }).ToList();
+            }
+        }
+
+        public async Task<List<GetReplyDTO>> GetRepliesByBlogAsync(string blogId, CancellationToken cancellationToken)
+        {
+            var blog = await _blogReadRepository.Table.Include(b => b.Replies).ThenInclude(r => r.Replier).ThenInclude(u => u.ProfilePictureFiles).FirstOrDefaultAsync(b => b.Id.ToString() == blogId, cancellationToken);
+
+            if (blog == null)
+            {
+                throw new EntityNotFoundException(nameof(blog));
+            }
+
+            return blog.Replies.Select(r =>
+            {
+                var profilePic = r.Replier.ProfilePictureFiles.FirstOrDefault(i => i.IsMain);
+
+                return new GetReplyDTO()
+                {
+                    Id = r.Id.ToString(),
+                    FirstName = r.Replier?.FirstName!,
+                    LastName = r.Replier?.LastName!,
+                    Body = r.Body,
+                    CreatedAt = r.CreatedAt,
+                    ProfilePhoto = profilePic != null ? new GetImageFileDTO
+                    {
+                        Id = profilePic.Id.ToString(),
+                        FileName = profilePic.FileName,
+                        PathName = profilePic.PathName,
+                        CreatedAt = profilePic.CreatedAt
+                    } : null
+                };
+
+
+            }).ToList();
+        }
         private void ValidateAdminAccess()
         {
             if (!_jwtSession.IsAdmin())
                 throw new UnauthorizedAccessException("You do not have permission to perform this action.");
         }
+
     }
 }

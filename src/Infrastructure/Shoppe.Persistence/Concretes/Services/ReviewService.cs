@@ -60,7 +60,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 if (review == null) throw new InvalidOperationException("Review cannot be created");
 
-                review.ApplicationUserId = user.Id;
+                review.ReviewerId = user.Id;
                 review.Body = createReviewDTO.Body;
 
                 review.Rating = (Rating)Math.Clamp(createReviewDTO.Rating, 1, 5);
@@ -178,7 +178,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             private bool CanModifyReview(ApplicationUser user, Review review)
             {
-                return review.ApplicationUserId == user.Id || ContextHelpers.IsAdmin(_httpContextAccessor);
+                return review.ReviewerId == user.Id || ContextHelpers.IsAdmin(_httpContextAccessor);
             }
         }
     }

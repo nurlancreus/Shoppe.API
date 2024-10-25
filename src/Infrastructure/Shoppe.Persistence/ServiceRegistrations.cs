@@ -18,8 +18,11 @@ using Shoppe.Application.Abstractions.Repositories.PaymentRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductDetailsRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductImageFileRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
+using Shoppe.Application.Abstractions.Repositories.ReactionRepos;
+using Shoppe.Application.Abstractions.Repositories.ReplyRepos;
 using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
 using Shoppe.Application.Abstractions.Repositories.SliderRepository;
+using Shoppe.Application.Abstractions.Repositories.TagRepos;
 using Shoppe.Application.Abstractions.Repositories.UserProfilePictureFileRepos;
 using Shoppe.Application.Abstractions.Repositories.UserProfilePictureRepos;
 using Shoppe.Application.Abstractions.Services;
@@ -44,8 +47,11 @@ using Shoppe.Persistence.Concretes.Repositories.PaymentRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductDetailsRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductImageFileRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductRepos;
+using Shoppe.Persistence.Concretes.Repositories.ReactionRepos;
+using Shoppe.Persistence.Concretes.Repositories.ReplyRepos;
 using Shoppe.Persistence.Concretes.Repositories.ReviewRepos;
 using Shoppe.Persistence.Concretes.Repositories.SliderRepos;
+using Shoppe.Persistence.Concretes.Repositories.TagRepos;
 using Shoppe.Persistence.Concretes.Repositories.UserProfilePictureFileRepos;
 using Shoppe.Persistence.Concretes.Services;
 using Shoppe.Persistence.Concretes.Services.Auth;
@@ -92,6 +98,15 @@ namespace Shoppe.Persistence
 
             services.AddScoped<IReviewReadRepository, ReviewReadRepository>();
             services.AddScoped<IReviewWriteRepository, ReviewWriteRepository>();
+            
+            services.AddScoped<IReplyReadRepository, ReplyReadRepository>();
+            services.AddScoped<IReplyWriteRepository, ReplyWriteRepository>();
+            
+            services.AddScoped<IReactionReadRepository, ReactionReadRepository>();
+            services.AddScoped<IReactionWriteRepository, ReactionWriteRepository>();
+            
+            services.AddScoped<ITagReadRepository, TagReadRepository>();
+            services.AddScoped<ITagWriteRepository, TagWriteRepository>();
             
             services.AddScoped<IBlogImageFileReadRepository, BlogImageFileReadRepository>();
             services.AddScoped<IBlogImageFileWriteRepository, BlogImageFileWriteRepository>();
@@ -140,6 +155,8 @@ namespace Shoppe.Persistence
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IBlogService, BlogService>();
+
+            services.AddScoped<ITagService, TagService>();
 
             services.AddScoped<IDiscountCalculatorService, CalculatorService>();
 

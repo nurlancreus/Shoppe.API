@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Shoppe.Domain.Entities.Reviews;
+using Shoppe.Domain.Entities.Tags;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +18,11 @@ namespace Shoppe.Persistence.Configurations
             builder
                   .HasOne(r => r.Reviewer)
                   .WithMany(u => u.Reviews)
-                  .HasForeignKey(d => d.ApplicationUserId)
-                  .IsRequired(false);
+                  .HasForeignKey(d => d.ReviewerId);
+
+            builder
+                .HasDiscriminator(r => r.Type)
+                .HasValue<ProductReview>("Product");
         }
     }
 

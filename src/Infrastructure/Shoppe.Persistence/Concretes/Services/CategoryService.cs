@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Shoppe.Persistence.Concretes.Services
 {
@@ -33,11 +34,13 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task CreateCategoryAsync(CreateCategoryDTO createCategoryDTO, CancellationToken cancellationToken)
         {
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             var existedCategory = await _categoryReadRepository.GetAsync(c => c.Name == createCategoryDTO.Name, cancellationToken, false);
 
             if (existedCategory != null)
             {
-                throw new Exception("Category already exists.");
+                throw new AddNotSucceedException("Category already exists.");
             }
 
             Category? category = null;
@@ -60,15 +63,17 @@ namespace Shoppe.Persistence.Concretes.Services
                 };
             }
 
-
-
             await _categoryWriteRepository.AddAsync(category!, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
         }
 
         public async Task DeleteCategoryAsync(string id, CancellationToken cancellationToken)
         {
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             var category = await _categoryReadRepository.GetByIdAsync(id, cancellationToken);
 
             if (category == null)
@@ -84,6 +89,7 @@ namespace Shoppe.Persistence.Concretes.Services
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            scope.Complete();
         }
 
         public async Task<GetAllCategoriesDTO> GetAllCategoriesAsync(int page, int pageSize, CategoryType? type, CancellationToken cancellationToken)
@@ -137,6 +143,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task UpdateCategoryAsync(UpdateCategoryDTO updateCategoryDTO, CancellationToken cancellationToken)
         {
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             var category = await _categoryReadRepository.GetByIdAsync(updateCategoryDTO.Id, cancellationToken);
 
             if (category == null)
@@ -164,6 +172,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
         }
 
     }

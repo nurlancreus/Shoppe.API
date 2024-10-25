@@ -15,11 +15,11 @@ namespace Shoppe.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder
-                 .HasDiscriminator(c => c.Discriminator)
+                 .HasDiscriminator(c => c.Type)
                  .HasValue<ProductCategory>("Product");
 
             builder
-                .HasDiscriminator(c => c.Discriminator)
+                .HasDiscriminator(c => c.Type)
                 .HasValue<BlogCategory>("Blog");
         }
     }

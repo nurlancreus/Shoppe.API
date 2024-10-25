@@ -13,27 +13,22 @@ namespace Shoppe.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<BlogBlogImage> builder)
         {
-            builder.HasKey(x => x.Id);
+            builder.HasKey(x => new {x.BlogSectionId, x.BlogImageId});
 
             builder
                 .HasOne(x => x.BlogImage)
                 .WithMany(bi => bi.BlogMappings)
                 .HasForeignKey(x => x.BlogImageId)
-                .OnDelete(DeleteBehavior.Cascade);
+                //.IsRequired(false)
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasOne(x => x.BlogSection)
                 .WithMany(bi => bi.BlogImageMappings)
                 .HasForeignKey(x => x.BlogSectionId)
-                .OnDelete(DeleteBehavior.Cascade);
+                //.IsRequired(false)
+                .OnDelete(DeleteBehavior.NoAction);
 
-            builder
-                .HasIndex(x => new { x.BlogId, x.BlogImageId })
-                .IsUnique();
-
-            builder.HasIndex(x => new { x.BlogId, x.IsMain })
-                   .IsUnique()
-                   .HasFilter("[IsMain] = 1");
         }
     }
 }
