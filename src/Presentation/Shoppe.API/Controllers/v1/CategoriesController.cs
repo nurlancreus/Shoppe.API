@@ -12,17 +12,17 @@ namespace Shoppe.API.Controllers.v1
     //[ApiVersion("1.0")]
     public class CategoriesController : ApplicationControllerBase
     {
-        private readonly IMediator _mediator;
+        private readonly ISender _sender;
 
-        public CategoriesController(IMediator mediator)
+        public CategoriesController(ISender sender)
         {
-            _mediator = mediator;
+            _sender = sender;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetAllCategoriesQueryRequest getAllCategoriesQueryRequest)
         {
-            var response = await _mediator.Send(getAllCategoriesQueryRequest);
+            var response = await _sender.Send(getAllCategoriesQueryRequest);
 
             return Ok(response);
         }
@@ -35,7 +35,7 @@ namespace Shoppe.API.Controllers.v1
                 Id = id
             };
 
-            var response = await _mediator.Send(getCategoryByIdQueryRequest);
+            var response = await _sender.Send(getCategoryByIdQueryRequest);
 
             return Ok(response);
         }
@@ -43,7 +43,7 @@ namespace Shoppe.API.Controllers.v1
         [HttpPost]
         public async Task<IActionResult> Create(CreateCategoryCommandRequest createCategoryCommandRequest)
         {
-            var response = await _mediator.Send(createCategoryCommandRequest);
+            var response = await _sender.Send(createCategoryCommandRequest);
 
             return Ok(response);
         }
@@ -53,7 +53,7 @@ namespace Shoppe.API.Controllers.v1
         {
             updateCategoryCommandRequest.Id = id;
 
-            var response = await _mediator.Send(updateCategoryCommandRequest);
+            var response = await _sender.Send(updateCategoryCommandRequest);
 
             return Ok(response);
         }
@@ -63,7 +63,7 @@ namespace Shoppe.API.Controllers.v1
         {
             var request = new DeleteCategoryCommandRequest { Id = id };
 
-            var response = await _mediator.Send(request);
+            var response = await _sender.Send(request);
 
             return Ok(response);
         }
