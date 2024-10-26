@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Application.Features.Query.Product.GetProductReviews
+namespace Shoppe.Application.Features.Query.Review.GetReviewByUser
 {
-    public class GetProductReviewsQueryResponse : AppResponseWithData<List<GetReviewDTO>>
+    public class GetReviewsByUserQueryResponse : AppResponseWithData<List<GetReviewDTO>>
     {
     }
 }

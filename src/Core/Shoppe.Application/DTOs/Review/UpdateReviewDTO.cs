@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Review
 {
-    public class UpdateReviewDTO
+    public record UpdateReviewDTO
     {
-        public string Id { get; set; } = null!;
+        public string Id { get; set; } = string.Empty;
         public string? Body { get; set; }
         public int? Rating { get; set; }
     }

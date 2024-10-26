@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Query.Review.GetAllReviews
 
         public async Task<GetAllReviewsQueryResponse> Handle(GetAllReviewsQueryRequest request, CancellationToken cancellationToken)
         {
-            var result = await _reviewService.GetAllReviewsAsync(request.Page, request.PageSize, cancellationToken);
+            var result = await _reviewService.GetAllAsync(request.Page, request.PageSize, cancellationToken);
 
             return new GetAllReviewsQueryResponse()
             {

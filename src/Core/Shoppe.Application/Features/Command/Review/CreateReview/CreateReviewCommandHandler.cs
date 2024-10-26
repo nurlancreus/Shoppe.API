@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Constants;
+using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.Extensions.Mapping;
 using System;
 using System.Collections.Generic;
@@ -21,8 +22,11 @@ namespace Shoppe.Application.Features.Command.Review.CreateReview
 
         public async Task<CreateReviewCommandResponse> Handle(CreateReviewCommandRequest request, CancellationToken cancellationToken)
         {
-
-            await _reviewService.CreateReviewAsync(request.ToCreateReviewDTO(), cancellationToken);
+            await _reviewService.CreateAsync(new CreateReviewDTO
+            {
+                Body = request.Body,
+                Rating = request.Rating,
+            }, request.EntityId!, request.Type, cancellationToken);
 
             return new CreateReviewCommandResponse()
             {

@@ -22,7 +22,7 @@ namespace Shoppe.Persistence.Configurations
                 .HasForeignKey(sl => sl.SliderId);
 
             builder
-                .HasDiscriminator<string>("SliderType")
+                .HasDiscriminator(s => s.Type)
                 .HasValue<HeroSlider>("Hero");
         }
     }

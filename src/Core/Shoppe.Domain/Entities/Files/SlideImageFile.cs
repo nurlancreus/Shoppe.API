@@ -7,7 +7,7 @@ using Shoppe.Domain.Entities.Sliders;
 
 namespace Shoppe.Domain.Entities.Files
 {
-    public class SlideImageFile : ImageFile
+    public class SlideImageFile : ApplicationFile
     {
         public Slide Slide { get; set; } = null!;
     }

@@ -21,7 +21,7 @@ namespace Shoppe.Application.Features.Command.Review.UpdateReview
 
         public async Task<UpdateReviewCommandResponse> Handle(UpdateReviewCommandRequest request, CancellationToken cancellationToken)
         {
-            await _reviewService.UpdateReviewAsync(request.ToUpdateReviewDTO(), cancellationToken);
+            await _reviewService.UpdateAsync(request.ToUpdateReviewDTO(), cancellationToken);
 
             return new UpdateReviewCommandResponse()
             {

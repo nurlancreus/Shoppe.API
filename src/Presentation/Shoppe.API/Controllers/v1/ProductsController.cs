@@ -11,7 +11,7 @@ using Shoppe.Application.Features.Command.Product.UpdateProduct;
 using Shoppe.Application.Features.Command.Review.CreateReview;
 using Shoppe.Application.Features.Query.Product.GetAllProducts;
 using Shoppe.Application.Features.Query.Product.GetProductById;
-using Shoppe.Application.Features.Query.Product.GetProductReviews;
+using Shoppe.Application.Features.Query.Review.GetReviewByEntity;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Enums;
 
@@ -83,13 +83,23 @@ namespace Shoppe.API.Controllers.v1
         [HttpGet("{productId}/reviews")]
         public async Task<IActionResult> GetReviews(string productId)
         {
-            var getProductReviewsRequest = new GetProductReviewsQueryRequest() { ProductId = productId };
+            var request = new GetReviewsByEntityRequest { EntityId = productId, ReviewType = ReviewType.Product };
 
-            var response = await _mediator.Send(getProductReviewsRequest);
+            var response = await _mediator.Send(request);
 
             return Ok(response);
         }
 
+        [HttpPost("{productId}/reviews")]
+        public async Task<IActionResult> AddReview(string productId, [FromBody] CreateReviewCommandRequest request)
+        {
+            request.Type = ReviewType.Product;
+            request.EntityId = productId;
+
+            var response = await _mediator.Send(request);
+
+            return Ok(response);
+        }
 
         [HttpGet("colors")]
         public async Task<IActionResult> GetColors()

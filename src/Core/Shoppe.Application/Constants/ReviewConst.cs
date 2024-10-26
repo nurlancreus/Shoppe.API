@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Constants
 {
-    public class ReviewConst
+    public static class ReviewConst
     {
         public const int MaxBodyLength = 300;
-        public const int MaxFirstNameLength = 50;
-        public const int MaxLastNameLength = 50;
         public const int SavedReviewsExpireDate = 7;
     }
 }

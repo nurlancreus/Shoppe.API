@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Constants
 {
-    public class ContactConst
+    public static class ContactConst
     {
         public const int MaxMessageLength = 500;
         public const int MaxFirstNameLength = 50;

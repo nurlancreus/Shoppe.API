@@ -29,11 +29,6 @@ namespace Shoppe.Application.Validators.Review
             RuleFor(x => x.Rating)
                 .InclusiveBetween(1, 5).WithMessage("Rating must be between 1 and 5.");
 
-            RuleFor(x => x.Type)
-                .NotEmpty().WithMessage("type is required.")
-                .Must(type => Enum.TryParse(typeof(ReviewType), type?.ToString(), true, out _))
-                .WithMessage("Invalid review type. Valid types are: 'Product', 'Blog'.");
-
             RuleFor(x => x.EntityId)
                 .NotEmpty().WithMessage("Entity ID is required.")
                 .MustAsync(ValidateEntityIdAsync).WithMessage("Entity not found.");
@@ -41,7 +36,7 @@ namespace Shoppe.Application.Validators.Review
 
         private async Task<bool> ValidateEntityIdAsync(CreateReviewCommandRequest request, string? entityId, CancellationToken cancellationToken)
         {
-            if (request.Type == ReviewType.Product.ToString().ToLower())
+            if (request.Type == ReviewType.Product)
             {
                 return await _productReadRepository.IsExistAsync(p => p.Id.ToString() == entityId, cancellationToken);
             }

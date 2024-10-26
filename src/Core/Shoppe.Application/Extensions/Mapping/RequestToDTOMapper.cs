@@ -133,20 +133,6 @@ namespace Shoppe.Application.Extensions.Mapping
             };
         }
 
-        public static CreateReviewDTO ToCreateReviewDTO(this CreateReviewCommandRequest request)
-        {
-            var reviewDTO = new CreateReviewDTO()
-            {
-                Body = request.Body,
-                EntityId = request.EntityId!,
-                Rating = request.Rating,
-            };
-
-            if (Enum.TryParse(request.Type, true, out ReviewType reviewType)) reviewDTO.ReviewType = reviewType;
-
-            return reviewDTO;
-        }
-
         public static UpdateReviewDTO ToUpdateReviewDTO(this UpdateReviewCommandRequest request)
         {
             return new UpdateReviewDTO

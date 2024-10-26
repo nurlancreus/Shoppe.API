@@ -1,4 +1,5 @@
 ﻿using Shoppe.Application.DTOs.Slide;
+using Shoppe.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Shoppe.Application.DTOs.Slider
 {
     public record CreateSliderDTO
     {
-        public string Type { get; set; } = "Hero";
+        public SliderType Type { get; set; } = SliderType.Hero;
         public List<CreateSlideDTO> Slides { get; set; } = [];
     }
 }

@@ -278,38 +278,6 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task<List<GetReviewDTO>> GetReviewsByProductAsync(string productId, CancellationToken cancellationToken)
-        {
-            var product = await _productReadRepository.Table.Include(p => p.Reviews).ThenInclude(r => r.Reviewer).ThenInclude(u => u.ProfilePictureFiles).FirstOrDefaultAsync(p => p.Id.ToString() == productId, cancellationToken);
-
-            if (product == null)
-            {
-                throw new EntityNotFoundException(nameof(product));
-            }
-
-            return product.Reviews.Select(r =>
-            {
-                var profilePic = r.Reviewer.ProfilePictureFiles.FirstOrDefault(i => i.IsMain);
-
-                return new GetReviewDTO()
-                {
-                    Id = r.Id.ToString(),
-                    FirstName = r.Reviewer?.FirstName!,
-                    LastName = r.Reviewer?.LastName!,
-                    Body = r.Body,
-                    Rating = (int)r.Rating,
-                    CreatedAt = r.CreatedAt,
-                    ProfilePhoto = profilePic != null ? new GetImageFileDTO
-                    {
-                        Id = profilePic.Id.ToString(),
-                        FileName = profilePic.FileName,
-                        PathName = profilePic.PathName,
-                        CreatedAt = profilePic.CreatedAt
-                    } : null
-                };
-            }).ToList();
-        }
-
         public async Task UpdateProductAsync(UpdateProductDTO updateProductDTO, CancellationToken cancellationToken)
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))

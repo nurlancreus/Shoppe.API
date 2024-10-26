@@ -22,6 +22,7 @@ using Shoppe.Application.Abstractions.Repositories.ReactionRepos;
 using Shoppe.Application.Abstractions.Repositories.ReplyRepos;
 using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
 using Shoppe.Application.Abstractions.Repositories.SliderRepository;
+using Shoppe.Application.Abstractions.Repositories.SlideRepos;
 using Shoppe.Application.Abstractions.Repositories.TagRepos;
 using Shoppe.Application.Abstractions.Repositories.UserProfilePictureFileRepos;
 using Shoppe.Application.Abstractions.Repositories.UserProfilePictureRepos;
@@ -56,7 +57,6 @@ using Shoppe.Persistence.Concretes.Repositories.UserProfilePictureFileRepos;
 using Shoppe.Persistence.Concretes.Services;
 using Shoppe.Persistence.Concretes.Services.Auth;
 using Shoppe.Persistence.Concretes.Services.Hosted;
-using Shoppe.Persistence.Concretes.Services.Shoppe.Persistence.Concretes.Services;
 using Shoppe.Persistence.Concretes.UoW;
 using Shoppe.Persistence.Context;
 using System;
@@ -64,6 +64,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shoppe.Persistence.Concretes.Repositories.SlideRepos;
 
 
 namespace Shoppe.Persistence
@@ -80,6 +81,9 @@ namespace Shoppe.Persistence
 
             services.AddScoped<ISliderReadRepository, SliderReadRepository>();
             services.AddScoped<ISliderWriteRepository, SliderWriteRepository>();
+            
+            services.AddScoped<ISlideReadRepository, SlideReadRepository>();
+            services.AddScoped<ISlideWriteRepository, SlideWriteRepository>();
 
             services.AddScoped<ICategoryReadRepository, CategoryReadRepository>();
             services.AddScoped<ICategoryWriteRepository, CategoryWriteRepository>();
@@ -157,6 +161,9 @@ namespace Shoppe.Persistence
             services.AddScoped<IBlogService, BlogService>();
 
             services.AddScoped<ITagService, TagService>();
+
+            services.AddScoped<IReplyService, ReplyService>();
+            services.AddScoped<ISliderService, SliderService>();
 
             services.AddScoped<IDiscountCalculatorService, CalculatorService>();
 

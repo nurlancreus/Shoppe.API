@@ -7,6 +7,8 @@ using Shoppe.Application.Features.Command.User.Deactivate;
 using Shoppe.Application.Features.Command.User.Delete;
 using Shoppe.Application.Features.Command.User.RemoveProfilePicture;
 using Shoppe.Application.Features.Command.User.Update;
+using Shoppe.Application.Features.Query.Reply.GetRepliesByUser;
+using Shoppe.Application.Features.Query.Review.GetReviewByUser;
 using Shoppe.Application.Features.Query.User.Get;
 using Shoppe.Application.Features.Query.User.GetAll;
 using Shoppe.Application.Features.Query.User.GetRoles;
@@ -105,6 +107,24 @@ namespace Shoppe.API.Controllers.v1
         public async Task<IActionResult> GetRoles([FromRoute] string id)
         {
             var request = new GetUserRolesQueryRequest { UserId = id };
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpGet("{id}/reviews")]
+        public async Task<IActionResult> GetReviews([FromRoute] string id)
+        {
+            var request = new GetReviewsByUserQueryRequest { UserId = id };
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpGet("{id}/replies")]
+        public async Task<IActionResult> GetReplies([FromRoute] string id)
+        {
+            var request = new GetRepliesByUserQueryRequest { UserId = id };
             var response = await _sender.Send(request);
 
             return Ok(response);

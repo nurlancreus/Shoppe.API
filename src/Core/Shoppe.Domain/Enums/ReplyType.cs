@@ -8,6 +8,7 @@ namespace Shoppe.Domain.Enums
 {
     public enum ReplyType
     {
-        Blog
+        Blog,
+        Reply
     }
 }
