@@ -78,13 +78,12 @@ namespace Shoppe.Persistence.Context
         public DbSet<Tag> Tags { get; set; }
         public DbSet<BlogTag> BlogTags { get; set; }
 
-
         public DbSet<ApplicationFile> ApplicationFiles { get; set; }
         public DbSet<ImageFile> ImageFiles { get; set; } 
         public DbSet<ProductImageFile> ProductImageFiles { get; set; }
         public DbSet<SlideImageFile> SlideImageFiles { get; set; }
         public DbSet<BlogImageFile> BlogImageFiles { get; set; }
-        public DbSet<AboutSectionImageFile> SectionImageFiles { get; set; }
+        public DbSet<AboutSectionImageFile> AboutSectionImageFiles { get; set; }
 
 
         public DbSet<Address> Addresses { get; set; }

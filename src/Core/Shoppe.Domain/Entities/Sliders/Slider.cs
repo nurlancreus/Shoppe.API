@@ -10,6 +10,6 @@ namespace Shoppe.Domain.Entities.Sliders
     public class Slider : BaseEntity
     {
         public ICollection<Slide> Slides { get; set; } = [];
-        public string Type { get; set; } = string.Empty;
+        public string Type { get; set; }
     }
 }

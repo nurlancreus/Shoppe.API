@@ -18,6 +18,7 @@ namespace Shoppe.Persistence.Configurations
             builder
                 .HasDiscriminator(c => c.Type)
                 .HasValue<BlogTag>("Blog");
+
         }
     }
 }

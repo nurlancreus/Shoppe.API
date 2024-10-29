@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shoppe.Persistence.Context;
 
@@ -11,9 +12,11 @@ using Shoppe.Persistence.Context;
 namespace Shoppe.Persistence.Migrations
 {
     [DbContext(typeof(ShoppeDbContext))]
-    partial class ShoppeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241029134807_mig_9")]
+    partial class mig_9
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,6 +220,18 @@ namespace Shoppe.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("About");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("990b90ee-d0be-4614-a51c-8acd701a07b5"),
+                            CreatedAt = new DateTime(2024, 10, 29, 13, 48, 6, 774, DateTimeKind.Utc).AddTicks(2264),
+                            Description = "Who we are and why we do what we do!",
+                            Email = "contact@shoppe.com",
+                            Name = "Shoppe",
+                            Phone = "123-456-7890",
+                            Title = ""
+                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Address", b =>

@@ -16,7 +16,7 @@ namespace Shoppe.Domain.Entities.Reactions
         public string UserId { get; set; } = null!;
         public ApplicationUser User { get; set; } = null!;
 
-        public string EntityType { get; set; } = string.Empty; // Type of the entity (Reply or Blog)
+        public string EntityType { get; set; } 
 
     }
 }

@@ -21,6 +21,6 @@ namespace Shoppe.Application.Abstractions.Services
         Task ChangeCoverImageAsync(string blogId, string newCoverImageId, CancellationToken cancellationToken);
         Task RemoveImageAsync(string blogId, string imageId, CancellationToken cancellationToken);
         Task<List<GetImageFileDTO>> GetAllBlogImagesAsync(CancellationToken cancellationToken, string? blogId = null);
-        Task<List<GetReplyDTO>> GetRepliesByBlogAsync(string blogId, CancellationToken cancellationToken);
+       // Task<List<GetReplyDTO>> GetRepliesByBlogAsync(string blogId, CancellationToken cancellationToken);
     }
 }

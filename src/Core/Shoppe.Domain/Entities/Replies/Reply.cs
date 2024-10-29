@@ -14,7 +14,7 @@ namespace Shoppe.Domain.Entities.Replies
     public class Reply : BaseEntity
     {
         public string? Body { get; set; } = null!;
-        public string Type { get; set; } = string.Empty;
+        public string Type { get; set; }
 
 
         [ForeignKey(nameof(Replier))]

@@ -17,16 +17,16 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet]
-        public async Task<ActionResult<GetAboutQueryResponse>> GetAbout(GetAboutQueryRequest request)
+        public async Task<ActionResult<GetAboutQueryResponse>> GetAbout()
         {
-            
+            var request = new GetAboutQueryRequest();
             var response = await _sender.Send(request);
 
             return Ok(response);
         }
 
         [HttpPatch]
-        public async Task<ActionResult<UpdateAboutCommandResponse>> UpdateAbout([FromBody] UpdateAboutCommandRequest request)
+        public async Task<ActionResult<UpdateAboutCommandResponse>> UpdateAbout([FromForm] UpdateAboutCommandRequest request)
         {
             var response = await _sender.Send(request);
 

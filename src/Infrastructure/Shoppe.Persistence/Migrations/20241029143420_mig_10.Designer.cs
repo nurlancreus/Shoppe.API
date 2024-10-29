@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shoppe.Persistence.Context;
 
@@ -11,9 +12,11 @@ using Shoppe.Persistence.Context;
 namespace Shoppe.Persistence.Migrations
 {
     [DbContext(typeof(ShoppeDbContext))]
-    partial class ShoppeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241029143420_mig_10")]
+    partial class mig_10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1111,8 +1114,8 @@ namespace Shoppe.Persistence.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1295,6 +1298,13 @@ namespace Shoppe.Persistence.Migrations
                     b.HasBaseType("Shoppe.Domain.Entities.Tags.Tag");
 
                     b.HasDiscriminator().HasValue("Blog");
+                });
+
+            modelBuilder.Entity("Shoppe.Domain.Entities.Tags.ProductTag", b =>
+                {
+                    b.HasBaseType("Shoppe.Domain.Entities.Tags.Tag");
+
+                    b.HasDiscriminator().HasValue("Product");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Files.AboutSectionImageFile", b =>

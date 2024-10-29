@@ -22,7 +22,8 @@ namespace Shoppe.Persistence.Configurations
             builder
                  .HasOne(r => r.Replier)
                  .WithMany(u => u.Replies)
-                 .HasForeignKey(d => d.ReplierId);
+                 .HasForeignKey(d => d.ReplierId)
+                 .OnDelete(DeleteBehavior.NoAction);
 
 
             builder

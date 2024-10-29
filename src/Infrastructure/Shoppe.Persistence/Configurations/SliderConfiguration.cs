@@ -34,7 +34,7 @@ namespace Shoppe.Persistence.Configurations
             builder
                 .HasOne(s => s.SlideImageFile)
                 .WithOne(si => si.Slide)
-                .HasForeignKey<SlideImageFile>(si => si.Id)
+                .HasForeignKey<SlideImageFile>(si => si.SlideId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

@@ -9,7 +9,7 @@ namespace Shoppe.Application.DTOs.SocialMediaLink
 {
     public record GetSocialMediaLinkDTO
     {
-        public string URL { get; set; } = null!;
-        public string SocialPlatform { get; set; } = string.Empty;
+        public string URL { get; set; } = string.Empty;
+        public string Platform { get; set; } = string.Empty;
     }
 }

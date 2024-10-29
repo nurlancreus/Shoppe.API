@@ -14,7 +14,7 @@ namespace Shoppe.Domain.Entities.Reviews
     {
         public string? Body { get; set; } = null!;
         public Rating Rating { get; set; }
-        public string Type { get; set; } = string.Empty;
+        public string Type { get; set; }
 
 
         [ForeignKey(nameof(Reviewer))]
