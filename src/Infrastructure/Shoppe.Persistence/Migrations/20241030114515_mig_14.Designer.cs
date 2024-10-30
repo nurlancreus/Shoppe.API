@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shoppe.Persistence.Context;
 
@@ -11,9 +12,11 @@ using Shoppe.Persistence.Context;
 namespace Shoppe.Persistence.Migrations
 {
     [DbContext(typeof(ShoppeDbContext))]
-    partial class ShoppeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241030114515_mig_14")]
+    partial class mig_14
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -137,13 +140,6 @@ namespace Shoppe.Persistence.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "admin-user-id",
-                            RoleId = "admin-role-id"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -602,15 +598,6 @@ namespace Shoppe.Persistence.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "admin-role-id",
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Identity.ApplicationUser", b =>
@@ -700,28 +687,6 @@ namespace Shoppe.Persistence.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "admin-user-id",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "d6a07db5-2f72-45b0-8245-3ea9140b3ff0",
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "nurlancreus@example.com",
-                            EmailConfirmed = false,
-                            FirstName = "Nurlan",
-                            IsActive = false,
-                            LastName = "Shukurov",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "NURLANCREUS@EXAMPLE.COM",
-                            NormalizedUserName = "NURLANCREUS",
-                            PasswordHash = "AQAAAAIAAYagAAAAEPo1Aj9ZWP7Tx38C/rcFa6IcrBuaupeYb5TTPcGV0zFdLlGcsXs5Ww1BSdWsnzcLQQ==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "60b249e7-ad0d-4168-92b6-f965f599b8b3",
-                            TwoFactorEnabled = false,
-                            UserName = "nurlancreus"
-                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Order", b =>
@@ -1054,9 +1019,6 @@ namespace Shoppe.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<byte>("Order")
-                        .HasColumnType("tinyint");
-
                     b.Property<Guid>("SliderId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1075,10 +1037,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("SliderId");
 
-                    b.ToTable("Slides", t =>
-                        {
-                            t.HasCheckConstraint("CK_Slide_Order", "[Order] >= 0 AND [Order] <= 255");
-                        });
+                    b.ToTable("Slides");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Sliders.Slider", b =>

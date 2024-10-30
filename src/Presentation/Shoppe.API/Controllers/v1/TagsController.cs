@@ -19,37 +19,37 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] GetAllTagsQueryRequest getAllTagsQueryRequest)
+        public async Task<IActionResult> GetAll([FromQuery] GetAllTagsQueryRequest request)
         {
-            var response = await _sender.Send(getAllTagsQueryRequest);
+            var response = await _sender.Send(request);
             return Ok(response);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
         {
-            var getTagByIdQueryRequest = new GetTagByIdQueryRequest
+            var request = new GetTagByIdQueryRequest
             {
                 Id = id
             };
 
-            var response = await _sender.Send(getTagByIdQueryRequest);
+            var response = await _sender.Send(request);
             return Ok(response);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateTagCommandRequest createTagCommandRequest)
+        public async Task<IActionResult> Create(CreateTagCommandRequest request)
         {
-            var response = await _sender.Send(createTagCommandRequest);
+            var response = await _sender.Send(request);
             return Ok(response);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateTagCommandRequest updateTagCommandRequest)
+        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateTagCommandRequest request)
         {
-            updateTagCommandRequest.Id = id;
+            request.Id = id;
 
-            var response = await _sender.Send(updateTagCommandRequest);
+            var response = await _sender.Send(request);
             return Ok(response);
         }
 

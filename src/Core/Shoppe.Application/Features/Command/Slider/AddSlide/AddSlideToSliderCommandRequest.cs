@@ -16,5 +16,7 @@ namespace Shoppe.Application.Features.Command.Slider.AddSlide
         public string URL { get; set; } = string.Empty;
         public string ButtonText { get; set; } = string.Empty;
         public IFormFile SlideImageFile { get; set; } = null!;
+        public byte Order { get; set; }
+
     }
 }

@@ -53,9 +53,9 @@ public class UpdateAboutCommandValidator : AbstractValidator<UpdateAboutCommandR
         RuleForEach(x => x.Sections)
             .SetValidator(new CreateAboutSectionDTOValidator())
             .When(x => x.Sections != null && x.Sections.Count > 0);
-        RuleForEach(x => x.UpdatedSections)
-            .SetValidator(new UpdateAboutSectionDTOValidator())
-            .When(x => x.UpdatedSections != null && x.UpdatedSections.Count > 0);
+        //RuleForEach(x => x.UpdatedSections)
+        //    .SetValidator(new UpdateAboutSectionDTOValidator())
+        //    .When(x => x.UpdatedSections != null && x.UpdatedSections.Count > 0);
 
         // Validate SocialMediaLinks
         RuleForEach(x => x.SocialMediaLinks)
@@ -85,23 +85,23 @@ public class CreateSocialMediaLinkDTOValidator : AbstractValidator<CreateSocialM
         RuleFor(x => x.SocialPlatform)
             .NotEmpty().WithMessage("Social platform cannot be empty.")
             .Must(BeAValidPlatform).WithMessage("Invalid social media platform.")
-            .MustAsync(CheckIfPlatformAlreadyDefinedAsync)
+            //.MustAsync(CheckIfPlatformAlreadyDefinedAsync)
             .WithMessage("You already defined the same platform.");
     }
 
-    private async Task<bool> CheckIfPlatformAlreadyDefinedAsync(string platform, CancellationToken cancellationToken)
-    {
-        var about = await _aboutReadRepository.Table.Include(a => a.SocialMediaLinks).SingleOrDefaultAsync(cancellationToken);
+    //private async Task<bool> CheckIfPlatformAlreadyDefinedAsync(string platform, CancellationToken cancellationToken)
+    //{
+    //    var about = await _aboutReadRepository.Table.Include(a => a.SocialMediaLinks).SingleOrDefaultAsync(cancellationToken);
 
-        if (about == null)
-        {
-            return false;
-        }
+    //    if (about == null)
+    //    {
+    //        return false;
+    //    }
 
-        if (about.SocialMediaLinks.Any(sm => sm.SocialPlatform.ToString().ToLower() == platform.ToLower())) return false;
+    //    if (about.SocialMediaLinks.Any(sm => sm.SocialPlatform.ToString().ToLower() == platform.ToLower())) return false;
 
-        return true;
-    }
+    //    return true;
+    //}
 
     private bool BeAValidPlatform(string platform)
     {

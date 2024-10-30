@@ -10,10 +10,11 @@ namespace Shoppe.Application.DTOs.Slide
     public record UpdateSlideDTO
     {
         public string? SlideId { get; set; }
-        public string? Title { get; set; } 
-        public string? Body { get; set; } 
-        public string? URL { get; set; } 
-        public string? ButtonText { get; set; } 
+        public string? Title { get; set; }
+        public string? Body { get; set; }
+        public string? URL { get; set; }
+        public string? ButtonText { get; set; }
         public IFormFile? SlideImageFile { get; set; }
+        public byte? Order { get; set; }
     }
 }

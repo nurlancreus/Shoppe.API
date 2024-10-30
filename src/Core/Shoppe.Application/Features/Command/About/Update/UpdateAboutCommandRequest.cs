@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Command.About.Update
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public List<CreateSectionDTO> Sections { get; set; } = [];
-        public List<UpdateSectionDTO> UpdatedSections { get; set; } = [];
+        //public List<UpdateSectionDTO> UpdatedSections { get; set; } = [];
         public List<CreateSocialMediaLinkDTO> SocialMediaLinks { get; set; } = [];
     }
 }

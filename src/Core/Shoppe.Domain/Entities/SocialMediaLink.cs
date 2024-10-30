@@ -10,7 +10,7 @@ namespace Shoppe.Domain.Entities
 {
     public class SocialMediaLink : BaseEntity
     {
-        public string URL { get; set; } = null!;
+        public string URL { get; set; } = string.Empty;
         public SocialPlatform SocialPlatform { get; set; }
     }
 }

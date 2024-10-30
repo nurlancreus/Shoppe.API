@@ -9,12 +9,9 @@ public class UpdateSliderCommandRequestValidator : AbstractValidator<UpdateSlide
         RuleFor(x => x.SliderId)
             .NotEmpty().WithMessage("SliderId is required.");
 
-        RuleFor(x => x.NewSlides)
+        RuleFor(x => x.Slides)
             .ForEach(slide => slide.SetValidator(new CreateSlideDTOValidator()))
-            .When(x => x.NewSlides != null && x.NewSlides.Count != 0);
+            .When(x => x.Slides != null && x.Slides.Count != 0);
 
-        RuleFor(x => x.UpdatedSlides)
-            .ForEach(slide => slide.SetValidator(new UpdateSlideDTOValidator()))
-            .When(x => x.UpdatedSlides != null && x.UpdatedSlides.Count != 0);
     }
 }

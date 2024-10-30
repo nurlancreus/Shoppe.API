@@ -35,5 +35,9 @@ public class AddSlideToSliderCommandRequestValidator : AbstractValidator<AddSlid
             .Must(file => file.IsSizeOk(SliderConst.MaxFileSizeInMb)).WithMessage($"Image size cannot exceed {SliderConst.MaxFileSizeInMb}MB.")
             .Must(file => file.RestrictExtension([".jpg", ".png"])).WithMessage("Allowed file extensions are .jpg and .png.")
             .Must(file => file.RestrictMimeTypes(["image/jpeg", "image/png"])).WithMessage("Allowed mime types are image/jpeg and image/png.");
+
+        // Order validation
+        RuleFor(x => (int)x.Order)
+            .InclusiveBetween(0, 255).WithMessage("You must define section order. (0 - 255)");
     }
 }

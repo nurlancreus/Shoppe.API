@@ -18,5 +18,6 @@ namespace Shoppe.Domain.Entities
         public SlideImageFile SlideImageFile { get; set; } = null!;
         public Guid SliderId { get; set; }
         public Slider Slider { get; set; } = null!;
+        public byte Order { get; set; }
     }
 }

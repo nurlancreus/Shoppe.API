@@ -16,7 +16,7 @@ namespace Shoppe.Persistence.Configurations
             builder
                 .HasIndex(pp => new { pp.UserId, pp.IsMain})
                 .IsUnique()
-                .HasFilter("[IsMain] = 1");
+                .HasFilter("[UserId] IS NOT NULL AND [IsMain] = 1");
         }
     }
 }

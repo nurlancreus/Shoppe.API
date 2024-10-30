@@ -65,6 +65,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Shoppe.Persistence.Concretes.Repositories.SlideRepos;
+using Shoppe.Application.Abstractions.Repositories.SectionRepos;
+using Shoppe.Persistence.Concretes.Repositories.SectionRepos;
+using Shoppe.Application.Abstractions.Repositories.SocialMediaRepos;
+using Shoppe.Persistence.Concretes.Repositories.SocialMediaRepos;
 
 
 namespace Shoppe.Persistence
@@ -141,6 +145,12 @@ namespace Shoppe.Persistence
             
             services.AddScoped<IAddressReadRepository, AddressReadRepository>();
             services.AddScoped<IAddressWriteRepository, AddressWriteRepository>();
+
+            services.AddScoped<ISectionReadRepository, SectionReadRepository>();
+            services.AddScoped<ISectionWriteRepository, SectionWriteRepository>();
+
+            services.AddScoped<ISocialMediaLinkReadRepository, SocialMediaLinkReadRepository>();
+            services.AddScoped<ISocialMediaLinkWriteRepository, SocialMediaLinkWriteRepository>();
 
 
             #endregion

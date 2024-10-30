@@ -11,14 +11,11 @@ namespace Shoppe.Application.Validators.Section
         public UpdateAboutSectionDTOValidator()
         {
 
-            RuleFor(x => x.Title)
-                .MaximumLength(AboutConst.MaxTitleLength).WithMessage($"Section title cannot be longer than {AboutConst.MaxTitleLength} characters.");
+            RuleFor(x => x.Title).MaximumLength(AboutConst.MaxTitleLength).WithMessage($"Section title cannot be longer than {AboutConst.MaxTitleLength} characters.").When(x => !string.IsNullOrEmpty(x.Title));
 
-            RuleFor(x => x.Description)
-                .MaximumLength(AboutConst.MaxDescLength).WithMessage($"Section description cannot be longer than {AboutConst.MaxDescLength} characters.");
+            RuleFor(x => x.Description).MaximumLength(AboutConst.MaxDescLength).WithMessage($"Section description cannot be longer than {AboutConst.MaxDescLength} characters.").When(x => !string.IsNullOrEmpty(x.Description));
 
-            RuleFor(x => x.TextBody)
-               .MaximumLength(AboutConst.MaxTextBodyLength).WithMessage($"Section text body cannot be longer than {AboutConst.MaxTextBodyLength} characters.");
+            RuleFor(x => x.TextBody).MaximumLength(AboutConst.MaxTextBodyLength).WithMessage($"Section text body cannot be longer than {AboutConst.MaxTextBodyLength} characters.").When(x => !string.IsNullOrEmpty(x.TextBody));
 
             // Common validation for image files
             RuleForEach(x => x.SectionImageFiles)

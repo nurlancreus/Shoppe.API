@@ -36,6 +36,8 @@ namespace Shoppe.Persistence.Configurations
                 .WithOne(si => si.Slide)
                 .HasForeignKey<SlideImageFile>(si => si.SlideId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.ToTable(s => s.HasCheckConstraint("CK_Slide_Order", "[Order] >= 0 AND [Order] <= 255"));
         }
     }
 }

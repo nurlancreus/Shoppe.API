@@ -15,7 +15,7 @@ namespace Shoppe.Application.DTOs.Slide
         public string Body { get; set; } = string.Empty;
         public string URL { get; set; } = string.Empty;
         public string ButtonText { get; set; } = string.Empty;
-        public GetImageFileDTO SlideImageFile { get; set; } = null!;
+        public GetImageFileDTO ImageFile { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
     }
 }

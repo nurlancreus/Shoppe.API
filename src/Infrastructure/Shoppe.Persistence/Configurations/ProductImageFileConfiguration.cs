@@ -16,7 +16,7 @@ namespace Shoppe.Persistence.Configurations
             // Ensure only one image per product can be IsMain
             builder.HasIndex(pif => new { pif.ProductId, pif.IsMain })
                 .IsUnique()
-                .HasFilter("[IsMain] = 1");
+                .HasFilter("[ProductId] IS NOT NULL AND [IsMain] = 1");
         }
     }
 }

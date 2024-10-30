@@ -12,14 +12,11 @@ namespace Shoppe.Application.Validators.Section
         {
 
             // Use BlogConst for blog section validation
-            RuleFor(x => x.Title)
-                .MaximumLength(BlogConst.MaxTitleLength).WithMessage($"Section title cannot be longer than {BlogConst.MaxTitleLength} characters.");
+            RuleFor(x => x.Title).MaximumLength(BlogConst.MaxTitleLength).WithMessage($"Section title cannot be longer than {BlogConst.MaxTitleLength} characters.").When(x => !string.IsNullOrEmpty(x.Title));
 
-            RuleFor(x => x.Description)
-                .MaximumLength(BlogConst.MaxDescLength).WithMessage($"Section description cannot be longer than {BlogConst.MaxDescLength} characters.");
+            RuleFor(x => x.Description).MaximumLength(BlogConst.MaxDescLength).WithMessage($"Section description cannot be longer than {BlogConst.MaxDescLength} characters.").When(x => !string.IsNullOrEmpty(x.Description));
 
-            RuleFor(x => x.TextBody)
-               .MaximumLength(BlogConst.MaxTextBodyLength).WithMessage($"Section text body cannot be longer than {BlogConst.MaxTextBodyLength} characters.");
+            RuleFor(x => x.TextBody).MaximumLength(BlogConst.MaxTextBodyLength).WithMessage($"Section text body cannot be longer than {BlogConst.MaxTextBodyLength} characters.").When(x => !string.IsNullOrEmpty(x.TextBody));
 
 
             // Common validation for image files

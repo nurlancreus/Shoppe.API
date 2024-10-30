@@ -66,9 +66,18 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (createSliderDTO.Slides.Count > 0)
             {
+                var usedOrders = new HashSet<int>();
+
                 foreach (var slide in createSliderDTO.Slides)
                 {
                     var (path, fileName) = await _storageService.UploadAsync(SliderConst.ImagesFolder, slide.SlideImageFile);
+
+                    byte resolvedOrder = slide.Order;
+                    while (usedOrders.Contains(resolvedOrder))
+                    {
+                        resolvedOrder++;
+                    }
+                    usedOrders.Add(resolvedOrder);
 
                     slider.Slides.Add(new Slide
                     {
@@ -76,6 +85,7 @@ namespace Shoppe.Persistence.Concretes.Services
                         ButtonText = slide.ButtonText,
                         Title = slide.Title,
                         URL = slide.URL,
+                        Order = resolvedOrder,
                         SlideImageFile = new SlideImageFile
                         {
                             FileName = fileName,
@@ -96,7 +106,7 @@ namespace Shoppe.Persistence.Concretes.Services
             ValidateAdminAccess();
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var slide = await _slideReadRepository.Table.Include(s => s.Slider)
+            var slide = await _slideReadRepository.Table.Include(s => s.Slider).ThenInclude(s => s.Slides)
                 .Include(s => s.SlideImageFile)
                 .FirstOrDefaultAsync(s => s.Id.ToString() == slideId, cancellationToken);
 
@@ -208,6 +218,24 @@ namespace Shoppe.Persistence.Concretes.Services
                 slide.URL = url;
             }
 
+            if (updateSlideDTO.Order is byte order && slide.Order != order)
+            {
+                var usedOrders = new HashSet<byte>();
+
+                var sliderOrders = _sliderReadRepository.Table.Include(s => s.Slides).SelectMany(s => s.Slides).Select(s => s.Order).AsEnumerable();
+
+                usedOrders.UnionWith(sliderOrders);
+
+                byte resolvedOrder = order;
+
+                while (usedOrders.Contains(resolvedOrder))
+                {
+                    resolvedOrder++;
+                }
+
+                slide.Order = resolvedOrder;
+            }
+
             // Handle image update if necessary
             if (updateSlideDTO.SlideImageFile != null)
             {
@@ -234,41 +262,39 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(slider));
             }
 
-            // Handle slides update if necessary
-            foreach (var slideUpdate in updateSliderDTO.UpdatedSlides)
+            if (_slideWriteRepository.DeleteRange(slider.Slides))
             {
-                var slide = slider.Slides.FirstOrDefault(s => s.Id.ToString() == slideUpdate.SlideId);
-                if (slide != null)
+                slider.Slides.Clear();
+            }
+
+            var usedOrders = new HashSet<byte>();
+
+            foreach (var slide in updateSliderDTO.Slides)
+            {
+                var (path, fileName) = await _storageService.UploadAsync(SliderConst.ImagesFolder, slide.SlideImageFile);
+
+                byte resolvedOrder = slide.Order;
+                while (usedOrders.Contains(resolvedOrder))
                 {
-                    if (slideUpdate.Body is string body && slide.Body != body)
-                    {
-                        slide.Body = body;
-                    }
-
-                    if (slideUpdate.ButtonText is string buttonText && slide.ButtonText != buttonText)
-                    {
-                        slide.ButtonText = buttonText;
-                    }
-
-                    if (slideUpdate.Title is string title && slide.Title != title)
-                    {
-                        slide.Title = title;
-                    }
-
-                    if (slideUpdate.URL is string url && slide.URL != url)
-                    {
-                        slide.URL = url;
-                    }
-
-                    // Handle image update if necessary
-                    if (slideUpdate.SlideImageFile != null)
-                    {
-                        (string path, string fileName) = await _storageService.UploadAsync(SliderConst.ImagesFolder, slideUpdate.SlideImageFile);
-                        slide.SlideImageFile.FileName = fileName;
-                        slide.SlideImageFile.PathName = path;
-                        slide.SlideImageFile.Storage = _storageService.StorageName;
-                    }
+                    resolvedOrder++;
                 }
+
+                usedOrders.Add(resolvedOrder);
+
+                slider.Slides.Add(new Slide
+                {
+                    Body = slide.Body,
+                    ButtonText = slide.ButtonText,
+                    Title = slide.Title,
+                    URL = slide.URL,
+                    Order = resolvedOrder,
+                    SlideImageFile = new SlideImageFile
+                    {
+                        FileName = fileName,
+                        PathName = path,
+                        Storage = _storageService.StorageName,
+                    }
+                });
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -291,7 +317,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     Id = s.Id.ToString(),
                     Body = s.Body,
                     ButtonText = s.ButtonText,
-                    SlideImageFile = new GetImageFileDTO
+                    ImageFile = new GetImageFileDTO
                     {
                         Id = s.SlideImageFile.Id.ToString(),
                         FileName = s.SlideImageFile.FileName,

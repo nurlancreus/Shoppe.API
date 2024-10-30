@@ -274,7 +274,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     Title = s.Title,
                     Description = s.Description,
                     TextBody = s.TextBody,
-                    SectionImageFiles = s.BlogImageMappings.Select(bi => new GetImageFileDTO
+                    ImageFiles = s.BlogImageMappings.Select(bi => new GetImageFileDTO
                     {
                         Id = bi.BlogImage.Id.ToString(),
                         FileName = bi.BlogImage.FileName,
@@ -332,7 +332,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     Title = s.Title,
                     Description = s.Description,
                     TextBody = s.TextBody,
-                    SectionImageFiles = s.BlogImageMappings.Select(bi => new GetImageFileDTO
+                    ImageFiles = s.BlogImageMappings.Select(bi => new GetImageFileDTO
                     {
                         Id = bi.BlogImage.Id.ToString(),
                         FileName = bi.BlogImage.FileName,

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Shoppe.Application.Abstractions.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,22 @@ namespace Shoppe.Application.Features.Query.Slider.Get
 {
     public class GetSliderQueryHandler : IRequestHandler<GetSliderQueryRequest, GetSliderQueryResponse>
     {
-        public Task<GetSliderQueryResponse> Handle(GetSliderQueryRequest request, CancellationToken cancellationToken)
+        private readonly ISliderService _sliderService;
+
+        public GetSliderQueryHandler(ISliderService sliderService)
         {
-            throw new NotImplementedException();
+            _sliderService = sliderService;
+        }
+
+        public async Task<GetSliderQueryResponse> Handle(GetSliderQueryRequest request, CancellationToken cancellationToken)
+        {
+            var slider = await _sliderService.GetSliderAsync(request.SliderId!, cancellationToken);
+
+            return new GetSliderQueryResponse
+            {
+                IsSuccess = true,
+                Data = slider
+            };
         }
     }
 }

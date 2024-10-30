@@ -4,6 +4,7 @@ using Shoppe.Application.Abstractions.Repositories.AboutRepos;
 using Shoppe.Application.DTOs.About;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Section;
+using Shoppe.Application.DTOs.SocialMediaLink;
 using Shoppe.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace Shoppe.Application.Features.Query.About.Get
                                                 .ThenInclude(s => s.SectionImageFiles)
                                             .Include(a => a.SocialMediaLinks)
                                             .AsNoTracking()
-                                            .SingleOrDefaultAsync(cancellationToken);
+                                            .FirstOrDefaultAsync(cancellationToken);
 
             if (about == null) throw new EntityNotFoundException(nameof(about));
 
@@ -43,12 +44,19 @@ namespace Shoppe.Application.Features.Query.About.Get
                     Title = about.Title,
                     Email = about.Email,
                     Phone = about.Phone,
+                    SocialMediaLinks = about.SocialMediaLinks.Select(s => new GetSocialMediaLinkDTO
+                    {
+                        Id = s.Id.ToString(),
+                        SocialPlatform = s.SocialPlatform.ToString(),
+                        URL = s.URL,
+                        CreatedAt = s.CreatedAt,
+                    }).ToList(),
                     Sections = about.Sections.OrderBy(s => s.Order).Select(s => new GetSectionDTO
                     {
                         Id = s.Id.ToString(),
                         TextBody = s.TextBody,
                         Title = s.Title,
-                        SectionImageFiles = s.SectionImageFiles.Select(si => new GetImageFileDTO
+                        ImageFiles = s.SectionImageFiles.Select(si => new GetImageFileDTO
                         {
                             Id = si.Id.ToString(),
                             FileName = si.FileName,

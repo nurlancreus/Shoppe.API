@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Base;
@@ -32,6 +33,38 @@ namespace Shoppe.Persistence.Context
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfigurationsFromAssembly(Assembly.GetAssembly(typeof(ProductConfiguration))!);
+
+            const string adminRoleId = "admin-role-id"; // Use a constant GUID for reproducibility
+            builder.Entity<ApplicationRole>().HasData(
+                new ApplicationRole { Id = adminRoleId, Name = "Admin", NormalizedName = "ADMIN" }
+            );
+
+            // Seed the admin user
+            const string adminUserId = "admin-user-id"; // Use a constant GUID for reproducibility
+            var passwordHasher = new PasswordHasher<ApplicationUser>();
+            var adminUser = new ApplicationUser
+            {
+                Id = adminUserId,
+                FirstName = "Nurlan",
+                LastName = "Shukurov",
+                UserName = "nurlancreus",
+                NormalizedUserName = "NURLANCREUS",
+                Email = "nurlancreus@example.com",
+                NormalizedEmail = "NURLANCREUS@EXAMPLE.COM",
+            };
+
+            adminUser.PasswordHash = passwordHasher.HashPassword(adminUser, "qwerty1234");
+
+            builder.Entity<ApplicationUser>().HasData(adminUser);
+
+            // Seed user role mapping
+            builder.Entity<IdentityUserRole<string>>().HasData(
+                new IdentityUserRole<string>
+                {
+                    UserId = adminUserId,
+                    RoleId = adminRoleId
+                }
+            );
 
             base.OnModelCreating(builder);
         }

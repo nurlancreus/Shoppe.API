@@ -11,7 +11,6 @@ namespace Shoppe.Application.Features.Command.Slider.Update
     public class UpdateSliderCommandRequest : IRequest<UpdateSliderCommandResponse>
     {
         public string? SliderId { get; set; }
-        public List<CreateSlideDTO> NewSlides { get; set; } = [];
-        public List<UpdateSlideDTO> UpdatedSlides { get; set; } = [];
+        public List<CreateSlideDTO> Slides { get; set; } = [];
     }
 }

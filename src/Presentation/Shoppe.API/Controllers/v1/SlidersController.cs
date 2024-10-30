@@ -6,6 +6,8 @@ using Shoppe.Application.Features.Command.Slider.Create;
 using Shoppe.Application.Features.Command.Slider.Delete;
 using Shoppe.Application.Features.Command.Slider.Update;
 using Shoppe.Application.Features.Query.Slider.Get;
+using Shoppe.Application.Features.Query.Slider.GetAll;
+using Shoppe.Application.Features.Query.Tag.GetAll;
 
 namespace Shoppe.API.Controllers.v1
 {
@@ -16,6 +18,14 @@ namespace Shoppe.API.Controllers.v1
         public SlidersController(ISender sender)
         {
             _sender = sender;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var request = new GetAllSlidersQueryRequest();
+            var response = await _sender.Send(request);
+            return Ok(response);
         }
 
         [HttpGet("{sliderId}")]

@@ -2,6 +2,8 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Shoppe.Application.Abstractions.Repositories.AboutRepos;
+using Shoppe.Application.Abstractions.Repositories.SectionRepos;
+using Shoppe.Application.Abstractions.Repositories.SocialMediaRepos;
 using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.Constants;
@@ -24,14 +26,18 @@ namespace Shoppe.Application.Features.Command.About.Update
     public class UpdateAboutCommandHandler : IRequestHandler<UpdateAboutCommandRequest, UpdateAboutCommandResponse>
     {
         private readonly IAboutReadRepository _aboutReadRepository;
+        private readonly ISectionWriteRepository _sectionWriteRepository;
+        private readonly ISocialMediaLinkWriteRepository _socialMediaLinkWriteRepository;
         private readonly IStorageService _storageService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateAboutCommandHandler(IAboutReadRepository aboutReadRepository, IUnitOfWork unitOfWork, IStorageService storageService)
+        public UpdateAboutCommandHandler(IAboutReadRepository aboutReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, ISectionWriteRepository sectionWriteRepository, ISocialMediaLinkWriteRepository socialMediaLinkWriteRepository)
         {
             _aboutReadRepository = aboutReadRepository;
             _unitOfWork = unitOfWork;
             _storageService = storageService;
+            _sectionWriteRepository = sectionWriteRepository;
+            _socialMediaLinkWriteRepository = socialMediaLinkWriteRepository;
         }
 
         public async Task<UpdateAboutCommandResponse> Handle(UpdateAboutCommandRequest request, CancellationToken cancellationToken)
@@ -80,7 +86,13 @@ namespace Shoppe.Application.Features.Command.About.Update
                 about.Phone = request.Phone;
             }
 
-            about.Sections.Clear();
+            if (_sectionWriteRepository.DeleteRange(about.Sections))
+            {
+                about.Sections.Clear();
+            }
+
+            var usedOrders = new HashSet<int>();
+
             foreach (var section in request.Sections)
             {
                 var uploadResults = await _storageService.UploadMultipleAsync(AboutConst.ImagesFolder, section.SectionImageFiles);
@@ -88,7 +100,6 @@ namespace Shoppe.Application.Features.Command.About.Update
                 ICollection<AboutSectionImageFile> uploadedImages = [];
 
                 bool isFirst = true;
-
                 foreach (var (path, fileName) in uploadResults)
                 {
                     uploadedImages.Add(new AboutSectionImageFile
@@ -98,35 +109,47 @@ namespace Shoppe.Application.Features.Command.About.Update
                         IsMain = isFirst,
                         Storage = _storageService.StorageName,
                     });
-
                     isFirst = false;
                 }
 
-                about.Sections.Add(new AboutSection
+                byte resolvedOrder = section.Order;
+                while (usedOrders.Contains(resolvedOrder))
                 {
-                    Title = section.Title,               
+                    resolvedOrder++;
+                }
+                usedOrders.Add(resolvedOrder);
+
+                // Create the new section with the resolved unique order
+                var newSection = new AboutSection
+                {
+                    Title = section.Title,
                     TextBody = section.TextBody,
                     Description = section.Description,
                     SectionImageFiles = uploadedImages,
-                    Order = section.Order,
-                });
+                    Order = resolvedOrder
+                };
+
+                about.Sections.Add(newSection);
             }
 
-            about.SocialMediaLinks.Clear();
+
+            if (_socialMediaLinkWriteRepository.DeleteRange(about.SocialMediaLinks))
+            {
+                about.SocialMediaLinks.Clear();
+            }
+
             foreach (var link in request.SocialMediaLinks)
             {
-                if (Enum.TryParse<SocialPlatform>(link.SocialPlatform, true, out var parsedPlatform))
-                {
-                    about.SocialMediaLinks.Add(new SocialMediaLink
-                    {
-                        URL = link.URL,
-                        SocialPlatform = parsedPlatform
-                    });
-                }
-                else
+                if (!Enum.TryParse<SocialPlatform>(link.SocialPlatform, true, out var parsedPlatform))
                 {
                     throw new ValidationException($"Invalid social media platform: {link.SocialPlatform}");
                 }
+
+                about.SocialMediaLinks.Add(new SocialMediaLink
+                {
+                    URL = link.URL,
+                    SocialPlatform = parsedPlatform
+                });
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);

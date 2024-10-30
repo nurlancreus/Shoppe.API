@@ -35,5 +35,10 @@ public class UpdateSlideDTOValidator : AbstractValidator<UpdateSlideDTO>
             .Must(file => file.RestrictExtension([".jpg", ".png"])).WithMessage("Allowed file extensions are .jpg and .png.")
             .Must(file => file.RestrictMimeTypes(["image/jpeg", "image/png"])).WithMessage("Allowed mime types are image/jpeg and image/png.")
             .When(x => x.SlideImageFile != null);
+
+        // Order validation
+        RuleFor(x => (int)(x.Order ?? 0))
+            .InclusiveBetween(0, 255).WithMessage("You must define section order. (0 - 255)")
+            .When(x => x.Order != null);
     }
 }
