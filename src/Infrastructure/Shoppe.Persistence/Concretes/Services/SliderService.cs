@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Shoppe.Application.Abstractions.Repositories.FileRepos;
 using Shoppe.Application.Abstractions.Repositories.SlideRepos;
 using Shoppe.Application.Abstractions.Repositories.SliderRepository;
 using Shoppe.Application.Abstractions.Services;
@@ -21,6 +25,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using System.Drawing;
+using System.IO;
 
 namespace Shoppe.Persistence.Concretes.Services
 {
@@ -32,6 +38,7 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly ISlideWriteRepository _slideWriteRepository;
         private readonly IStorageService _storageService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFileWriteRepository _fileWriteRepository;
         private readonly IJwtSession _jwtSession;
 
         public SliderService(
@@ -41,7 +48,8 @@ namespace Shoppe.Persistence.Concretes.Services
             ISlideWriteRepository slideWriteRepository,
             IStorageService storageService,
             IUnitOfWork unitOfWork,
-            IJwtSession jwtSession)
+            IJwtSession jwtSession,
+            IFileWriteRepository fileWriteRepository)
         {
             _sliderReadRepository = sliderReadRepository;
             _sliderWriteRepository = sliderWriteRepository;
@@ -50,6 +58,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _storageService = storageService;
             _unitOfWork = unitOfWork;
             _jwtSession = jwtSession;
+            _fileWriteRepository = fileWriteRepository;
         }
 
         public async Task CreateSliderAsync(CreateSliderDTO createSliderDTO, CancellationToken cancellationToken)
@@ -66,7 +75,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (createSliderDTO.Slides.Count > 0)
             {
-                var usedOrders = new HashSet<int>();
+                var usedOrders = new HashSet<byte>();
 
                 foreach (var slide in createSliderDTO.Slides)
                 {
@@ -117,14 +126,13 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (slide.Slider.Slides.Remove(slide))
             {
-                _slideWriteRepository.Delete(slide);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                if (_slideWriteRepository.Delete(slide) && await _unitOfWork.SaveChangesAsync(cancellationToken))
+                {
 
-                // is it going to read file even after i save changes?
-                await _storageService.DeleteAsync(slide.SlideImageFile.PathName, slide.SlideImageFile.FileName);
+                    await _storageService.DeleteAsync(slide.SlideImageFile.PathName, slide.SlideImageFile.FileName);
+                    scope.Complete();
+                }
             }
-
-            scope.Complete();
         }
 
         public async Task DeleteSliderAsync(string sliderId, CancellationToken cancellationToken)
@@ -236,15 +244,6 @@ namespace Shoppe.Persistence.Concretes.Services
                 slide.Order = resolvedOrder;
             }
 
-            // Handle image update if necessary
-            if (updateSlideDTO.SlideImageFile != null)
-            {
-                var (path, fileName) = await _storageService.UploadAsync(SliderConst.ImagesFolder, updateSlideDTO.SlideImageFile);
-                slide.SlideImageFile.FileName = fileName;
-                slide.SlideImageFile.PathName = path;
-                slide.SlideImageFile.Storage = _storageService.StorageName;
-            }
-
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             scope.Complete();
         }
@@ -262,31 +261,110 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(slider));
             }
 
-            if (_slideWriteRepository.DeleteRange(slider.Slides))
-            {
-                slider.Slides.Clear();
-            }
-
             var usedOrders = new HashSet<byte>();
 
-            foreach (var slide in updateSliderDTO.Slides)
-            {
-                var (path, fileName) = await _storageService.UploadAsync(SliderConst.ImagesFolder, slide.SlideImageFile);
+            var existingOrders = slider.Slides.Select(s => s.Order);
+            usedOrders.UnionWith(existingOrders);
 
-                byte resolvedOrder = slide.Order;
+            if (updateSliderDTO.UpdatedSlides.Count == 0 && slider.Slides.Count != 0)
+            {
+                if (_slideWriteRepository.DeleteRange(slider.Slides))
+                {
+                    var slidesImages = slider.Slides.Select(s => s.SlideImageFile);
+                    slider.Slides.Clear();
+
+                    foreach (var slideImageFile in slidesImages)
+                    {
+                        await _storageService.DeleteAsync(slideImageFile.PathName, slideImageFile.FileName);
+                    }
+                }
+
+            }
+            else
+            {
+                if (slider.Slides.Count > updateSliderDTO.UpdatedSlides.Count)
+                {
+                    var slidesToDelete = slider.Slides
+                            .Where(s => !updateSliderDTO.UpdatedSlides.Select(r => r.SlideId).Contains(s.Id.ToString()))
+                            .ToList();
+
+                    if (_slideWriteRepository.DeleteRange(slidesToDelete))
+                    {
+                        foreach (var slideToDelete in slidesToDelete)
+                        {
+                            slider.Slides.Remove(slideToDelete);
+
+                            await _storageService.DeleteAsync(slideToDelete.SlideImageFile.PathName, slideToDelete.SlideImageFile.FileName);
+
+                        }
+                    }
+                }
+                foreach (var slideRequest in updateSliderDTO.UpdatedSlides)
+                {
+                    if (!string.IsNullOrWhiteSpace(slideRequest.SlideId))
+                    {
+                        var slide = slider.Slides.FirstOrDefault(s => s.Id.ToString() == slideRequest.SlideId);
+
+                        if (slide == null)
+                        {
+                            throw new EntityNotFoundException(nameof(slide));
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(slideRequest.Title) && slide.Title != slideRequest.Title)
+                        {
+                            slide.Title = slideRequest.Title;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(slideRequest.Body) && slide.Body != slideRequest.Body)
+                        {
+                            slide.Body = slideRequest.Body;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(slideRequest.ButtonText) && slide.ButtonText != slideRequest.ButtonText)
+                        {
+                            slide.ButtonText = slideRequest.ButtonText;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(slideRequest.URL) && slide.URL != slideRequest.URL)
+                        {
+                            slide.URL = slideRequest.URL;
+                        }
+
+                        if (slideRequest.Order is byte order && order >= 0 && order <= 255 && slide.Order != order)
+                        {
+                            byte resolvedOrder = order;
+                            while (usedOrders.Contains(resolvedOrder))
+                            {
+                                resolvedOrder++;
+                            }
+
+                            usedOrders.Add(resolvedOrder);
+
+                            slide.Order = resolvedOrder;
+                        }
+
+                    }
+
+                }
+            }
+            foreach (var slideRequest in updateSliderDTO.NewSlides)
+            {
+
+                var (path, fileName) = await _storageService.UploadAsync(SliderConst.ImagesFolder, slideRequest.SlideImageFile);
+
+                byte resolvedOrder = slideRequest.Order;
                 while (usedOrders.Contains(resolvedOrder))
                 {
                     resolvedOrder++;
                 }
-
                 usedOrders.Add(resolvedOrder);
 
                 slider.Slides.Add(new Slide
                 {
-                    Body = slide.Body,
-                    ButtonText = slide.ButtonText,
-                    Title = slide.Title,
-                    URL = slide.URL,
+                    Body = slideRequest.Body,
+                    ButtonText = slideRequest.ButtonText,
+                    Title = slideRequest.Title,
+                    URL = slideRequest.URL,
                     Order = resolvedOrder,
                     SlideImageFile = new SlideImageFile
                     {
@@ -299,6 +377,53 @@ namespace Shoppe.Persistence.Concretes.Services
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             scope.Complete();
+        }
+
+        public async Task ChangeSlideImageAsync(string slideId, IFormFile newImageFile, CancellationToken cancellationToken)
+        {
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            var slide = await _slideReadRepository.Table.Include(s => s.SlideImageFile).FirstOrDefaultAsync(s => s.Id.ToString() == slideId, cancellationToken);
+
+
+            if (slide == null)
+            {
+                throw new EntityNotFoundException(nameof(slide));
+            }
+
+            var image = slide.SlideImageFile;
+
+            if (image == null)
+            {
+                throw new EntityNotFoundException(nameof(image));
+
+            }
+
+            if (newImageFile.Length > 0)
+            {
+                var (path, fileName) = await _storageService.UploadAsync(SliderConst.ImagesFolder, newImageFile);
+
+                var newImage = new SlideImageFile
+                {
+                    FileName = fileName,
+                    PathName = path,
+                    Storage = _storageService.StorageName,
+                };
+
+                slide.SlideImageFile = newImage;
+            }
+
+            if (_fileWriteRepository.Delete(image))
+            {
+                if (await _unitOfWork.SaveChangesAsync(cancellationToken))
+                {
+
+                    await _storageService.DeleteAsync(image.PathName, image.FileName);
+                }
+
+                scope.Complete();
+            }
+
         }
 
         private void ValidateAdminAccess()
@@ -315,8 +440,11 @@ namespace Shoppe.Persistence.Concretes.Services
                 Slides = slider.Slides.Select(s => new GetSlideDTO
                 {
                     Id = s.Id.ToString(),
+                    Title = s.Title,
+                    URL = s.URL,
                     Body = s.Body,
                     ButtonText = s.ButtonText,
+                    Order = s.Order,
                     ImageFile = new GetImageFileDTO
                     {
                         Id = s.SlideImageFile.Id.ToString(),
@@ -330,5 +458,6 @@ namespace Shoppe.Persistence.Concretes.Services
                 CreatedAt = slider.CreatedAt,
             };
         }
+
     }
 }

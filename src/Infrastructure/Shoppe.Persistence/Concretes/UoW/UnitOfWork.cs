@@ -17,9 +17,9 @@ namespace Shoppe.Persistence.Concretes.UoW
         {
             _context = context;
         }
-        public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+        public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            await _context.SaveChangesAsync(cancellationToken);
+           return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
     }
 }

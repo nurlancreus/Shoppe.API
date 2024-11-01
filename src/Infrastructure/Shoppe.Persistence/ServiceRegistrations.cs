@@ -69,6 +69,8 @@ using Shoppe.Application.Abstractions.Repositories.SectionRepos;
 using Shoppe.Persistence.Concretes.Repositories.SectionRepos;
 using Shoppe.Application.Abstractions.Repositories.SocialMediaRepos;
 using Shoppe.Persistence.Concretes.Repositories.SocialMediaRepos;
+using Shoppe.Application.Abstractions.Repositories.FileRepos;
+using Shoppe.Persistence.Concretes.Repositories.FileRepos;
 
 
 namespace Shoppe.Persistence
@@ -151,6 +153,9 @@ namespace Shoppe.Persistence
 
             services.AddScoped<ISocialMediaLinkReadRepository, SocialMediaLinkReadRepository>();
             services.AddScoped<ISocialMediaLinkWriteRepository, SocialMediaLinkWriteRepository>();
+
+            services.AddScoped<IFileReadRepository, FileReadRepository>();
+            services.AddScoped<IFileWriteRepository, FileWriteRepository>();
 
 
             #endregion
