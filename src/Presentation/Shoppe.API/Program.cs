@@ -39,7 +39,7 @@ namespace Shoppe.API
             builder.Services//AddFluentValidationAutoValidation()
                 .AddFluentValidationClientsideAdapters();
 
-                                  builder.Services.AddValidatorsFromAssemblyContaining<CreateProductCommandRequestValidator>();
+                                            builder.Services.AddValidatorsFromAssemblyContaining<CreateProductCommandRequestValidator>();
 
             builder.Services.AddControllers();
 

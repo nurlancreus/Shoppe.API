@@ -20,26 +20,26 @@ namespace Shoppe.API.Controllers.v1
     //[ApiVersion("1.0")]
     public class ProductsController : ApplicationControllerBase
     {
-        private readonly IMediator _mediator;
+        private readonly ISender _sender;
 
-        public ProductsController(IMediator mediator)
+        public ProductsController(ISender sender)
         {
-            _mediator = mediator;
+            _sender = sender;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] CreateProductCommandRequest createProductCommandRequest)
+        public async Task<IActionResult> Create([FromForm] CreateProductCommandRequest request)
         {
-            var response = await _mediator.Send(createProductCommandRequest);
+            var response = await _sender.Send(request);
 
             return Ok(response);
         }
 
         [HttpGet]
         // [ServiceFilter(typeof(SortByProductsActionFilter))]
-        public async Task<IActionResult> GetAll([FromQuery] GetAllProductsQueryRequest getAllProductsQueryRequest)
+        public async Task<IActionResult> GetAll([FromQuery] GetAllProductsQueryRequest request)
         {
-            var response = await _mediator.Send(getAllProductsQueryRequest);
+            var response = await _sender.Send(request);
 
             return Ok(response);
         }
@@ -47,22 +47,22 @@ namespace Shoppe.API.Controllers.v1
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
         {
-            var getProductByIdQueryRequest = new GetProductByIdQueryRequest()
+            var request = new GetProductByIdQueryRequest()
             {
                 Id = id
             };
 
-            var response = await _mediator.Send(getProductByIdQueryRequest);
+            var response = await _sender.Send(request);
 
             return Ok(response);
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update([FromRoute] string id, [FromForm] UpdateProductCommandRequest updateProductCommandRequest)
+        public async Task<IActionResult> Update([FromRoute] string id, [FromForm] UpdateProductCommandRequest request)
         {
-            updateProductCommandRequest.Id = id;
+            request.Id = id;
 
-            var response = await _mediator.Send(updateProductCommandRequest);
+            var response = await _sender.Send(request);
 
             return Ok(response);
         }
@@ -70,12 +70,12 @@ namespace Shoppe.API.Controllers.v1
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var deleteProductCommandRequest = new DeleteProductCommandRequest()
+            var request = new DeleteProductCommandRequest()
             {
                 Id = id
             };
 
-            var response = await _mediator.Send(deleteProductCommandRequest);
+            var response = await _sender.Send(request);
 
             return Ok(response);
         }
@@ -85,7 +85,7 @@ namespace Shoppe.API.Controllers.v1
         {
             var request = new GetReviewsByEntityRequest { EntityId = productId, ReviewType = ReviewType.Product };
 
-            var response = await _mediator.Send(request);
+            var response = await _sender.Send(request);
 
             return Ok(response);
         }
@@ -96,7 +96,7 @@ namespace Shoppe.API.Controllers.v1
             request.Type = ReviewType.Product;
             request.EntityId = productId;
 
-            var response = await _mediator.Send(request);
+            var response = await _sender.Send(request);
 
             return Ok(response);
         }
@@ -136,7 +136,7 @@ namespace Shoppe.API.Controllers.v1
                 ImageId = imageId
             };
 
-            var response = await _mediator.Send(request);
+            var response = await _sender.Send(request);
 
             return Ok(response);
         }
@@ -150,7 +150,7 @@ namespace Shoppe.API.Controllers.v1
                 ImageId = imageId
             };
 
-            var response = await _mediator.Send(request);
+            var response = await _sender.Send(request);
 
             return Ok(response);
         }

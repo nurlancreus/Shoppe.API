@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Slider.AddSlide;
 using Shoppe.Application.Features.Command.Slider.Create;
 using Shoppe.Application.Features.Command.Slider.Delete;
+using Shoppe.Application.Features.Command.Slider.RemoveImage;
 using Shoppe.Application.Features.Command.Slider.Update;
 using Shoppe.Application.Features.Query.Slider.Get;
 using Shoppe.Application.Features.Query.Slider.GetAll;
@@ -51,9 +52,10 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
-        [HttpPatch("update")]
-        public async Task<IActionResult> Update([FromForm] UpdateSliderCommandRequest request)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update(string id, [FromForm] UpdateSliderCommandRequest request)
         {
+            request.SliderId = id;
             var response = await _sender.Send(request);
             return Ok(response);
         }
@@ -63,6 +65,16 @@ namespace Shoppe.API.Controllers.v1
         {
             var request = new DeleteSliderCommandRequest { SliderId = sliderId };
             var response = await _sender.Send(request);
+            return Ok(response);
+        }
+
+        [HttpPatch("{slideId}/images")]
+        public async Task<IActionResult> ChangeImage(string slideId, [FromForm] ChangeSlideImageCommandRequest request)
+        {
+            request.SlideId = slideId;
+
+            var response = await _sender.Send(request);
+
             return Ok(response);
         }
     }
