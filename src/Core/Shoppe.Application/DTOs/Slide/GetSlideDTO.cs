@@ -17,5 +17,6 @@ namespace Shoppe.Application.DTOs.Slide
         public string ButtonText { get; set; } = string.Empty;
         public GetImageFileDTO ImageFile { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
+        public byte Order {  get; set; }
     }
 }

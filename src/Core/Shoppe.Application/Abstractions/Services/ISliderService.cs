@@ -1,4 +1,5 @@
-﻿using Shoppe.Application.DTOs.Slide;
+﻿using Microsoft.AspNetCore.Http;
+using Shoppe.Application.DTOs.Slide;
 using Shoppe.Application.DTOs.Slider;
 using Shoppe.Domain.Enums;
 using System;
@@ -19,5 +20,6 @@ namespace Shoppe.Application.Abstractions.Services
         Task DeleteSlideAsync(string slideId, CancellationToken cancellationToken);
         Task UpdateSlideAsync(UpdateSlideDTO updateSlideDTO, CancellationToken cancellationToken);
         Task<List<GetSliderDTO>> GetAllSlidersAsync(CancellationToken cancellationToken);
+        Task ChangeSlideImageAsync (string slideId, IFormFile newImageFile, CancellationToken cancellationToken);
     }
 }

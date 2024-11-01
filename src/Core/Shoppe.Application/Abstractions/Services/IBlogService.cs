@@ -1,4 +1,5 @@
-﻿using Shoppe.Application.DTOs.Blog;
+﻿using Microsoft.AspNetCore.Http;
+using Shoppe.Application.DTOs.Blog;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Reply;
 using Shoppe.Application.DTOs.Review;
@@ -18,7 +19,7 @@ namespace Shoppe.Application.Abstractions.Services
         Task CreateAsync(CreateBlogDTO createBlogDTO, CancellationToken cancellationToken);
         Task UpdateAsync(UpdateBlogDTO updateBlogDTO, CancellationToken cancellationToken);
         Task DeleteAsync(string blogId, CancellationToken cancellationToken);
-        Task ChangeCoverImageAsync(string blogId, string newCoverImageId, CancellationToken cancellationToken);
+        Task ChangeCoverImageAsync(string blogId, string? newCoverImageId, IFormFile? newCoverImageFile, CancellationToken cancellationToken);
         Task RemoveImageAsync(string blogId, string imageId, CancellationToken cancellationToken);
         Task<List<GetImageFileDTO>> GetAllBlogImagesAsync(CancellationToken cancellationToken, string? blogId = null);
        // Task<List<GetReplyDTO>> GetRepliesByBlogAsync(string blogId, CancellationToken cancellationToken);

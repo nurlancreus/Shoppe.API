@@ -14,7 +14,7 @@ namespace Shoppe.Application.DTOs.Slide
         public string? Body { get; set; }
         public string? URL { get; set; }
         public string? ButtonText { get; set; }
-        public IFormFile? SlideImageFile { get; set; }
+       // public IFormFile? SlideImageFile { get; set; }
         public byte? Order { get; set; }
     }
 }

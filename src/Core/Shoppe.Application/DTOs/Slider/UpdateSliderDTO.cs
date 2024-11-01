@@ -10,7 +10,8 @@ namespace Shoppe.Application.DTOs.Slider
     public class UpdateSliderDTO
     {
         public string? SliderId { get; set; }
-        public List<CreateSlideDTO> Slides { get; set; } = [];
+        public List<UpdateSlideDTO> UpdatedSlides { get; set; } = [];
+        public List<CreateSlideDTO> NewSlides { get; set; } = [];
 
     }
 }

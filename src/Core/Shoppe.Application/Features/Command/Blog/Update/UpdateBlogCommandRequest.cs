@@ -13,10 +13,9 @@ namespace Shoppe.Application.Features.Command.Blog.Update
     {
         public string? BlogId { get; set; }
         public string? Title { get; set; }
-        public FormFile? CoverImageFile { get; set; } = null!;
         public List<string> Categories { get; set; } = [];
         public List<string> Tags { get; set; } = [];
-        public List<CreateSectionDTO> Sections { get; set; } = [];
+        public List<CreateSectionDTO> NewSections { get; set; } = [];
         public List<UpdateSectionDTO> UpdatedSections { get; set; } = [];
     }
 }

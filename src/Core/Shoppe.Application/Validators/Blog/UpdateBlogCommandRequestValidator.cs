@@ -37,7 +37,7 @@ public class UpdateBlogCommandRequestValidator : AbstractValidator<UpdateBlogCom
             .WithMessage("Category '{PropertyValue}' must be defined and exist in the system.")
             .When(x => x.Tags.Count > 0);
 
-        RuleForEach(x => x.Sections)
+        RuleForEach(x => x.NewSections)
             .SetValidator(new CreateBlogSectionDTOValidator())
             .When(x => x.UpdatedSections != null && x.UpdatedSections.Count > 0);
 

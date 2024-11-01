@@ -11,6 +11,6 @@ namespace Shoppe.Application.Features.Command.Slider.Create
     public class CreateSliderCommandRequest : IRequest<CreateSliderCommandResponse>
     {
         public string Type { get; set; } = "Hero";
-        public List<CreateSlideDTO> Slides { get; set; } = [];
+        public List<CreateSlideDTO> NewSlides { get; set; } = [];
     }
 }

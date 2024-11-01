@@ -75,10 +75,8 @@ namespace Shoppe.Application.Features.Command.About.Update
 
             if (!string.IsNullOrEmpty(request.Phone) && request.Phone != about.Phone)
             {
-                var regex = new Regex(@"^\+?\d{1,3}?[-.●]?\(?\d{1,4}?\)?[-.●]?\d{1,4}[-.●]?\d{1,9}$");
 
-
-                if (!regex.IsMatch(request.Phone))
+                if (!IsValidPhone(request.Phone))
                 {
                     throw new ValidationException("Invalid phone number format.");
                 }
@@ -86,50 +84,119 @@ namespace Shoppe.Application.Features.Command.About.Update
                 about.Phone = request.Phone;
             }
 
-            if (_sectionWriteRepository.DeleteRange(about.Sections))
+            var usedOrders = new HashSet<byte>();
+
+            var existingOrders = about.Sections.Select(s => s.Order);
+            usedOrders.UnionWith(existingOrders);
+
+            if (request.Sections.Count == 0)
             {
-                about.Sections.Clear();
+
+                if (_sectionWriteRepository.DeleteRange(about.Sections))
+                {
+                    about.Sections.Clear();
+
+                    await _storageService.DeleteAllAsync(AboutConst.ImagesFolder);
+                }
             }
-
-            var usedOrders = new HashSet<int>();
-
-            foreach (var section in request.Sections)
+            else
             {
-                var uploadResults = await _storageService.UploadMultipleAsync(AboutConst.ImagesFolder, section.SectionImageFiles);
-
-                ICollection<AboutSectionImageFile> uploadedImages = [];
-
-                bool isFirst = true;
-                foreach (var (path, fileName) in uploadResults)
+                if (about.Sections.Count > request.Sections.Count)
                 {
-                    uploadedImages.Add(new AboutSectionImageFile
+                    var sectionsToDelete = about.Sections
+                            .Where(s => !request.Sections.Select(r => r.Id).Contains(s.Id.ToString()))
+                            .ToList();
+
+                    if (_sectionWriteRepository.DeleteRange(sectionsToDelete))
                     {
-                        FileName = fileName,
-                        PathName = path,
-                        IsMain = isFirst,
-                        Storage = _storageService.StorageName,
-                    });
-                    isFirst = false;
+                        foreach (var sectionToDelete in sectionsToDelete)
+                        {
+                            about.Sections.Remove(sectionToDelete);
+
+                            foreach (var imageFile in sectionToDelete.SectionImageFiles)
+                            {
+                                await _storageService.DeleteAsync(imageFile.PathName, imageFile.FileName);
+                            }
+                        }
+                    }
                 }
-
-                byte resolvedOrder = section.Order;
-                while (usedOrders.Contains(resolvedOrder))
+                foreach (var sectionRequest in request.Sections)
                 {
-                    resolvedOrder++;
+                    if (!string.IsNullOrWhiteSpace(sectionRequest.Id))
+                    {
+                        var section = about.Sections.FirstOrDefault(s => s.Id.ToString() == sectionRequest.Id);
+
+                        if (section == null)
+                        {
+                            throw new EntityNotFoundException(nameof(section));
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(sectionRequest.Title) && section.Title != sectionRequest.Title)
+                        {
+                            section.Title = sectionRequest.Title;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(sectionRequest.Description) && section.Description != sectionRequest.Description)
+                        {
+                            section.Description = sectionRequest.Description;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(sectionRequest.TextBody) && section.TextBody != sectionRequest.TextBody)
+                        {
+                            section.TextBody = sectionRequest.TextBody;
+                        }
+
+                        if (sectionRequest.Order >= 0 && sectionRequest.Order <= 255 && section.Order != sectionRequest.Order)
+                        {
+                            byte resolvedOrder = section.Order;
+                            while (usedOrders.Contains(resolvedOrder))
+                            {
+                                resolvedOrder++;
+                            }
+
+                            usedOrders.Add(resolvedOrder);
+
+                            section.Order = resolvedOrder;
+                        }
+
+                    }
+
+                    else
+                    {
+                        var uploadResults = await _storageService.UploadMultipleAsync(AboutConst.ImagesFolder, sectionRequest.SectionImageFiles);
+
+                        ICollection<AboutSectionImageFile> uploadedImages = [];
+
+                        foreach (var (path, fileName) in uploadResults)
+                        {
+                            uploadedImages.Add(new AboutSectionImageFile
+                            {
+                                FileName = fileName,
+                                PathName = path,
+                                Storage = _storageService.StorageName,
+                            });
+                        }
+
+                        byte resolvedOrder = sectionRequest.Order;
+                        while (usedOrders.Contains(resolvedOrder))
+                        {
+                            resolvedOrder++;
+                        }
+                        usedOrders.Add(resolvedOrder);
+
+                        // Create the new section with the resolved unique order
+                        var newSection = new AboutSection
+                        {
+                            Title = sectionRequest.Title,
+                            TextBody = sectionRequest.TextBody,
+                            Description = sectionRequest.Description,
+                            SectionImageFiles = uploadedImages,
+                            Order = resolvedOrder
+                        };
+
+                        about.Sections.Add(newSection);
+                    }
                 }
-                usedOrders.Add(resolvedOrder);
-
-                // Create the new section with the resolved unique order
-                var newSection = new AboutSection
-                {
-                    Title = section.Title,
-                    TextBody = section.TextBody,
-                    Description = section.Description,
-                    SectionImageFiles = uploadedImages,
-                    Order = resolvedOrder
-                };
-
-                about.Sections.Add(newSection);
             }
 
 

@@ -10,6 +10,6 @@ namespace Shoppe.Application.Abstractions.UoW
 {
     public interface IUnitOfWork
     {
-        Task SaveChangesAsync(CancellationToken cancellationToken = default);
+        Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

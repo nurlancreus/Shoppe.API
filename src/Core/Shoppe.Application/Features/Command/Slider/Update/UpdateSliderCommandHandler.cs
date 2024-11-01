@@ -23,7 +23,8 @@ namespace Shoppe.Application.Features.Command.Slider.Update
             await _sliderService.UpdateSliderAsync(new UpdateSliderDTO
             {
                 SliderId = request.SliderId,
-                Slides = request.Slides
+                UpdatedSlides = request.UpdatedSlides,
+                NewSlides = request.NewSlides
             }, cancellationToken);
 
             return new UpdateSliderCommandResponse

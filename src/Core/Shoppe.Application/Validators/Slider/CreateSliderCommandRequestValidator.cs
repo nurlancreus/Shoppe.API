@@ -13,9 +13,9 @@ public class CreateSliderCommandRequestValidator : AbstractValidator<CreateSlide
             .Must(type => Enum.TryParse(typeof(SliderType), type, true, out _))
             .WithMessage("Invalid slider type.");
 
-        RuleFor(x => x.Slides)
+        RuleFor(x => x.NewSlides)
             .NotEmpty().WithMessage("Slides are required.")
             .ForEach(slide => slide.SetValidator(new CreateSlideDTOValidator()))
-            .When(x => x.Slides != null && x.Slides.Count != 0);
+            .When(x => x.NewSlides != null && x.NewSlides.Count != 0);
     }
 }

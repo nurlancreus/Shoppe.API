@@ -22,7 +22,7 @@ namespace Shoppe.Application.Features.Command.Slider.Create
         {
             var slider = new CreateSliderDTO
             {
-                Slides = request.Slides,
+                Slides = request.NewSlides,
             };
 
             if (Enum.TryParse(request.Type, true, out SliderType sliderType))

@@ -14,8 +14,7 @@ namespace Shoppe.Application.DTOs.Blog
         public string? Title { get; set; }
         public List<string> Categories { get; set; } = [];
         public List<string> Tags { get; set; } = [];
-        public FormFile? CoverImageFile { get; set; }
-        public List<CreateSectionDTO> Sections { get; set; } = [];
+        public List<CreateSectionDTO> NewSections { get; set; } = [];
         public List<UpdateSectionDTO> UpdatedSections { get; set; } = [];
     }
 }

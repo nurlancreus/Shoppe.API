@@ -29,12 +29,12 @@ public class UpdateSlideDTOValidator : AbstractValidator<UpdateSlideDTO>
             .When(x => !string.IsNullOrEmpty(x.ButtonText));
 
         // Validate SlideImageFile - optional
-        RuleFor(x => x.SlideImageFile)
-            .Must(file => file.IsImage()).WithMessage("Only image files are allowed.")
-            .Must(file => file.IsSizeOk(SliderConst.MaxFileSizeInMb)).WithMessage($"Image size cannot exceed {SliderConst.MaxFileSizeInMb}MB.")
-            .Must(file => file.RestrictExtension([".jpg", ".png"])).WithMessage("Allowed file extensions are .jpg and .png.")
-            .Must(file => file.RestrictMimeTypes(["image/jpeg", "image/png"])).WithMessage("Allowed mime types are image/jpeg and image/png.")
-            .When(x => x.SlideImageFile != null);
+        //RuleFor(x => x.SlideImageFile)
+        //    .Must(file => file.IsImage()).WithMessage("Only image files are allowed.")
+        //    .Must(file => file.IsSizeOk(SliderConst.MaxFileSizeInMb)).WithMessage($"Image size cannot exceed {SliderConst.MaxFileSizeInMb}MB.")
+        //    .Must(file => file.RestrictExtension([".jpg", ".png"])).WithMessage("Allowed file extensions are .jpg and .png.")
+        //    .Must(file => file.RestrictMimeTypes(["image/jpeg", "image/png"])).WithMessage("Allowed mime types are image/jpeg and image/png.")
+        //    .When(x => x.SlideImageFile != null);
 
         // Order validation
         RuleFor(x => (int)(x.Order ?? 0))
