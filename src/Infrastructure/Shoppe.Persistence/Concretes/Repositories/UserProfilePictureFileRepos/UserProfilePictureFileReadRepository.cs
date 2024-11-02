@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Persistence.Concretes.Repositories.UserProfilePictureFileRepos
 {
-    public class UserProfilePictureFileReadRepository : ReadRepository<UserProfilePictureFile>, IUserProfilePictureFileReadRepository
+    public class UserProfilePictureFileReadRepository : ReadRepository<UserProfileImageFile>, IUserProfilePictureFileReadRepository
     {
         public UserProfilePictureFileReadRepository(ShoppeDbContext context) : base(context)
         {

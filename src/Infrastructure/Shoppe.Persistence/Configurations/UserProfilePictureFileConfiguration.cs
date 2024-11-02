@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Persistence.Configurations
 {
-    public class UserProfilePictureFileConfiguration : IEntityTypeConfiguration<UserProfilePictureFile>
+    public class UserProfilePictureFileConfiguration : IEntityTypeConfiguration<UserProfileImageFile>
     {
-        public void Configure(EntityTypeBuilder<UserProfilePictureFile> builder)
+        public void Configure(EntityTypeBuilder<UserProfileImageFile> builder)
         {
             builder
                 .HasIndex(pp => new { pp.UserId, pp.IsMain})

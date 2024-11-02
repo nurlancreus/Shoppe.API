@@ -13,11 +13,14 @@ using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.Constants;
 using Shoppe.Application.DTOs.Blog;
+using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Reply;
 using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.DTOs.Section;
+using Shoppe.Application.DTOs.Tag;
 using Shoppe.Application.DTOs.User;
+using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Files;
@@ -33,7 +36,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Shoppe.Persistence.Concretes.Services
 {
@@ -66,7 +68,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task ChangeCoverImageAsync(string blogId, string? newCoverImageId, IFormFile? newCoverImageFile, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
 
             var blog = await _blogReadRepository.Table
                 .Include(b => b.BlogCoverImageFile)
@@ -113,7 +115,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task RemoveImageAsync(string blogId, string imageId, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -152,7 +154,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task CreateAsync(CreateBlogDTO createBlogDTO, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
 
             var blog = new Blog
             {
@@ -246,7 +248,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task DeleteAsync(string blogId, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -276,42 +278,14 @@ namespace Shoppe.Persistence.Concretes.Services
                                         .ThenInclude(s => s.BlogImageMappings)
                                             .ThenInclude(bi => bi.BlogImage)
                                     .Include(b => b.Author)
+                                    .Include(b => b.Tags)
+                                    .Include(b => b.Categories)
                                     .AsNoTrackingWithIdentityResolution()
                                     .AsQueryable();
 
             var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, blogQuery, cancellationToken);
 
-            var blogDtos = await blogQuery.Select(blog => new GetBlogDTO
-            {
-                Id = blog.Id.ToString(),
-                Author = new GetUserDTO
-                {
-                    Id = blog.Author.Id,
-                    FirstName = blog.Author.FirstName!,
-                    LastName = blog.Author.LastName!,
-                    Email = blog.Author.Email!,
-                    UserName = blog.Author.UserName!,
-                    CreatedAt = blog.Author.CreatedAt
-                },
-                Title = blog.Title,
-                Sections = blog.Sections.Select(s => new GetSectionDTO
-                {
-                    Id = s.Id.ToString(),
-                    Title = s.Title,
-                    Description = s.Description,
-                    TextBody = s.TextBody,
-                    ImageFiles = s.BlogImageMappings.Select(bi => new GetImageFileDTO
-                    {
-                        Id = bi.BlogImage.Id.ToString(),
-                        FileName = bi.BlogImage.FileName,
-                        PathName = bi.BlogImage.PathName,
-                        CreatedAt = bi.BlogImage.CreatedAt
-                    }).ToList(),
-                    Order = s.Order,
-                    CreatedAt = s.CreatedAt
-                }).ToList(),
-                CreatedAt = blog.CreatedAt
-            }).ToListAsync(cancellationToken);
+            var blogDtos = await blogQuery.Select(blog => blog.ToGetBlogDTO()).ToListAsync(cancellationToken);
 
             return new GetAllBlogsDTO
             {
@@ -330,6 +304,8 @@ namespace Shoppe.Persistence.Concretes.Services
                     .ThenInclude(s => s.BlogImageMappings)
                         .ThenInclude(bi => bi.BlogImage)
                 .Include(b => b.Author)
+                .Include(b => b.Tags)
+                .Include(b => b.Categories)
                 .AsNoTrackingWithIdentityResolution()
                 .FirstOrDefaultAsync(b => b.Id.ToString() == blogId, cancellationToken);
 
@@ -339,42 +315,12 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(blog));
             }
 
-            return new GetBlogDTO
-            {
-                Id = blogId,
-                Author = new GetUserDTO
-                {
-                    Id = blog.Author.Id,
-                    FirstName = blog.Author.FirstName!,
-                    LastName = blog.Author.LastName!,
-                    Email = blog.Author.Email!,
-                    UserName = blog.Author.UserName!,
-                    CreatedAt = blog.Author.CreatedAt
-                },
-                Title = blog.Title,
-                Sections = blog.Sections.Select(s => new GetSectionDTO
-                {
-                    Id = s.Id.ToString(),
-                    Title = s.Title,
-                    Description = s.Description,
-                    TextBody = s.TextBody,
-                    ImageFiles = s.BlogImageMappings.Select(bi => new GetImageFileDTO
-                    {
-                        Id = bi.BlogImage.Id.ToString(),
-                        FileName = bi.BlogImage.FileName,
-                        PathName = bi.BlogImage.PathName,
-                        CreatedAt = bi.BlogImage.CreatedAt
-                    }).ToList(),
-                    Order = s.Order,
-                    CreatedAt = s.CreatedAt
-                }).ToList(),
-                CreatedAt = blog.CreatedAt
-            };
+            return blog.ToGetBlogDTO();
         }
 
         public async Task UpdateAsync(UpdateBlogDTO updateBlogDTO, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -676,11 +622,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             }).ToList();
         }
-        private void ValidateAdminAccess()
-        {
-            if (!_jwtSession.IsAdmin())
-                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
-        }
+        
 
     }
 }

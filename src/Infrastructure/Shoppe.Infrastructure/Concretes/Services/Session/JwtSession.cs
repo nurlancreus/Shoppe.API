@@ -127,5 +127,34 @@ namespace Shoppe.Infrastructure.Concretes.Services.Session
         {
             return _httpContext?.User?.Identity?.IsAuthenticated ?? false;
         }
+
+        public void ValidateAdminAccess()
+        {
+            if (!IsAdmin())
+                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+        }
+
+        public void ValidateAuthAccess()
+        {
+            if (!IsAdmin())
+                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+        }
+
+        public void ValidateRoleAccess(IEnumerable<string> roles)
+        {
+            bool roleExist = false;
+
+            foreach (var role in roles)
+            {
+                if (GetRoles().Contains(role))
+                {
+                    roleExist = true;
+                    break;
+                }
+            }
+
+            if (!roleExist)
+                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+        }
     }
 }

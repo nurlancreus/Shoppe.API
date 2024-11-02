@@ -278,7 +278,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 {
                     existingProfilePicture.IsMain = false;
                 }
-                user.ProfilePictureFiles.Add(new UserProfilePictureFile
+                user.ProfilePictureFiles.Add(new UserProfileImageFile
                 {
                     FileName = fileName,
                     PathName = path,
@@ -374,7 +374,7 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        private static GetImageFileDTO MapToImageFileDto(UserProfilePictureFile picture)
+        private static GetImageFileDTO MapToImageFileDto(UserProfileImageFile picture)
         {
             return new GetImageFileDTO
             {

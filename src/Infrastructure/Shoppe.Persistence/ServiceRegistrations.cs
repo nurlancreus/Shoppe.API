@@ -71,6 +71,9 @@ using Shoppe.Application.Abstractions.Repositories.SocialMediaRepos;
 using Shoppe.Persistence.Concretes.Repositories.SocialMediaRepos;
 using Shoppe.Application.Abstractions.Repositories.FileRepos;
 using Shoppe.Persistence.Concretes.Repositories.FileRepos;
+using Shoppe.Application.Abstractions.Services.Files.Images;
+using Shoppe.Persistence.Concretes.Services.Files;
+using Shoppe.Application.Abstractions.Services.Files;
 
 
 namespace Shoppe.Persistence
@@ -181,6 +184,9 @@ namespace Shoppe.Persistence
             services.AddScoped<ISliderService, SliderService>();
 
             services.AddScoped<IDiscountCalculatorService, CalculatorService>();
+
+            services.AddScoped<IApplicationImageFileService, ApplicationFileService>();
+            services.AddScoped<IApplicationFileService, ApplicationFileService>();
 
             services.AddHostedService<DiscountExpiryBackgroundService>();
             #endregion
