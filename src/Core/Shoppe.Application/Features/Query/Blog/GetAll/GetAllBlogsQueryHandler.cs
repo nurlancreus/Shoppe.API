@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Shoppe.Application.Abstractions.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,26 @@ namespace Shoppe.Application.Features.Query.Blog.GetAll
 {
     public class GetAllBlogsQueryHandler : IRequestHandler<GetAllBlogsQueryRequest, GetAllBlogsQueryResponse>
     {
-        public Task<GetAllBlogsQueryResponse> Handle(GetAllBlogsQueryRequest request, CancellationToken cancellationToken)
+        private readonly IBlogService _blogService;
+
+        public GetAllBlogsQueryHandler(IBlogService blogService)
         {
-            throw new NotImplementedException();
+            _blogService = blogService;
+        }
+
+        public async Task<GetAllBlogsQueryResponse> Handle(GetAllBlogsQueryRequest request, CancellationToken cancellationToken)
+        {
+            var result = await _blogService.GetAllAsync(request.Page, request.PageSize, cancellationToken);
+
+            return new GetAllBlogsQueryResponse
+            {
+                IsSuccess = true,
+                PageSize = result.PageSize,
+                Page = result.Page,
+                TotalItems = result.TotalItems,
+                TotalPages = result.TotalPages,
+                Data = result.Blogs
+            };
         }
     }
 }

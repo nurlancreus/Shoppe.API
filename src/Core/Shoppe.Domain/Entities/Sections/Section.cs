@@ -11,7 +11,7 @@ namespace Shoppe.Domain.Entities.Sections
     public class Section : BaseEntity
     {
         public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
         public string? TextBody { get; set; }
         public byte Order { get; set; }
     }

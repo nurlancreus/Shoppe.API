@@ -23,7 +23,7 @@ namespace Shoppe.Domain.Entities.Identity
         public ICollection<Reply> Replies { get; set; } = [];
         public ICollection<Reaction> Reactions { get; set; } = [];
         public ICollection<Basket> Baskets { get; set; } = [];
-        public ICollection<UserProfilePictureFile> ProfilePictureFiles { get; set; } = [];
+        public ICollection<UserProfileImageFile> ProfilePictureFiles { get; set; } = [];
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

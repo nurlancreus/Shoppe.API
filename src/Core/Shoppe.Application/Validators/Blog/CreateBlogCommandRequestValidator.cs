@@ -42,7 +42,7 @@ public class CreateBlogCommandRequestValidator : AbstractValidator<CreateBlogCom
                 .Must(formFile => FileHelpers.IsSizeOk(formFile!, BlogConst.MaxFileSizeInMb))
                 .WithMessage($"Profile picture size must not exceed {BlogConst.MaxFileSizeInMb}MB.");
 
-        RuleFor(x => x.Sections)
+        RuleFor(x => x.NewSections)
             .NotEmpty().WithMessage("At least one section must be defined.")
             .ForEach(section =>
             {

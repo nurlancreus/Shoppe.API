@@ -17,7 +17,7 @@ namespace Shoppe.Application.Features.Command.Blog.Create
         public List<string> Categories { get; set; } = [];
         public List<string> Tags { get; set; } = [];
         public FormFile CoverImageFile { get; set; } = null!;
-        public List<CreateSectionDTO> Sections { get; set; } = [];
+        public List<CreateSectionDTO> NewSections { get; set; } = [];
 
     }
 }

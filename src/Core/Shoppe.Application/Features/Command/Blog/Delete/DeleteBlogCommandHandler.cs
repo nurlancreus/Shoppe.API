@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Shoppe.Application.Abstractions.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,21 @@ namespace Shoppe.Application.Features.Command.Blog.Delete
 {
     public class DeleteBlogCommandHandler : IRequestHandler<DeleteBlogCommandRequest, DeleteBlogCommandResponse>
     {
-        public Task<DeleteBlogCommandResponse> Handle(DeleteBlogCommandRequest request, CancellationToken cancellationToken)
+        private readonly IBlogService _blogService;
+
+        public DeleteBlogCommandHandler(IBlogService blogService)
         {
-            throw new NotImplementedException();
+            _blogService = blogService;
+        }
+
+        public async Task<DeleteBlogCommandResponse> Handle(DeleteBlogCommandRequest request, CancellationToken cancellationToken)
+        {
+            await _blogService.DeleteAsync(request.BlogId!, cancellationToken);
+
+            return new DeleteBlogCommandResponse
+            {
+                IsSuccess = true,
+            };
         }
     }
 }

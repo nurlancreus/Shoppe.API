@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Entities.Files
 {
-    public class UserProfilePictureFile : ImageFile
+    public class UserProfileImageFile : ImageFile
     {
         [ForeignKey(nameof(User))]
         public string UserId { get; set; } = string.Empty;

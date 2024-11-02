@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Abstractions.Repositories.UserProfilePictureRepos
 {
-    public interface IUserProfilePictureFileReadRepository : IReadRepository<UserProfilePictureFile>
+    public interface IUserProfilePictureFileReadRepository : IReadRepository<UserProfileImageFile>
     {
     }
 }

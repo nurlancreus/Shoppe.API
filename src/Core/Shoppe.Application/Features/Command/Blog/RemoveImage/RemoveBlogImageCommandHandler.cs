@@ -17,9 +17,14 @@ namespace Shoppe.Application.Features.Command.Blog.RemoveImage
             _blogService = blogService;
         }
 
-        public Task<RemoveBlogImageCommandResponse> Handle(RemoveBlogImageCommandRequest request, CancellationToken cancellationToken)
+        public async Task<RemoveBlogImageCommandResponse> Handle(RemoveBlogImageCommandRequest request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            await _blogService.RemoveImageAsync(request.BlogId!, request.ImageId!, cancellationToken);
+
+            return new RemoveBlogImageCommandResponse
+            {
+                IsSuccess = true,
+            };
         }
     }
 }

@@ -16,5 +16,8 @@ namespace Shoppe.Application.Abstractions.Services.Session
         bool IsAuthenticated();
         bool IsAdmin();
         ApplicationUser GetUser();
-    }
+        void ValidateAdminAccess();
+        void ValidateAuthAccess();
+        void ValidateRoleAccess(IEnumerable<string> roles);
+     }
 }

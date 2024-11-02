@@ -11,9 +11,9 @@ namespace Shoppe.Application.DTOs.Section
     public record GetSectionDTO
     {
         public string? Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string? TextBody { get; set; }
+        public string? Title { get; set; } = string.Empty;
+        public string? Description { get; set; } = string.Empty;
+        public string? TextBody { get; set; } = string.Empty;
         public ICollection<GetImageFileDTO> ImageFiles { get; set; } = [];
         public DateTime CreatedAt { get; set; }
         public byte Order { get; set; }
