@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Features.Command.User.Deactivate
 {
-    public class DeactivateUserCommandResponse : AppResponse
+    public class ToggleUserCommandResponse : AppResponse
     {
     }
 }

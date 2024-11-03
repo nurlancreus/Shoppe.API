@@ -16,6 +16,7 @@ using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Role;
 using Shoppe.Application.DTOs.Token;
 using Shoppe.Application.DTOs.User;
+using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Exceptions;
@@ -69,8 +70,15 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task AssignRolesAsync(string userId, List<string> roles, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
-            var user = await GetUserByIdAsync(userId);
+            _jwtSession.ValidateAdminAccess();
+
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            var user = await _userManager.Users
+                            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+            if (user == null) throw new EntityNotFoundException(nameof(user));
+            
             var userRoles = await _userManager.GetRolesAsync(user);
             // var rolesToDelete = userRoles.Except(roles).ToList();
 
@@ -79,7 +87,6 @@ namespace Shoppe.Persistence.Concretes.Services
             var removeResult = await _userManager.RemoveFromRolesAsync(user, userRoles);
 
             CheckDeleteSucceeded(removeResult);
-
 
             if (roles.Count > 0)
             {
@@ -96,18 +103,35 @@ namespace Shoppe.Persistence.Concretes.Services
                 CheckUpdateSucceeded(updateResult);
             }
 
-
-            //var result = await _userManager.UpdateAsync(user);
-
-            //CheckUpdateSucceeded(result);
+            scope.Complete();
         }
 
-        public async Task ChangeProfilePictureAsync(string userId, string newPictureId, CancellationToken cancellationToken)
+        public async Task ChangeProfilePictureAsync(string userId, string? newImageId, IFormFile? newImageFile, CancellationToken cancellationToken)
         {
             ValidateAdminOrUserAccess(userId);
-            var user = await GetUserWithProfilePicturesAsync(userId);
 
-            var newProfilePicture = user.ProfilePictureFiles.FirstOrDefault(pp => pp.Id.ToString() == newPictureId);
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            var user = await _userManager.Users
+                .Include(u => u.ProfilePictureFiles)
+                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+            if (user == null) throw new EntityNotFoundException(nameof(user));
+
+            var newProfilePicture = user.ProfilePictureFiles.FirstOrDefault(pp => pp.Id.ToString() == newImageId);
+
+            if (newProfilePicture == null && newImageFile != null)
+            {
+                var (path, fileName) = await _storage.UploadAsync(UserConst.ImagesFolder, newImageFile);
+
+                newProfilePicture = new UserProfileImageFile
+                {
+                    FileName = fileName,
+                    PathName = fileName,
+                    Storage = _storage.StorageName,
+                };
+            }
+
             if (newProfilePicture == null) throw new EntityNotFoundException(nameof(newProfilePicture));
 
             var existingProfilePicture = user.ProfilePictureFiles.FirstOrDefault(pp => pp.IsMain);
@@ -123,12 +147,21 @@ namespace Shoppe.Persistence.Concretes.Services
             var result = await _userManager.UpdateAsync(user);
 
             CheckUpdateSucceeded(result);
+
+            scope.Complete();
         }
 
-        public async Task DeactivateAsync(string userId, CancellationToken cancellationToken)
+        public async Task ToggleUserAsync(string userId, CancellationToken cancellationToken)
         {
             ValidateAdminOrUserAccess(userId);
-            var user = await GetUserByIdAsync(userId);
+
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            var user = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+            if (user == null) throw new EntityNotFoundException(nameof(user));
+
             user.IsActive = !user.IsActive;
             user.DeactivatedAt = user.IsActive ? null : DateTime.UtcNow;
 
@@ -136,6 +169,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             CheckUpdateSucceeded(result);
 
+            scope.Complete();
         }
 
         public async Task DeleteAsync(string userId, CancellationToken cancellationToken)
@@ -143,7 +177,13 @@ namespace Shoppe.Persistence.Concretes.Services
             ValidateAdminOrUserAccess(userId);
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-            var user = await GetUserWithProfilePicturesAsync(userId);
+
+            var user = await _userManager.Users
+               .Include(u => u.ProfilePictureFiles)
+               .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+            if (user == null) throw new EntityNotFoundException(nameof(user));
+
             await DeleteUserAndPicturesAsync(user);
             scope.Complete();
         }
@@ -151,8 +191,10 @@ namespace Shoppe.Persistence.Concretes.Services
         public async Task<GetAllUsersDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
             var userQuery = _userManager.Users.Include(u => u.ProfilePictureFiles).AsNoTracking();
+
             var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, userQuery, cancellationToken);
-            var userDtos = await paginationResult.PaginatedQuery.Select(user => MapToUserDto(user)).ToListAsync(cancellationToken);
+
+            var userDtos = await paginationResult.PaginatedQuery.Select(user => user.ToGetUserDTO()).ToListAsync(cancellationToken);
 
             return new GetAllUsersDTO
             {
@@ -166,19 +208,37 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task<GetUserDTO> GetAsync(string userId, CancellationToken cancellationToken)
         {
-            var user = await GetUserWithProfilePicturesAsync(userId);
-            return MapToUserDto(user);
+            var user = await _userManager.Users
+               .Include(u => u.ProfilePictureFiles)
+               .AsNoTracking()
+               .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+            if (user == null) throw new EntityNotFoundException(nameof(user));
+
+
+            return user.ToGetUserDTO();
         }
 
         public async Task<List<GetImageFileDTO>> GetImagesAsync(string userId, CancellationToken cancellationToken)
         {
-            var user = await GetUserWithProfilePicturesAsync(userId);
-            return user.ProfilePictureFiles.Select(MapToImageFileDto).ToList();
+            var user = await _userManager.Users
+                         .Include(u => u.ProfilePictureFiles)
+                         .AsNoTracking()
+                         .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+            if (user == null) throw new EntityNotFoundException(nameof(user));
+            
+            return user.ProfilePictureFiles.Select(p => p.ToGetImageFileDTO()).ToList();
         }
 
         public async Task<List<GetRoleDTO>> GetRolesAsync(string userId, CancellationToken cancellationToken)
         {
-            var user = await GetUserByIdAsync(userId);
+            var user = await _userManager.Users
+             .AsNoTracking()
+             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+            if (user == null) throw new EntityNotFoundException(nameof(user));
+
             var userRoles = await _userManager.GetRolesAsync(user);
 
             var roles = await _roleManager.Roles
@@ -199,7 +259,13 @@ namespace Shoppe.Persistence.Concretes.Services
             ValidateAdminOrUserAccess(userId);
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-            var user = await GetUserWithProfilePicturesAsync(userId);
+
+            var user = await _userManager.Users
+                 .Include(u => u.ProfilePictureFiles)
+                 .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+            if (user == null) throw new EntityNotFoundException(nameof(user));
+
             var picture = user.ProfilePictureFiles.FirstOrDefault(pp => pp.Id.ToString() == pictureId);
 
             if (picture == null) throw new EntityNotFoundException(nameof(picture));
@@ -230,7 +296,11 @@ namespace Shoppe.Persistence.Concretes.Services
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var user = await GetUserWithProfilePicturesAsync(updateUserDTO.UserId);
+            var user = await _userManager.Users
+             .Include(u => u.ProfilePictureFiles)
+             .FirstOrDefaultAsync(u => u.Id == updateUserDTO.UserId, cancellationToken);
+
+            if (user == null) throw new EntityNotFoundException(nameof(user));
 
             if (updateUserDTO.FirstName != null && user.FirstName != updateUserDTO.FirstName)
                 user.FirstName = updateUserDTO.FirstName;
@@ -312,13 +382,6 @@ namespace Shoppe.Persistence.Concretes.Services
             return token;
         }
 
-
-        private void ValidateAdminAccess()
-        {
-            if (!_jwtSession.IsAdmin())
-                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
-        }
-
         private void ValidateAdminOrUserAccess(string userId)
         {
             if (!_jwtSession.IsAdmin() && _jwtSession.GetUserId() != userId)
@@ -329,15 +392,7 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             var user = await _userManager.Users.AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == userId);
-            if (user == null) throw new EntityNotFoundException(nameof(ApplicationUser));
 
-            return user;
-        }
-
-        private async Task<ApplicationUser> GetUserWithProfilePicturesAsync(string userId)
-        {
-            var user = await _userManager.Users.Include(u => u.ProfilePictureFiles)
-                .AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) throw new EntityNotFoundException(nameof(ApplicationUser));
 
             return user;
@@ -345,45 +400,16 @@ namespace Shoppe.Persistence.Concretes.Services
 
         private async Task DeleteUserAndPicturesAsync(ApplicationUser user)
         {
-            foreach (var picture in user.ProfilePictureFiles)
-            {
-                await _storage.DeleteAsync(picture.PathName, picture.FileName);
-                _userProfilePictureFileWriteRepository.Delete(picture);
-            }
 
             var result = await _userManager.DeleteAsync(user);
 
             CheckDeleteSucceeded(result);
 
-        }
-
-
-
-        private static GetUserDTO MapToUserDto(ApplicationUser user)
-        {
-            return new GetUserDTO
+            foreach (var picture in user.ProfilePictureFiles)
             {
-                Id = user.Id,
-                FirstName = user.FirstName!,
-                LastName = user.LastName!,
-                Email = user.Email!,
-                Phone = user.PhoneNumber!,
-                IsActive = user.IsActive,
-                ProfilePictures = user.ProfilePictureFiles.Select(MapToImageFileDto).ToList(),
-                CreatedAt = user.CreatedAt,
-            };
-        }
-
-        private static GetImageFileDTO MapToImageFileDto(UserProfileImageFile picture)
-        {
-            return new GetImageFileDTO
-            {
-                Id = picture.Id.ToString(),
-                FileName = picture.FileName,
-                PathName = picture.PathName,
-                IsMain = picture.IsMain,
-                CreatedAt = picture.CreatedAt,
-            };
+                await _storage.DeleteAsync(picture.PathName, picture.FileName);
+                _userProfilePictureFileWriteRepository.Delete(picture);
+            }
         }
 
         private static void CheckUpdateSucceeded(IdentityResult result)

@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Command.User.ChangeProfilePicture
 
         public async Task<ChangeProfilePictureCommandResponse> Handle(ChangeProfilePictureCommandRequest request, CancellationToken cancellationToken)
         {
-            await _userService.ChangeProfilePictureAsync(request.UserId!, request.NewProfilePictureId!, cancellationToken);
+            await _userService.ChangeProfilePictureAsync(request.UserId!, request.NewImageId, request.NewImageFile, cancellationToken);
 
             return new ChangeProfilePictureCommandResponse
             {

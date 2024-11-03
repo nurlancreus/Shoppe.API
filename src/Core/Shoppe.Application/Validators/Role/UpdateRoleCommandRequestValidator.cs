@@ -53,28 +53,5 @@ public class UpdateRoleCommandRequestValidator : AbstractValidator<UpdateRoleCom
             .MaximumLength(RoleConst.MaxDescLength)
             .WithMessage($"Description must not exceed {RoleConst.MaxDescLength} characters.")
             .When(x => !string.IsNullOrWhiteSpace(x.Description));
-
-        RuleFor(x => x.UserNames)
-            .MustAsync(CheckUsernamesExistAsync).WithMessage("Some usernames do not exist.")
-            .When(x => x.UserNames != null && x.UserNames.Count != 0);
-    }
-
-    private async Task<bool> CheckUsernamesExistAsync(List<string> usernames, CancellationToken cancellationToken)
-    {
-        if (usernames == null || usernames.Count == 0)
-        {
-            return true; 
-        }
-
-        foreach (var username in usernames)
-        {
-            var user = await _userManager.FindByNameAsync(username);
-            if (user == null)
-            {
-                return false; 
-            }
-        }
-
-        return true; 
     }
 }

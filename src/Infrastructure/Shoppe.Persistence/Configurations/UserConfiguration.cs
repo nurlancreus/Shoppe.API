@@ -17,7 +17,11 @@ namespace Shoppe.Persistence.Configurations
                 .HasMany(u => u.ProfilePictureFiles)
                 .WithOne(pp => pp.User)
                 .HasForeignKey(pp => pp.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .Property(u => u.IsActive)
+                .HasDefaultValue(true);
            
         }
     }

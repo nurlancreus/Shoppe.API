@@ -36,7 +36,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task AssignUsersToRoleAsync(string roleId, List<string> userNames, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -71,7 +71,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task CreateAsync(CreateRoleDTO createRoleDTO, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -95,7 +95,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task DeleteAsync(string roleId, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -114,7 +114,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task UpdateAsync(UpdateRoleDTO updateRoleDTO, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             var role = await _roleManager.Roles.FirstOrDefaultAsync(r => r.Id == updateRoleDTO.RoleId, cancellationToken);
@@ -146,20 +146,26 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task<GetAllRolesDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
 
-            var roleQuery = _roleManager.Roles;
-
+            var roleQuery = _roleManager.Roles.AsNoTracking();
             var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, roleQuery, cancellationToken);
 
-            List<GetRoleDTO> roleDtos = [];
+            // Get a list of all role names in the paginated query
+            var roleNames = paginationResult.PaginatedQuery.Select(role => role.Name).ToList();
 
-            foreach (var role in paginationResult.PaginatedQuery)
+            var usersByRole = new Dictionary<string, IList<ApplicationUser>>();
+
+            foreach (var roleName in roleNames)
             {
-                var users = await _userManager.GetUsersInRoleAsync(role.Name ?? string.Empty);
+                usersByRole[roleName!] = await _userManager.GetUsersInRoleAsync(roleName ?? string.Empty);
+            }
 
+            var roleDtos = paginationResult.PaginatedQuery.AsEnumerable().Select(role =>
+            {
+                var users = usersByRole[role.Name ?? string.Empty];
 
-                roleDtos.Add(new GetRoleDTO
+                return new GetRoleDTO
                 {
                     Id = role.Id,
                     Name = role.Name!,
@@ -167,7 +173,6 @@ namespace Shoppe.Persistence.Concretes.Services
                     CreatedAt = role.CreatedAt,
                     Users = users.Select(u =>
                     {
-
                         var userProfilePicture = u.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
 
                         return new GetUserDTO
@@ -190,9 +195,9 @@ namespace Shoppe.Persistence.Concretes.Services
                                 CreatedAt = userProfilePicture.CreatedAt,
                             } : null
                         };
-                    }).ToList(),
-                });
-            }
+                    }).ToList()
+                };
+            }).ToList();
 
             return new GetAllRolesDTO
             {
@@ -213,7 +218,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(role));
             }
 
-            var users = await (await _userManager.GetUsersInRoleAsync(role.Name ?? string.Empty)).AsQueryable().Include(u => u.ProfilePictureFiles).ToListAsync(cancellationToken: cancellationToken);
+            var users = await _userManager.GetUsersInRoleAsync(role.Name ?? string.Empty);
 
             return new GetRoleDTO
             {
@@ -325,12 +330,6 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 throw new AddNotSucceedException("Role creation operation failed: " + string.Join(", ", result.Errors.Select(e => e.Description)));
             }
-        }
-
-        private void ValidateAdminAccess()
-        {
-            if (!_jwtSession.IsAdmin())
-                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
         }
 
     }

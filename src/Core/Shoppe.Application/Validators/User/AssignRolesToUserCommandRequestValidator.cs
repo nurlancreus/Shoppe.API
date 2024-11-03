@@ -19,8 +19,8 @@ namespace Shoppe.Application.Validators.User
                 .NotEmpty().WithMessage("UserId is required.");
 
             RuleFor(x => x.Roles)
-                .NotEmpty().WithMessage("At least one role must be assigned.")
-                .MustAsync(RoleExists).WithMessage("One or more roles are invalid.");
+                .MustAsync(RoleExists).WithMessage("One or more roles are invalid.")
+                .When(x => x.Roles != null && x.Roles.Count != 0);
         }
 
         private async Task<bool> RoleExists(List<string> roles, CancellationToken cancellationToken)

@@ -82,7 +82,11 @@ namespace Shoppe.Persistence
     {
         public static IServiceCollection RegisterPersistenceServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ShoppeDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("Default")));
+            services.AddDbContext<ShoppeDbContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString("Default"));
+                options.EnableSensitiveDataLogging();
+            });
 
             #region Repo Registrations
             services.AddScoped<IAboutReadRepository, AboutReadRepository>();
@@ -90,13 +94,13 @@ namespace Shoppe.Persistence
 
             services.AddScoped<ISliderReadRepository, SliderReadRepository>();
             services.AddScoped<ISliderWriteRepository, SliderWriteRepository>();
-            
+
             services.AddScoped<ISlideReadRepository, SlideReadRepository>();
             services.AddScoped<ISlideWriteRepository, SlideWriteRepository>();
 
             services.AddScoped<ICategoryReadRepository, CategoryReadRepository>();
             services.AddScoped<ICategoryWriteRepository, CategoryWriteRepository>();
-            
+
             services.AddScoped<IProductReadRepository, ProductReadRepository>();
             services.AddScoped<IProductWriteRepository, ProductWriteRepository>();
 
@@ -111,16 +115,16 @@ namespace Shoppe.Persistence
 
             services.AddScoped<IReviewReadRepository, ReviewReadRepository>();
             services.AddScoped<IReviewWriteRepository, ReviewWriteRepository>();
-            
+
             services.AddScoped<IReplyReadRepository, ReplyReadRepository>();
             services.AddScoped<IReplyWriteRepository, ReplyWriteRepository>();
-            
+
             services.AddScoped<IReactionReadRepository, ReactionReadRepository>();
             services.AddScoped<IReactionWriteRepository, ReactionWriteRepository>();
-            
+
             services.AddScoped<ITagReadRepository, TagReadRepository>();
             services.AddScoped<ITagWriteRepository, TagWriteRepository>();
-            
+
             services.AddScoped<IBlogImageFileReadRepository, BlogImageFileReadRepository>();
             services.AddScoped<IBlogImageFileWriteRepository, BlogImageFileWriteRepository>();
 
@@ -147,7 +151,7 @@ namespace Shoppe.Persistence
 
             services.AddScoped<IDiscountReadRepository, DiscountReadRepository>();
             services.AddScoped<IDiscountWriteRepository, DiscountWriteRepository>();
-            
+
             services.AddScoped<IAddressReadRepository, AddressReadRepository>();
             services.AddScoped<IAddressWriteRepository, AddressWriteRepository>();
 

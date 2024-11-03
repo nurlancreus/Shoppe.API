@@ -53,10 +53,12 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
-        [HttpPatch("{id}/pictures/{pictureId}")]
-        public async Task<IActionResult> ChangeProfilePicture(string id, string pictureId)
+        [HttpPatch("{id}/pictures")]
+
+        
+        public async Task<IActionResult> ChangeProfilePicture(string id, [FromForm] ChangeProfilePictureCommandRequest request)
         {
-            var request = new ChangeProfilePictureCommandRequest { UserId = id, NewProfilePictureId = pictureId };
+            request.UserId = id;
 
             var response = await _sender.Send(request);
 
@@ -83,10 +85,10 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
-        [HttpPatch("{id}/deactivate")]
+        [HttpPatch("{id}/toggle")]
         public async Task<IActionResult> Deactivate(string id)
         {
-            var request = new DeactivateUserCommandRequest { UserId = id };
+            var request = new ToggleUserCommandRequest { UserId = id };
 
             var response = await _sender.Send(request);
 

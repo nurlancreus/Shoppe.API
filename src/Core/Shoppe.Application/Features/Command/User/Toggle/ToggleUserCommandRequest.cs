@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Features.Command.User.Deactivate
 {
-    public class DeactivateUserCommandRequest : IRequest<DeactivateUserCommandResponse>
+    public class ToggleUserCommandRequest : IRequest<ToggleUserCommandResponse>
     {
         public string? UserId { get; set; }
     }

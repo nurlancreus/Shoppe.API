@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shoppe.Persistence.Context;
 
@@ -11,9 +12,11 @@ using Shoppe.Persistence.Context;
 namespace Shoppe.Persistence.Migrations
 {
     [DbContext(typeof(ShoppeDbContext))]
-    partial class ShoppeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241103092413_mig_17")]
+    partial class mig_17
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -642,9 +645,7 @@ namespace Shoppe.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
@@ -708,7 +709,7 @@ namespace Shoppe.Persistence.Migrations
                         {
                             Id = "admin-user-id",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9008c711-e96d-4f31-a115-8b23eee5d558",
+                            ConcurrencyStamp = "bcff2512-2ccf-4b2a-a936-5c3c33f6002b",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "nurlancreus@example.com",
                             EmailConfirmed = false,
@@ -718,9 +719,9 @@ namespace Shoppe.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "NURLANCREUS@EXAMPLE.COM",
                             NormalizedUserName = "NURLANCREUS",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJvWJJLdUiXPxN+/7spqDzGtoTGZJbWJBmYjNkEyl5q/LOUTZrQswPUYLUdQtbboNg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMoau2773iETH+BxHSEvs3j2uDGm82YpsJpJiMCeH6kyS6rR1mx5oEem0C0T1snNfQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "42c68a60-9b53-4657-a808-2a3e611b5cab",
+                            SecurityStamp = "76834b2d-2242-4e70-a0e9-e732e4882eab",
                             TwoFactorEnabled = false,
                             UserName = "nurlancreus"
                         });
@@ -1819,7 +1820,7 @@ namespace Shoppe.Persistence.Migrations
                     b.HasOne("Shoppe.Domain.Entities.Identity.ApplicationUser", "User")
                         .WithMany("ProfilePictureFiles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("User");

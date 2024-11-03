@@ -117,7 +117,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Session
 
             if (userRoles.Count > 0)
             {
-                return userRoles.Contains("Admin");
+                return userRoles.Contains("Admin") || userRoles.Contains("SuperAdmin");
             }
 
             return false;
@@ -128,15 +128,33 @@ namespace Shoppe.Infrastructure.Concretes.Services.Session
             return _httpContext?.User?.Identity?.IsAuthenticated ?? false;
         }
 
+        public bool IsSuperAdmin()
+        {
+            var userRoles = GetRoles();
+
+            if (userRoles.Count > 0)
+            {
+                return userRoles.Contains("SuperAdmin");
+            }
+
+            return false;
+        }
+
+        public void ValidateSuperAdminAccess()
+        {
+            if (!IsSuperAdmin())
+                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+        }
+
         public void ValidateAdminAccess()
         {
             if (!IsAdmin())
                 throw new UnauthorizedAccessException("You do not have permission to perform this action.");
         }
 
-        public void ValidateAuthAccess()
+        public void ValidateAuthAccess(string id)
         {
-            if (!IsAdmin())
+            if (GetUserId() != id)
                 throw new UnauthorizedAccessException("You do not have permission to perform this action.");
         }
 
@@ -156,5 +174,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Session
             if (!roleExist)
                 throw new UnauthorizedAccessException("You do not have permission to perform this action.");
         }
+
+        
     }
 }

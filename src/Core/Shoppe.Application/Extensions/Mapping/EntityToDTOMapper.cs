@@ -9,6 +9,7 @@ using Shoppe.Application.DTOs.User;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Files;
+using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Entities.Reviews;
 using Shoppe.Domain.Entities.Tags;
 using System;
@@ -98,6 +99,22 @@ namespace Shoppe.Application.Extensions.Mapping
                 PathName= imageFile.PathName,
                 IsMain = imageFile.IsMain,
                 CreatedAt = imageFile.CreatedAt,
+            };
+        }
+
+        public static GetUserDTO ToGetUserDTO(this ApplicationUser user)
+        {
+            return new GetUserDTO
+            {
+                Id = user.Id,
+                FirstName = user.FirstName!,
+                LastName = user.LastName!,
+                UserName = user.UserName!,
+                Email = user.Email!,
+                Phone = user.PhoneNumber!,
+                IsActive = user.IsActive,
+                ProfilePictures = user.ProfilePictureFiles.Select(ToGetImageFileDTO).ToList(),
+                CreatedAt = user.CreatedAt,
             };
         }
 
