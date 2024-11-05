@@ -23,7 +23,7 @@ namespace Shoppe.Application.Features.Command.Reply.Create
             await _replyService.CreateAsync(new CreateReplyDTO
             {
                 Body = request.Body
-            }, request.EntityId!, request.Type, cancellationToken);
+            }, (Guid)request.EntityId!, request.Type, cancellationToken);
 
             return new CreateReplyCommandResponse
             {

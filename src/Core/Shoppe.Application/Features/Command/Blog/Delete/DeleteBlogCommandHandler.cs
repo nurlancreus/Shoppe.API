@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Command.Blog.Delete
 
         public async Task<DeleteBlogCommandResponse> Handle(DeleteBlogCommandRequest request, CancellationToken cancellationToken)
         {
-            await _blogService.DeleteAsync(request.BlogId!, cancellationToken);
+            await _blogService.DeleteAsync((Guid)request.BlogId!, cancellationToken);
 
             return new DeleteBlogCommandResponse
             {

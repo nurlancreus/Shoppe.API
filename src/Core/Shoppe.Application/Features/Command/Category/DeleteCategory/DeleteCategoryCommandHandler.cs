@@ -20,7 +20,7 @@ namespace Shoppe.Application.Features.Command.Category.DeleteCategory
 
         public async Task<DeleteCategoryCommandResponse> Handle(DeleteCategoryCommandRequest request, CancellationToken cancellationToken)
         {
-            await _categoryService.DeleteCategoryAsync(request.Id, cancellationToken);
+            await _categoryService.DeleteCategoryAsync((Guid)request.Id!, cancellationToken);
 
             return new DeleteCategoryCommandResponse()
             {

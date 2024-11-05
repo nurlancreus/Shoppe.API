@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Review
 {
-    public class CreateReviewDTO
+    public record CreateReviewDTO
     {
         //public string? FirstName { get; set; }
         //public string? LastName { get; set; }

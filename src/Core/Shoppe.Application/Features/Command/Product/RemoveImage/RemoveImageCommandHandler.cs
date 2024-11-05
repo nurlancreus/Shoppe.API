@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Command.Product.RemoveImage
 
         public async Task<RemoveImageCommandResponse> Handle(RemoveImageCommandRequest request, CancellationToken cancellationToken)
         {
-            await _productService.RemoveImageAsync(request.ProductId!, request.ImageId!, cancellationToken);
+            await _productService.RemoveImageAsync((Guid)request.ProductId!, (Guid)request.ImageId!, cancellationToken);
 
             return new RemoveImageCommandResponse
             {

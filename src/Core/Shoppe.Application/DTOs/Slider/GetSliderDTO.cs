@@ -9,7 +9,7 @@ namespace Shoppe.Application.DTOs.Slider
 {
     public record GetSliderDTO
     {
-        public string Id { get; set; } = string.Empty;
+        public Guid Id { get; set; }
         public string Type { get; set; } = string.Empty;
         public List<GetSlideDTO> Slides { get; set; } = [];
         public DateTime CreatedAt { get; set; }

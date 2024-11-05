@@ -23,21 +23,21 @@ public class UpdateItemQuantityCommandRequestValidator : AbstractValidator<Updat
     }
 
     // Method to check if the basket item exists
-    private async Task<bool> ExistInBasket(string? basketItemId, CancellationToken cancellationToken)
+    private async Task<bool> ExistInBasket(Guid? basketItemId, CancellationToken cancellationToken)
     {
-        return await _basketItemReadRepository.IsExistAsync(b => b.Id.ToString() == basketItemId, cancellationToken);
+        return await _basketItemReadRepository.IsExistAsync(b => b.Id == basketItemId, cancellationToken);
     }
 
     private async Task<bool> HaveSufficientStock(UpdateItemQuantityCommandRequest request, CancellationToken cancellationToken)
     {
-        var basketItem = await _basketItemReadRepository.GetByIdAsync(request.BasketItemId!, cancellationToken);
+        var basketItem = await _basketItemReadRepository.GetByIdAsync((Guid)request.BasketItemId, cancellationToken);
 
         if (basketItem == null)
         {
             return false;
         }
 
-        var product = await _productReadRepository.GetByIdAsync(basketItem.ProductId.ToString(), cancellationToken);
+        var product = await _productReadRepository.GetByIdAsync(basketItem.ProductId, cancellationToken);
 
         if (product == null)
         {

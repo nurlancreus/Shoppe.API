@@ -18,13 +18,13 @@ namespace Shoppe.Application.Validators.Tag
             RuleFor(tag => tag.Id)
                 .NotEmpty()
                 .WithMessage("Tag ID is required.")
-                .MustAsync(async (id, cancellationToken) => await _tagReadRepository.IsExistAsync(t => t.Id.ToString() == id, cancellationToken))
+                .MustAsync(async (id, cancellationToken) => await _tagReadRepository.IsExistAsync(t => t.Id == id, cancellationToken))
                 .WithMessage("Tag with the specified ID does not exist.");
 
             RuleFor(tag => tag.Name)
                 .MaximumLength(TagConst.MaxNameLength)
                 .WithMessage($"Name must be less than {TagConst.MaxNameLength} characters.")
-                .MustAsync(async (request, name, cancellationToken) => !await _tagReadRepository.IsExistAsync(t => t.Name == name && t.Id.ToString() != request.Id, cancellationToken))
+                .MustAsync(async (request, name, cancellationToken) => !await _tagReadRepository.IsExistAsync(t => t.Name == name && t.Id != request.Id, cancellationToken))
                 .WithMessage("Tag name is already in use.")
                 .When(tag => !string.IsNullOrEmpty(tag.Name)); // Validate if name is provided
 

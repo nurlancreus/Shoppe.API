@@ -10,7 +10,7 @@ namespace Shoppe.Application.Features.Query.Review.GetReviewByEntity
 {
     public class GetReviewsByEntityRequest : IRequest<GetReviewsByEntityResponse>
     {
-        public string? EntityId { get; set; }
+        public Guid? EntityId { get; set; }
         public ReviewType ReviewType { get; set; } = ReviewType.Product;
     }
 }

@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Query.Reply.GetRepliesByEntity
 
         public async Task<GetRepliesByEntityQueryResponse> Handle(GetRepliesByEntityQueryRequest request, CancellationToken cancellationToken)
         {
-            var replies = await _replyService.GetRepliesByEntityAsync(request.EntityId!, request.ReplyType, cancellationToken);
+            var replies = await _replyService.GetRepliesByEntityAsync((Guid)request.EntityId!, request.ReplyType, cancellationToken);
 
             return new GetRepliesByEntityQueryResponse
             {

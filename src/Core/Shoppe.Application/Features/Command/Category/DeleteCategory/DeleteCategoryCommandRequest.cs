@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Command.Category.DeleteCategory
 {
     public class DeleteCategoryCommandRequest : IRequest<DeleteCategoryCommandResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
     }
 }

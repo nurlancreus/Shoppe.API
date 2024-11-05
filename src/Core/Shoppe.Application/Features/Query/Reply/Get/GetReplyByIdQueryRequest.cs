@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Query.Reply.Get
 {
     public class GetReplyByIdQueryRequest : IRequest<GetReplyByIdQueryResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
     }
 }

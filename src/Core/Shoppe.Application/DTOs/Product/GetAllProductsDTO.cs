@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Product
 {
-    public class GetAllProductsDTO : IPaginationInfo
+    public record GetAllProductsDTO : IPaginationInfo
     {
         public int Page { get; set; }
         public int PageSize { get; set; }

@@ -9,7 +9,7 @@ namespace Shoppe.Application.DTOs.Section
 {
     public record UpdateSectionDTO
     {
-        public string? SectionId { get; set; }
+        public Guid? SectionId { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
         public string? TextBody { get; set; }

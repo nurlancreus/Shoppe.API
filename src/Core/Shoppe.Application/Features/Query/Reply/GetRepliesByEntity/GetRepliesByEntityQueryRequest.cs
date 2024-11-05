@@ -10,7 +10,7 @@ namespace Shoppe.Application.Features.Query.Reply.GetRepliesByEntity
 {
     public class GetRepliesByEntityQueryRequest : IRequest<GetRepliesByEntityQueryResponse>
     {
-        public string? EntityId { get; set; }
+        public Guid? EntityId { get; set; }
         public ReplyType ReplyType { get; set; } = ReplyType.Blog;
     }
 }

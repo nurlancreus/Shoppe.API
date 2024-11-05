@@ -9,5 +9,7 @@ namespace Shoppe.Application.Features.Command.Basket.DeleteBasketItem
 {
     public class DeleteBasketItemCommandRequest : IRequest<DeleteBasketItemCommandResponse>
     {
+        public Guid? BasketItemId { get; set; }
+
     }
 }

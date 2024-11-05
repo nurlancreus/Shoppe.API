@@ -11,8 +11,8 @@ namespace Shoppe.Application.Features.Command.Discount.AssignDiscount
 {
     public class AssignDiscountCommandRequest : IRequest<AssignDiscountCommandResponse>
     {
-        public string? DiscountId { get; set; }
-        public string? EntityId { get; set; }
+        public Guid? DiscountId { get; set; }
+        public Guid? EntityId { get; set; }
         public string? EntityType { get; set; } = "Product";
     }
 }

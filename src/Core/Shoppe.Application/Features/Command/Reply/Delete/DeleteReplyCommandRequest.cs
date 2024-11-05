@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Command.Reply.Delete
 {
     public class DeleteReplyCommandRequest : IRequest<DeleteReplyCommandResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
     }
 }

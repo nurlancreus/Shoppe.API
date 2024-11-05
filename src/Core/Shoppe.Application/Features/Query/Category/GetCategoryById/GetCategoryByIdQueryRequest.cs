@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Query.Category.GetCategoryById
 {
     public class GetCategoryByIdQueryRequest : IRequest<GetCategoryByIdQueryResponse>
     {
-        public string Id { get; set; } = null!;
+        public Guid? Id { get; set; }
     }
 }

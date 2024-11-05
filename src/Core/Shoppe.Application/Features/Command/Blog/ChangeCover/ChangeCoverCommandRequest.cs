@@ -10,8 +10,8 @@ namespace Shoppe.Application.Features.Command.Blog.ChangeCover
 {
     public class ChangeCoverCommandRequest : IRequest<ChangeCoverCommandResponse>
     {
-        public string? BlogId { get; set; }
-        public string? NewImageId { get; set; }
+        public Guid? BlogId { get; set; }
+        public Guid? NewImageId { get; set; }
         public IFormFile? NewImageFile { get; set; }
 
     }

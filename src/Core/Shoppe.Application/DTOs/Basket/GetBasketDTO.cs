@@ -9,7 +9,7 @@ namespace Shoppe.Application.DTOs.Basket
 {
     public record GetBasketDTO
     {
-        public string Id { get; set; } = string.Empty;
+        public Guid Id { get; set; }
         public GetUserDTO User { get; set; } = null!;
         public List<GetBasketItemDTO> BasketItems { get; set; } = [];
         public double TotalAmount { get; set; } = 0;

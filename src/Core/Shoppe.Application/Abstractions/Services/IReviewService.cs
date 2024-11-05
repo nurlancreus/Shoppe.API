@@ -11,12 +11,12 @@ namespace Shoppe.Application.Abstractions.Services
 {
     public interface IReviewService
     {
-        Task CreateAsync(CreateReviewDTO createReviewDTO, string entityId, ReviewType reviewType, CancellationToken cancellationToken);
+        Task CreateAsync(CreateReviewDTO createReviewDTO, Guid entityId, ReviewType reviewType, CancellationToken cancellationToken);
         Task UpdateAsync(UpdateReviewDTO updateReviewDTO, CancellationToken cancellationToken);
-        Task DeleteAsync(string id, CancellationToken cancellationToken);
+        Task DeleteAsync(Guid id, CancellationToken cancellationToken);
         Task<GetAllReviewsDTO> GetAllAsync(int page, int size, CancellationToken cancellationToken);
-        Task<GetReviewDTO> GetAsync(string id, CancellationToken cancellationToken);
-        Task<List<GetReviewDTO>> GetReviewsByEntityAsync(string entityId, ReviewType reviewType, CancellationToken cancellationToken);
+        Task<GetReviewDTO> GetAsync(Guid id, CancellationToken cancellationToken);
+        Task<List<GetReviewDTO>> GetReviewsByEntityAsync(Guid entityId, ReviewType reviewType, CancellationToken cancellationToken);
 
         Task<List<GetReviewDTO>> GetReviewsByUserAsync(string userId, CancellationToken cancellationToken);
 

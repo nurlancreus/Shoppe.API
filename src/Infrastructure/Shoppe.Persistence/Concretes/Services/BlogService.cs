@@ -66,7 +66,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _sectionWriteRepository = sectionWriteRepository;
         }
 
-        public async Task ChangeCoverImageAsync(string blogId, string? newCoverImageId, IFormFile? newCoverImageFile, CancellationToken cancellationToken)
+        public async Task ChangeCoverImageAsync(Guid blogId, Guid? newCoverImageId, IFormFile? newCoverImageFile, CancellationToken cancellationToken)
         {
             _jwtSession.ValidateAdminAccess();
 
@@ -75,7 +75,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 .Include(b => b.Sections)
                     .ThenInclude(s => s.BlogImageMappings)
                         .ThenInclude(bi => bi.BlogImage)
-                .FirstOrDefaultAsync(b => b.Id.ToString() == blogId, cancellationToken);
+                .FirstOrDefaultAsync(b => b.Id == blogId, cancellationToken);
 
 
             if (blog == null)
@@ -85,9 +85,9 @@ namespace Shoppe.Persistence.Concretes.Services
 
             BlogImageFile? newCoverImage = null;
 
-            if (!string.IsNullOrWhiteSpace(newCoverImageId))
+            if (newCoverImage != null)
             {
-                newCoverImage = blog.Sections.SelectMany(s => s.BlogImageMappings).FirstOrDefault(bi => bi.BlogImage.Id.ToString().ToLower() == newCoverImageId.ToLower())?.BlogImage;
+                newCoverImage = blog.Sections.SelectMany(s => s.BlogImageMappings).FirstOrDefault(bi => bi.BlogImage.Id == newCoverImageId)?.BlogImage;
 
                 if (newCoverImage == null)
                 {
@@ -113,7 +113,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         }
 
-        public async Task RemoveImageAsync(string blogId, string imageId, CancellationToken cancellationToken)
+        public async Task RemoveImageAsync(Guid blogId, Guid imageId, CancellationToken cancellationToken)
         {
             _jwtSession.ValidateAdminAccess();
 
@@ -123,14 +123,14 @@ namespace Shoppe.Persistence.Concretes.Services
                 .Include(b => b.Sections)
                     .ThenInclude(s => s.BlogImageMappings)
                     .ThenInclude(bi => bi.BlogImage)
-                .FirstOrDefaultAsync(b => b.Id.ToString() == blogId, cancellationToken);
+                .FirstOrDefaultAsync(b => b.Id == blogId, cancellationToken);
 
             if (blog == null)
             {
                 throw new EntityNotFoundException(nameof(blog));
             }
 
-            var image = blog.Sections.SelectMany(s => s.BlogImageMappings).FirstOrDefault(bi => bi.BlogImageId.ToString() == imageId);
+            var image = blog.Sections.SelectMany(s => s.BlogImageMappings).FirstOrDefault(bi => bi.BlogImageId == imageId);
 
             if (image == null)
             {
@@ -246,7 +246,7 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
 
-        public async Task DeleteAsync(string blogId, CancellationToken cancellationToken)
+        public async Task DeleteAsync(Guid blogId, CancellationToken cancellationToken)
         {
             _jwtSession.ValidateAdminAccess();
 
@@ -297,7 +297,7 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task<GetBlogDTO> GetAsync(string blogId, CancellationToken cancellationToken)
+        public async Task<GetBlogDTO> GetAsync(Guid blogId, CancellationToken cancellationToken)
         {
             var blog = await _blogReadRepository.Table
                 .Include(b => b.Sections)
@@ -307,7 +307,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 .Include(b => b.Tags)
                 .Include(b => b.Categories)
                 .AsNoTrackingWithIdentityResolution()
-                .FirstOrDefaultAsync(b => b.Id.ToString() == blogId, cancellationToken);
+                .FirstOrDefaultAsync(b => b.Id == blogId, cancellationToken);
 
 
             if (blog == null)
@@ -330,7 +330,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 .Include(b => b.Sections)
                     .ThenInclude(s => s.BlogImageMappings)
                         .ThenInclude(bi => bi.BlogImage)
-                 .FirstOrDefaultAsync(b => b.Id.ToString() == updateBlogDTO.BlogId, cancellationToken);
+                 .FirstOrDefaultAsync(b => b.Id == updateBlogDTO.BlogId, cancellationToken);
 
 
             if (blog == null)
@@ -412,7 +412,7 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 if (updateBlogDTO.UpdatedSections.Count > blog.Sections.Count)
                 {
-                    var sectionsToDelete = blog.Sections.Where(s => !updateBlogDTO.UpdatedSections.Select(s => s.SectionId).Contains(s.Id.ToString()));
+                    var sectionsToDelete = blog.Sections.Where(s => !updateBlogDTO.UpdatedSections.Select(s => s.SectionId).Contains(s.Id));
 
                     if (_sectionWriteRepository.DeleteRange(sectionsToDelete))
                     {
@@ -435,7 +435,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 foreach (var section in updateBlogDTO.UpdatedSections)
                 {
-                    var existingSection = blog.Sections.FirstOrDefault(s => s.Id.ToString() == section.SectionId);
+                    var existingSection = blog.Sections.FirstOrDefault(s => s.Id == section.SectionId);
 
                     if (existingSection == null)
                     {
@@ -549,7 +549,7 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
 
-        public async Task<List<GetImageFileDTO>> GetAllBlogImagesAsync(CancellationToken cancellationToken, string? blogId = null)
+        public async Task<List<GetImageFileDTO>> GetAllBlogImagesAsync(CancellationToken cancellationToken, Guid? blogId = null)
         {
             if (blogId != null)
             {
@@ -559,7 +559,7 @@ namespace Shoppe.Persistence.Concretes.Services
                         .ThenInclude(bi => bi.BlogImage)
                             .ThenInclude(i => i.Blogs)
                 .AsNoTrackingWithIdentityResolution()
-                .FirstOrDefaultAsync(b => b.Id.ToString() == blogId, cancellationToken);
+                .FirstOrDefaultAsync(b => b.Id == blogId, cancellationToken);
 
                 if (blog == null)
                 {
@@ -570,7 +570,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 return imageMappings.Select(i => new GetImageFileDTO
                 {
-                    Id = i.BlogImageId.ToString(),
+                    Id = i.BlogImageId,
                     PathName = i.BlogImage.PathName,
                     FileName = i.BlogImage.FileName,
                     CreatedAt = i.BlogImage.CreatedAt,
@@ -582,7 +582,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 return blogImages.Select(i => new GetImageFileDTO
                 {
-                    Id = i.Id.ToString(),
+                    Id = i.Id,
                     PathName = i.PathName,
                     FileName = i.FileName,
                     CreatedAt = i.CreatedAt,
@@ -590,9 +590,9 @@ namespace Shoppe.Persistence.Concretes.Services
             }
         }
 
-        public async Task<List<GetReplyDTO>> GetRepliesByBlogAsync(string blogId, CancellationToken cancellationToken)
+        public async Task<List<GetReplyDTO>> GetRepliesByBlogAsync(Guid blogId, CancellationToken cancellationToken)
         {
-            var blog = await _blogReadRepository.Table.Include(b => b.Replies).ThenInclude(r => r.Replier).ThenInclude(u => u.ProfilePictureFiles).FirstOrDefaultAsync(b => b.Id.ToString() == blogId, cancellationToken);
+            var blog = await _blogReadRepository.Table.Include(b => b.Replies).ThenInclude(r => r.Replier).ThenInclude(u => u.ProfilePictureFiles).FirstOrDefaultAsync(b => b.Id == blogId, cancellationToken);
 
             if (blog == null)
             {
@@ -605,14 +605,14 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 return new GetReplyDTO()
                 {
-                    Id = r.Id.ToString(),
+                    Id = r.Id,
                     FirstName = r.Replier?.FirstName!,
                     LastName = r.Replier?.LastName!,
                     Body = r.Body,
                     CreatedAt = r.CreatedAt,
                     ProfilePhoto = profilePic != null ? new GetImageFileDTO
                     {
-                        Id = profilePic.Id.ToString(),
+                        Id = profilePic.Id,
                         FileName = profilePic.FileName,
                         PathName = profilePic.PathName,
                         CreatedAt = profilePic.CreatedAt
@@ -622,7 +622,6 @@ namespace Shoppe.Persistence.Concretes.Services
 
             }).ToList();
         }
-        
 
     }
 }

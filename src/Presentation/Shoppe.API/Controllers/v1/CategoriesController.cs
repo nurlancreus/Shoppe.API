@@ -28,7 +28,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(Guid id)
         {
             var getCategoryByIdQueryRequest = new GetCategoryByIdQueryRequest
             {
@@ -49,7 +49,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateCategoryCommandRequest updateCategoryCommandRequest)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateCategoryCommandRequest updateCategoryCommandRequest)
         {
             updateCategoryCommandRequest.Id = id;
 
@@ -59,7 +59,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] string id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var request = new DeleteCategoryCommandRequest { Id = id };
 

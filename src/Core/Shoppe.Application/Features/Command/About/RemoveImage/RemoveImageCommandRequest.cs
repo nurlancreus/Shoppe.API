@@ -9,7 +9,7 @@ namespace Shoppe.Application.Features.Command.About.RemoveImage
 {
     public class RemoveImageCommandRequest : IRequest<RemoveImageCommandResponse>
     {
-        public string? SectionId { get; set; }
-        public string? ImageId { get; set; }
+        public Guid? SectionId { get; set; }
+        public Guid? ImageId { get; set; }
     }
 }

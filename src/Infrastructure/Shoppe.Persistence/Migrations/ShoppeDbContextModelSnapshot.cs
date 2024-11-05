@@ -708,7 +708,7 @@ namespace Shoppe.Persistence.Migrations
                         {
                             Id = "admin-user-id",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9008c711-e96d-4f31-a115-8b23eee5d558",
+                            ConcurrencyStamp = "7443bb1d-1f91-45c2-ab62-0630bf7a0692",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "nurlancreus@example.com",
                             EmailConfirmed = false,
@@ -718,9 +718,9 @@ namespace Shoppe.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "NURLANCREUS@EXAMPLE.COM",
                             NormalizedUserName = "NURLANCREUS",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJvWJJLdUiXPxN+/7spqDzGtoTGZJbWJBmYjNkEyl5q/LOUTZrQswPUYLUdQtbboNg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEhZioof/8JmbCSHszgEjvCVlp+W1IuyzXGXCi+j9ZKI3PwmQ/JQAXFN3/lrJV3z7Q==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "42c68a60-9b53-4657-a808-2a3e611b5cab",
+                            SecurityStamp = "01c6ad1a-e71b-4ef4-ab0f-332abdf41eef",
                             TwoFactorEnabled = false,
                             UserName = "nurlancreus"
                         });
@@ -1819,7 +1819,7 @@ namespace Shoppe.Persistence.Migrations
                     b.HasOne("Shoppe.Domain.Entities.Identity.ApplicationUser", "User")
                         .WithMany("ProfilePictureFiles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("User");

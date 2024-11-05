@@ -46,19 +46,19 @@ namespace Shoppe.Application.Features.Query.About.Get
                     Phone = about.Phone,
                     SocialMediaLinks = about.SocialMediaLinks.Select(s => new GetSocialMediaLinkDTO
                     {
-                        Id = s.Id.ToString(),
+                        Id = s.Id,
                         SocialPlatform = s.SocialPlatform.ToString(),
                         URL = s.URL,
                         CreatedAt = s.CreatedAt,
                     }).ToList(),
                     Sections = about.Sections.OrderBy(s => s.Order).Select(s => new GetSectionDTO
                     {
-                        Id = s.Id.ToString(),
+                        Id = s.Id,
                         TextBody = s.TextBody,
                         Title = s.Title,
                         ImageFiles = s.SectionImageFiles.Select(si => new GetImageFileDTO
                         {
-                            Id = si.Id.ToString(),
+                            Id = si.Id,
                             FileName = si.FileName,
                             PathName = si.PathName,
                             IsMain = si.IsMain,

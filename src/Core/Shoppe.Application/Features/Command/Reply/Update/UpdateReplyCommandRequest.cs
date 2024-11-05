@@ -9,7 +9,7 @@ namespace Shoppe.Application.Features.Command.Reply.Update
 {
     public class UpdateReplyCommandRequest : IRequest<UpdateReplyCommandResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
         public string? Body { get; set; }
     }
 }

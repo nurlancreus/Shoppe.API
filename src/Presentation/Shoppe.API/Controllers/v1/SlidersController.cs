@@ -30,7 +30,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet("{sliderId}")]
-        public async Task<IActionResult> DeleteSlider(string sliderId)
+        public async Task<IActionResult> DeleteSlider(Guid sliderId)
         {
             var request = new GetSliderQueryRequest { SliderId = sliderId };
             var response = await _sender.Send(request);
@@ -45,7 +45,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPost("{sliderId}/add-slide")]
-        public async Task<IActionResult> AddSlideToSlider(string sliderId, [FromForm] AddSlideToSliderCommandRequest request)
+        public async Task<IActionResult> AddSlideToSlider(Guid sliderId, [FromForm] AddSlideToSliderCommandRequest request)
         {
             request.SliderId = sliderId;
             var response = await _sender.Send(request);
@@ -53,7 +53,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(string id, [FromForm] UpdateSliderCommandRequest request)
+        public async Task<IActionResult> Update(Guid id, [FromForm] UpdateSliderCommandRequest request)
         {
             request.SliderId = id;
             var response = await _sender.Send(request);
@@ -61,7 +61,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{sliderId}")]
-        public async Task<IActionResult> Delete(string sliderId)
+        public async Task<IActionResult> Delete(Guid sliderId)
         {
             var request = new DeleteSliderCommandRequest { SliderId = sliderId };
             var response = await _sender.Send(request);
@@ -69,7 +69,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPatch("{slideId}/images")]
-        public async Task<IActionResult> ChangeImage(string slideId, [FromForm] ChangeSlideImageCommandRequest request)
+        public async Task<IActionResult> ChangeImage(Guid slideId, [FromForm] ChangeSlideImageCommandRequest request)
         {
             request.SlideId = slideId;
 

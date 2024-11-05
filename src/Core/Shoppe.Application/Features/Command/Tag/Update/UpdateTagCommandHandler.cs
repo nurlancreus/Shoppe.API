@@ -25,7 +25,7 @@ namespace Shoppe.Application.Features.Command.Tag.Update
 
             await _tagService.UpdateAsync(new UpdateTagDTO
             {
-                Id = request.Id!,
+                Id = (Guid)request.Id!,
                 Name = request.Name,
                 Description = request.Description,
             }, cancellationToken);

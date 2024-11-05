@@ -21,7 +21,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new Category()
             {
-                Id = Guid.Parse(getCategoryDTO.Id),
+                Id = getCategoryDTO.Id,
                 Name = getCategoryDTO.Name,
             };
         }

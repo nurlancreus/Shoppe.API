@@ -17,5 +17,9 @@ namespace Shoppe.Application.DTOs.User
         public string? UserName { get; set; }
         public IFormFile? NewProfilePictureFile { get; set; }
         public string? AlreadyExistingImageId { get; set; }
+
+        public string? CurrentPassword { get; set; }
+        public string? NewPassword { get; set; }
+        public string? ConfirmNewPassword { get; set; }
     }
 }

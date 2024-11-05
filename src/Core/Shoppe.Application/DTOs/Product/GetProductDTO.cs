@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Product
 {
-    public class GetProductDTO
+    public record GetProductDTO
     {
-        public string Id { get; set; } = null!;
-        public string Name { get; set; } = null!;
-        public string Info { get; set; } = null!;
-        public string Description { get; set; } = null!;
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Info { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public double Price { get; set; }
         public int Stock { get; set; }
         public float Weight { get; set; }

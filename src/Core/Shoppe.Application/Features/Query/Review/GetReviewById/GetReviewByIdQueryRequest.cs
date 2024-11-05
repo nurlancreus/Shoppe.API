@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Query.Review.GetReviewById
 {
     public class GetReviewByIdQueryRequest : IRequest<GetReviewByIdQueryResponse>
     {
-        public string Id { get; set; } = null!;
+        public Guid? Id { get; set; }
     }
 }

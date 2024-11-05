@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Command.Product.ChangeMainImage
 
         public async Task<ChangeMainImageCommandResponse> Handle(ChangeMainImageCommandRequest request, CancellationToken cancellationToken)
         {
-            await _productService.ChangeMainImageAsync(request.ProductId!, request.ImageId!, cancellationToken);
+            await _productService.ChangeMainImageAsync((Guid)request.ProductId!, (Guid)request.ImageId!, cancellationToken);
 
             return new ChangeMainImageCommandResponse
             {

@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Command.Slider.Delete
 
         public async Task<DeleteSliderCommandResponse> Handle(DeleteSliderCommandRequest request, CancellationToken cancellationToken)
         {
-            await _sliderService.DeleteSliderAsync(request.SliderId!, cancellationToken);
+            await _sliderService.DeleteSliderAsync((Guid)request.SliderId!, cancellationToken);
 
             return new DeleteSliderCommandResponse
             {

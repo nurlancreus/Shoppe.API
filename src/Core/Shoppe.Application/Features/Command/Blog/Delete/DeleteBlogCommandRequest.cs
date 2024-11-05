@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Command.Blog.Delete
 {
     public class DeleteBlogCommandRequest : IRequest<DeleteBlogCommandResponse>
     {
-        public string? BlogId { get; set; }
+        public Guid? BlogId { get; set; }
     }
 }

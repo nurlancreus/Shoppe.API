@@ -22,7 +22,7 @@ namespace Shoppe.Application.Features.Command.Reply.Update
         {
             await _replyService.UpdateAsync(new UpdateReplyDTO
             {
-                Id = request.Id!,
+                Id = (Guid)request.Id!,
                 Body = request.Body,
             }, cancellationToken);
 

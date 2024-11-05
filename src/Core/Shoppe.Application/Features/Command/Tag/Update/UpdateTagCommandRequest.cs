@@ -9,7 +9,7 @@ namespace Shoppe.Application.Features.Command.Tag.Update
 {
     public class UpdateTagCommandRequest : IRequest<UpdateTagCommandResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
         public string? Name { get; set; }
         public string? Description { get; set; }
     }

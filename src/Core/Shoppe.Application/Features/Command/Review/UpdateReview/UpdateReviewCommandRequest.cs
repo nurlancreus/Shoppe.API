@@ -9,7 +9,7 @@ namespace Shoppe.Application.Features.Command.Review.UpdateReview
 {
     public class UpdateReviewCommandRequest : IRequest<UpdateReviewCommandResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
         public string? Body { get; set; }
         public int? Rating { get; set; }
     }

@@ -47,7 +47,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(Guid id)
         {
             var request = new GetBlogByIdQueryRequest
             {
@@ -60,7 +60,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update([FromRoute] string id, [FromForm] UpdateBlogCommandRequest request)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromForm] UpdateBlogCommandRequest request)
         {
             request.BlogId = id;
 
@@ -70,7 +70,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             var request = new DeleteBlogCommandRequest
             {
@@ -83,7 +83,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet("{BlogId}/replies")]
-        public async Task<IActionResult> GetReplies(string BlogId)
+        public async Task<IActionResult> GetReplies(Guid BlogId)
         {
             var request = new GetRepliesByEntityQueryRequest { EntityId = BlogId, ReplyType = ReplyType.Blog };
 
@@ -93,7 +93,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPost("{BlogId}/replies")]
-        public async Task<IActionResult> AddReply(string BlogId, [FromBody] CreateReplyCommandRequest request)
+        public async Task<IActionResult> AddReply(Guid BlogId, [FromBody] CreateReplyCommandRequest request)
         {
             request.Type = ReplyType.Blog;
             request.EntityId = BlogId;
@@ -104,7 +104,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPatch("{blogId}/change-cover")]
-        public async Task<IActionResult> ChangeCoverImage(string blogId, [FromForm] ChangeCoverCommandRequest request)
+        public async Task<IActionResult> ChangeCoverImage(Guid blogId, [FromForm] ChangeCoverCommandRequest request)
         {
             request.BlogId = blogId;
 
@@ -114,7 +114,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{blogId}/images/{imageId}")]
-        public async Task<IActionResult> RemoveImage(string blogId, string imageId)
+        public async Task<IActionResult> RemoveImage(Guid blogId, Guid imageId)
         {
             var request = new RemoveBlogImageCommandRequest
             {

@@ -72,10 +72,10 @@ namespace Shoppe.Application.Validators.Product
                 .MustAsync(async (name, cancellationToken) => await _categoryReadRepository.IsExistAsync(c => c.Name == name, cancellationToken))
                 .WithMessage("Category must be defined");
 
-            When(product => !string.IsNullOrEmpty(product.DiscountId), () =>
+            When(product => product.DiscountId != null, () =>
             {
                 RuleFor(product => product.DiscountId)
-                .MustAsync(async (id, cancellationToken) => await _discountReadRepository.IsExistAsync(c => c.Id.ToString() == id, cancellationToken))
+                .MustAsync(async (id, cancellationToken) => await _discountReadRepository.IsExistAsync(c => c.Id == id, cancellationToken))
                 .WithMessage("Discount must be defined");
             });
 

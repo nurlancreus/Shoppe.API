@@ -81,7 +81,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             var categoryDTO = new UpdateCategoryDTO
             {
-                Id = request.Id!,
+                Id = (Guid)request.Id!,
                 Name = request.Name,
                 Description = request.Description,
             };
@@ -93,7 +93,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new UpdateProductDTO
             {
-                Id = request.Id!,
+                Id = (Guid)request.Id!,
                 Name = request.Name,
                 Price = request.Price,
                 Stock = request.Stock,
@@ -106,7 +106,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 Width = request.Width,
                 Height = request.Height,
                 Weight = request.Weight,
-                DiscountId = request.DiscountId,
+                DiscountId = (Guid)request.DiscountId!,
             };
         }
 
@@ -137,7 +137,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new UpdateReviewDTO
             {
-                Id = request.Id!,
+                Id = (Guid)request.Id!,
                 Body = request.Body,
                 Rating = request.Rating
             };
@@ -159,7 +159,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new UpdateContactDTO
             {
-                Id = request.Id!,
+                Id = (Guid)request.Id!,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email,
@@ -184,7 +184,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new UpdateDiscountDTO
             {
-                Id = request.Id!,
+                Id = (Guid)request.Id!,
                 Name = request.Name,
                 Description = request.Description,
                 DiscountPercentage = request.DiscountPercentage,
@@ -199,13 +199,16 @@ namespace Shoppe.Application.Extensions.Mapping
             return new UpdateUserDTO
             {
                 UserId = request.UserId!,
-                FirstName = request.UserName,
+                FirstName = request.FirstName,
                 LastName = request.LastName,
                 UserName = request.UserName,
                 Email = request.Email,
                 Phone = request.Phone,
                 NewProfilePictureFile = request.NewProfilePictureFile,
                 AlreadyExistingImageId = request.AlreadyExistingImageId,
+                CurrentPassword = request.CurrentPassword,
+                NewPassword = request.NewPassword,
+                ConfirmNewPassword = request.ConfirmNewPassword
             };
         }
     }

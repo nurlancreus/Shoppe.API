@@ -9,7 +9,7 @@ namespace Shoppe.Application.Features.Command.Basket.UpdateItemQuantity
 {
     public class UpdateItemQuantityCommandRequest : IRequest<UpdateItemQuantityCommandResponse>
     {
-        public string? BasketItemId { get; set; }
+        public Guid? BasketItemId { get; set; }
         public int? Quantity { get; set; }
         public bool? Increment { get; set; }
 

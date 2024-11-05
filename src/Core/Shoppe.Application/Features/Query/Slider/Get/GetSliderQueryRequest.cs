@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Query.Slider.Get
 {
     public class GetSliderQueryRequest : IRequest<GetSliderQueryResponse>
     {
-        public string? SliderId { get; set; }
+        public Guid? SliderId { get; set; }
     }
 }

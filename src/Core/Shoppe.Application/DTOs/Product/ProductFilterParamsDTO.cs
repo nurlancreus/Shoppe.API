@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Product
 {
-    public class ProductFilterParamsDTO : IPaginationParams
+    public record ProductFilterParamsDTO : IPaginationParams
     {
         public string? CategoryName { get; set; }
         public double? MinPrice { get; set; }

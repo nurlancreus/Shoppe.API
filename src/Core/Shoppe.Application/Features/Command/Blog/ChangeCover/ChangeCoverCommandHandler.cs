@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Command.Blog.ChangeCover
 
         public async Task<ChangeCoverCommandResponse> Handle(ChangeCoverCommandRequest request, CancellationToken cancellationToken)
         {
-            await _blogService.ChangeCoverImageAsync(request.BlogId!, request.NewImageId, request.NewImageFile, cancellationToken);
+            await _blogService.ChangeCoverImageAsync((Guid)request.BlogId!, request.NewImageId, request.NewImageFile, cancellationToken);
 
             return new ChangeCoverCommandResponse
             {

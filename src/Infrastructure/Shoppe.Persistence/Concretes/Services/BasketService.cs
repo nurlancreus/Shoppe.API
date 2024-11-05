@@ -63,7 +63,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             return new GetBasketDTO()
             {
-                Id = basket.Id.ToString(),
+                Id = basket.Id,
                 CreatedAt = basket.CreatedAt,
                 BasketItems = basket.Items.Select(bi => new GetBasketItemDTO
                 {
@@ -119,7 +119,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
 
 
-        public async Task AddItemToBasketAsync(string productId, int? quantity, CancellationToken cancellationToken)
+        public async Task AddItemToBasketAsync(Guid productId, int? quantity, CancellationToken cancellationToken)
         {
             var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken);
 
@@ -158,7 +158,7 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task RemoveBasket(string basketId, CancellationToken cancellationToken)
+        public async Task RemoveBasket(Guid basketId, CancellationToken cancellationToken)
         {
             var basket = await _basketReadRepository.GetByIdAsync(basketId, cancellationToken);
 
@@ -172,7 +172,7 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task RemoveBasketItemAsync(string basketItemId, CancellationToken cancellationToken)
+        public async Task RemoveBasketItemAsync(Guid basketItemId, CancellationToken cancellationToken)
         {
             var basketItem = await _basketItemReadRepository.GetByIdAsync(basketItemId, cancellationToken);
 
@@ -195,11 +195,11 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task UpdateItemQuantityAsync(string basketItemId, int quantity, CancellationToken cancellationToken)
+        public async Task UpdateItemQuantityAsync(Guid basketItemId, int quantity, CancellationToken cancellationToken)
         {
             var basketItem = await _basketItemReadRepository.Table
                 .Include(bi => bi.Product)
-                .FirstOrDefaultAsync(bi => bi.Id.ToString() == basketItemId, cancellationToken);
+                .FirstOrDefaultAsync(bi => bi.Id == basketItemId, cancellationToken);
 
             if (basketItem == null)
             {
@@ -217,11 +217,11 @@ namespace Shoppe.Persistence.Concretes.Services
         }
 
 
-        public async Task UpdateItemQuantityAsync(string basketItemId, bool increment, CancellationToken cancellationToken)
+        public async Task UpdateItemQuantityAsync(Guid basketItemId, bool increment, CancellationToken cancellationToken)
         {
             var basketItem = await _basketItemReadRepository.Table
                            .Include(bi => bi.Product)
-                           .FirstOrDefaultAsync(bi => bi.Id.ToString() == basketItemId, cancellationToken);
+                           .FirstOrDefaultAsync(bi => bi.Id == basketItemId, cancellationToken);
             if (basketItem == null)
             {
                 throw new EntityNotFoundException(nameof(basketItem));

@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Query.Category.GetCategoryById
 
         public async Task<GetCategoryByIdQueryResponse> Handle(GetCategoryByIdQueryRequest request, CancellationToken cancellationToken)
         {
-            var category = await _categoryService.GetCategoryAsync(request.Id, cancellationToken);
+            var category = await _categoryService.GetCategoryAsync((Guid)request.Id!, cancellationToken);
 
             return new GetCategoryByIdQueryResponse()
             {

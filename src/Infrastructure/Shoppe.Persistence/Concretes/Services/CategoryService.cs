@@ -70,7 +70,7 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
 
-        public async Task DeleteCategoryAsync(string id, CancellationToken cancellationToken)
+        public async Task DeleteCategoryAsync(Guid id, CancellationToken cancellationToken)
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -129,7 +129,7 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task<GetCategoryDTO> GetCategoryAsync(string id, CancellationToken cancellationToken)
+        public async Task<GetCategoryDTO> GetCategoryAsync(Guid id, CancellationToken cancellationToken)
         {
             var category = await _categoryReadRepository.GetByIdAsync(id, cancellationToken, false);
 

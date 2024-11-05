@@ -11,7 +11,7 @@ namespace Shoppe.Application.Features.Command.Reply.Create
     public class CreateReplyCommandRequest : IRequest<CreateReplyCommandResponse>
     {
         public string Body { get; set; } = string.Empty;
-        public string? EntityId { get; set; } = null!;
+        public Guid? EntityId { get; set; }
         public ReplyType Type { get; set; } = ReplyType.Blog;
     }
 }

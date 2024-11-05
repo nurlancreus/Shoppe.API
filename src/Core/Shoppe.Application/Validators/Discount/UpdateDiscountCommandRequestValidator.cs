@@ -14,7 +14,7 @@ public class UpdateDiscountCommandRequestValidator : AbstractValidator<UpdateDis
 
         RuleFor(x => x.Id)
             .NotEmpty().WithMessage("Discount Id is required.")
-            .MustAsync(async (id, cancellationToken) => await _discountReadRepository.IsExistAsync(d => d.Id.ToString() == id, cancellationToken))
+            .MustAsync(async (id, cancellationToken) => await _discountReadRepository.IsExistAsync(d => d.Id == id, cancellationToken))
             .WithMessage("The discount does not exist.");
 
         RuleFor(x => x.Name)
@@ -23,7 +23,7 @@ public class UpdateDiscountCommandRequestValidator : AbstractValidator<UpdateDis
                 if (!string.IsNullOrWhiteSpace(name))
                 {
                     var exists = await _discountReadRepository.IsExistAsync(
-                        d => d.Name == name && d.Id.ToString() != request.Id, cancellationToken);
+                        d => d.Name == name && d.Id != request.Id, cancellationToken);
                     return !exists;
                 }
                 return true;

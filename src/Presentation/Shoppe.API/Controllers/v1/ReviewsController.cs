@@ -28,7 +28,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(Guid id)
         {
             var request = new GetReviewByIdQueryRequest { Id = id };
 
@@ -38,7 +38,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdateReviewCommandRequest request)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateReviewCommandRequest request)
         {
             request.Id = id;
 
@@ -48,7 +48,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             var request = new DeleteReviewCommandRequest { Id = id };
 

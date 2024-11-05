@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Query.Tag.Get
 {
     public class GetTagByIdQueryRequest : IRequest<GetTagByIdQueryResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
     }
 }

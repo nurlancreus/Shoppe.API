@@ -32,15 +32,15 @@ namespace Shoppe.Application.Validators.Reply
                 .MustAsync(ValidateEntityIdAsync).WithMessage("Entity not found.");
         }
 
-        private async Task<bool> ValidateEntityIdAsync(CreateReplyCommandRequest request, string? entityId, CancellationToken cancellationToken)
+        private async Task<bool> ValidateEntityIdAsync(CreateReplyCommandRequest request, Guid? entityId, CancellationToken cancellationToken)
         {
             if (request.Type == ReplyType.Blog)
             {
-                return await _blogReadRepository.IsExistAsync(b => b.Id.ToString() == entityId, cancellationToken);
+                return await _blogReadRepository.IsExistAsync(b => b.Id == entityId, cancellationToken);
             }
             else if (request.Type == ReplyType.Reply)
             {
-                return await _replyReadRepository.IsExistAsync(b => b.Id.ToString() == entityId, cancellationToken);
+                return await _replyReadRepository.IsExistAsync(b => b.Id == entityId, cancellationToken);
             }
 
             return false;

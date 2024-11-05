@@ -35,7 +35,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPost("{id}/replies")]
-        public async Task<IActionResult> AddReply([FromRoute] string id, [FromBody] CreateReplyCommandRequest request)
+        public async Task<IActionResult> AddReply([FromRoute] Guid id, [FromBody] CreateReplyCommandRequest request)
         {
             request.Type = ReplyType.Reply;
             request.EntityId = id;
@@ -46,7 +46,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(Guid id)
         {
             var request = new GetReplyByIdQueryRequest { Id = id };
 
@@ -56,7 +56,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdateReplyCommandRequest request)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateReplyCommandRequest request)
         {
             request.Id = id;
 
@@ -66,7 +66,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             var request = new DeleteReplyCommandRequest { Id = id };
 

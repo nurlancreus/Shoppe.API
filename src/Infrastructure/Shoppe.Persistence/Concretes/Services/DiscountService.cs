@@ -74,7 +74,7 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
         
-        public async Task AssignDiscountAsync(string entityId, string discountId, EntityType entityType, CancellationToken cancellationToken, bool update = false)
+        public async Task AssignDiscountAsync(Guid entityId, Guid discountId, EntityType entityType, CancellationToken cancellationToken, bool update = false)
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -118,7 +118,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     }
                 case EntityType.ProductCategory:
                     {
-                        var category = await _categoryReadRepository.Table.OfType<ProductCategory>().FirstOrDefaultAsync(c => c.Id.ToString() == entityId, cancellationToken);
+                        var category = await _categoryReadRepository.Table.OfType<ProductCategory>().FirstOrDefaultAsync(c => c.Id == entityId, cancellationToken);
                         if (category == null)
                             throw new EntityNotFoundException(nameof(category));
 
@@ -155,7 +155,7 @@ namespace Shoppe.Persistence.Concretes.Services
         }
 
 
-        public async Task AssignDiscountAsync(IDiscountable entity, string discountId, CancellationToken cancellationToken, bool update = false)
+        public async Task AssignDiscountAsync(IDiscountable entity, Guid discountId, CancellationToken cancellationToken, bool update = false)
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -232,7 +232,7 @@ namespace Shoppe.Persistence.Concretes.Services
         }
 
 
-        public async Task DeleteAsync(string id, CancellationToken cancellationToken)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -258,7 +258,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var discounts = await paginatedResult.PaginatedQuery.Select(d => new GetDiscountDTO
             {
-                Id = d.Id.ToString(),
+                Id = d.Id,
                 Name = d.Name,
                 Description = d.Description,
                 IsActive = CheckIfIsValid(d),
@@ -278,7 +278,7 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task<GetDiscountDTO> GetAsync(string id, CancellationToken cancellationToken)
+        public async Task<GetDiscountDTO> GetAsync(Guid id, CancellationToken cancellationToken)
         {
             var discount = await _discountReadRepository.GetByIdAsync(id, cancellationToken);
             if (discount == null)
@@ -286,7 +286,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             return new GetDiscountDTO
             {
-                Id = discount.Id.ToString(),
+                Id = discount.Id,
                 Name = discount.Name,
                 Description = discount.Description,
                 DiscountPercentage = discount.DiscountPercentage,
@@ -301,7 +301,7 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var discount = await _discountReadRepository.GetByIdAsync(updateDiscountDTO.Id!, cancellationToken);
+            var discount = await _discountReadRepository.GetByIdAsync(updateDiscountDTO.Id, cancellationToken);
 
 
             if (discount == null)

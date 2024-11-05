@@ -13,12 +13,12 @@ namespace Shoppe.Application.Abstractions.Services
     public interface IDiscountService
     {
         Task CreateAsync(CreateDiscountDTO createDiscountDTO, CancellationToken cancellationToken);
-        Task<GetDiscountDTO> GetAsync(string id, CancellationToken cancellationToken);
+        Task<GetDiscountDTO> GetAsync(Guid id, CancellationToken cancellationToken);
         Task<GetAllDiscountsDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken);
         Task UpdateAsync(UpdateDiscountDTO updateDiscountDTO, CancellationToken cancellationToken);
-        Task DeleteAsync(string id, CancellationToken cancellationToken);
-        Task AssignDiscountAsync(string entityId, string discountId, EntityType entityType, CancellationToken cancellationToken, bool update = false);
-        Task AssignDiscountAsync(IDiscountable entity, string discountId, CancellationToken cancellationToken, bool update = false);
+        Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+        Task AssignDiscountAsync(Guid entityId, Guid discountId, EntityType entityType, CancellationToken cancellationToken, bool update = false);
+        Task AssignDiscountAsync(IDiscountable entity, Guid discountId, CancellationToken cancellationToken, bool update = false);
 
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Pagination
 {
-    public class PaginatedQueryDTO<T> : IPaginationInfo where T : IBase
+    public record PaginatedQueryDTO<T> : IPaginationInfo where T : IBase
     {
         public IQueryable<T> PaginatedQuery { get; set; } = null!;
         public int Page { get; set; }

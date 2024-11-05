@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Query.Discount.Get
 {
     public class GetDiscountByIdQueryRequest : IRequest<GetDiscountByIdQueryResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
     }
 }

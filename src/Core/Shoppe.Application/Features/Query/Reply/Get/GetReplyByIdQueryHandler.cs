@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Query.Reply.Get
 
         public async Task<GetReplyByIdQueryResponse> Handle(GetReplyByIdQueryRequest request, CancellationToken cancellationToken)
         {
-            var reply = await _replyService.GetAsync(request.Id!, cancellationToken);
+            var reply = await _replyService.GetAsync((Guid)request.Id!, cancellationToken);
 
             return new GetReplyByIdQueryResponse
             {

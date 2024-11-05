@@ -43,7 +43,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
-        [HttpGet("{id}/pictures")]
+        [HttpGet("{id}/images")]
         public async Task<IActionResult> GetUserPictures(string id)
         {
             var request = new GetUserPicturesQueryRequest { UserId = id };
@@ -53,9 +53,8 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
-        [HttpPatch("{id}/pictures")]
+        [HttpPatch("{id}/images")]
 
-        
         public async Task<IActionResult> ChangeProfilePicture(string id, [FromForm] ChangeProfilePictureCommandRequest request)
         {
             request.UserId = id;
@@ -65,7 +64,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
-        [HttpDelete("{id}/pictures/{pictureId}")]
+        [HttpDelete("{id}/images/{pictureId}")]
         public async Task<IActionResult> RemoveProfilePicture(string id, string pictureId)
         {
             var request = new RemoveProfilePictureCommandRequest { UserId = id, PictureId = pictureId };

@@ -45,7 +45,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(Guid id)
         {
             var request = new GetProductByIdQueryRequest()
             {
@@ -58,7 +58,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update([FromRoute] string id, [FromForm] UpdateProductCommandRequest request)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromForm] UpdateProductCommandRequest request)
         {
             request.Id = id;
 
@@ -68,7 +68,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             var request = new DeleteProductCommandRequest()
             {
@@ -81,7 +81,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet("{productId}/reviews")]
-        public async Task<IActionResult> GetReviews(string productId)
+        public async Task<IActionResult> GetReviews(Guid productId)
         {
             var request = new GetReviewsByEntityRequest { EntityId = productId, ReviewType = ReviewType.Product };
 
@@ -91,7 +91,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPost("{productId}/reviews")]
-        public async Task<IActionResult> AddReview(string productId, [FromBody] CreateReviewCommandRequest request)
+        public async Task<IActionResult> AddReview(Guid productId, [FromBody] CreateReviewCommandRequest request)
         {
             request.Type = ReviewType.Product;
             request.EntityId = productId;
@@ -128,7 +128,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPatch("{productId}/images/{imageId}")]
-        public async Task<IActionResult> ChangeMainImage(string productId, string imageId)
+        public async Task<IActionResult> ChangeMainImage(Guid productId, Guid imageId)
         {
             var request = new ChangeMainImageCommandRequest
             {
@@ -142,7 +142,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{productId}/images/{imageId}")]
-        public async Task<IActionResult> RemoveImage(string productId, string imageId)
+        public async Task<IActionResult> RemoveImage(Guid productId, Guid imageId)
         {
             var request = new RemoveImageCommandRequest
             {

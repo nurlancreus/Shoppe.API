@@ -20,7 +20,7 @@ namespace Shoppe.Application.Features.Command.Review.DeleteReview
 
         public async Task<DeleteReviewCommandResponse> Handle(DeleteReviewCommandRequest request, CancellationToken cancellationToken)
         {
-            await _reviewService.DeleteAsync(request.Id!, cancellationToken);
+            await _reviewService.DeleteAsync((Guid)request.Id!, cancellationToken);
 
             return new DeleteReviewCommandResponse()
             {

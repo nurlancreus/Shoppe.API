@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Command.Tag.Delete
 
         public async Task<DeleteTagCommandResponse> Handle(DeleteTagCommandRequest request, CancellationToken cancellationToken)
         {
-            await _tagService.DeleteAsync(request.Id!, cancellationToken);
+            await _tagService.DeleteAsync((Guid)request.Id!, cancellationToken);
 
             return new DeleteTagCommandResponse
             {

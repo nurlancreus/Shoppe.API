@@ -12,8 +12,8 @@ namespace Shoppe.Application.Abstractions.Services
     {
         Task CreateContactAsync(CreateContactDTO createContactDTO, CancellationToken cancellationToken);
         Task UpdateContactAsync(UpdateContactDTO updateContactDTO, CancellationToken cancellationToken);
-        Task DeleteContactAsync(string id, CancellationToken cancellationToken);
+        Task DeleteContactAsync(Guid id, CancellationToken cancellationToken);
         Task<GetAllContactsDTO> GetAllContactsAsync(int page, int size, CancellationToken cancellationToken);
-        Task<GetContactDTO> GetContactAsync(string id, CancellationToken cancellationToken);
+        Task<GetContactDTO> GetContactAsync(Guid id, CancellationToken cancellationToken);
     }
 }

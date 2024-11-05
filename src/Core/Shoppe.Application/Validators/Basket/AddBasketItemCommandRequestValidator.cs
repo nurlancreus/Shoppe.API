@@ -22,9 +22,9 @@ public class AddBasketItemCommandRequestValidator : AbstractValidator<AddBasketI
             .When(request => request.Quantity.HasValue); 
     }
 
-    private async Task<bool> ProductExists(string productId, CancellationToken cancellationToken)
+    private async Task<bool> ProductExists(Guid productId, CancellationToken cancellationToken)
     {
-        return await _productReadRepository.IsExistAsync(p => p.Id.ToString() == productId, cancellationToken);
+        return await _productReadRepository.IsExistAsync(p => p.Id == productId, cancellationToken);
     }
 
     private async Task<bool> HaveSufficientStock(AddBasketItemCommandRequest request, CancellationToken cancellationToken)

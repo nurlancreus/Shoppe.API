@@ -83,9 +83,9 @@ namespace Shoppe.Persistence.Concretes.Services
                     }
                 };
 
-                if(!string.IsNullOrEmpty(createProductDTO.DiscountId))
+                if(createProductDTO.DiscountId is Guid discountId)
                 {
-                    await _discountService.AssignDiscountAsync(product, createProductDTO.DiscountId, cancellationToken);
+                    await _discountService.AssignDiscountAsync(product, discountId, cancellationToken);
                 }
 
                 if (createProductDTO.Categories.Count > 0)
@@ -127,7 +127,7 @@ namespace Shoppe.Persistence.Concretes.Services
         }
 
 
-        public async Task DeleteProductAsync(string id, CancellationToken cancellationToken)
+        public async Task DeleteProductAsync(Guid id, CancellationToken cancellationToken)
         {
             var product = await _productReadRepository.GetByIdAsync(id, cancellationToken);
 
@@ -207,7 +207,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 TotalPages = totalPages,
                 Products = products.Select(p => new GetProductDTO()
                 {
-                    Id = p.Id.ToString(),
+                    Id = p.Id,
                     Name = p.Name,
                     Info = p.Info,
                     Description = p.Description,
@@ -221,7 +221,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     Categories = p.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
                     ProductImages = p.ProductImageFiles.Select(i => new GetProductImageFileDTO()
                     {
-                        Id = i.Id.ToString(),
+                        Id = i.Id,
                         FileName = i.FileName,
                         PathName = i.PathName,
                         IsMain = i.IsMain,
@@ -233,7 +233,7 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task<GetProductDTO> GetProductAsync(string id, CancellationToken cancellationToken)
+        public async Task<GetProductDTO> GetProductAsync(Guid id, CancellationToken cancellationToken)
         {
             var product = await _productReadRepository.GetByIdAsync(id, cancellationToken, false);
 
@@ -253,7 +253,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             return new GetProductDTO()
             {
-                Id = product.Id.ToString(),
+                Id = product.Id,
                 Name = product.Name,
                 Info = product.Info,
                 Description = product.Description,
@@ -267,7 +267,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 Categories = product.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
                 ProductImages = product.ProductImageFiles.Select(i => new GetProductImageFileDTO()
                 {
-                    Id = i.Id.ToString(),
+                    Id = i.Id,
                     FileName = i.FileName,
                     PathName = i.PathName,
                     IsMain = i.IsMain,
@@ -282,7 +282,7 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var product = await _productReadRepository.Table.Include(p => p.ProductDetails).ThenInclude(pd => pd.Dimension).Include(p => p.Categories).Include(p => p.DiscountMappings).FirstOrDefaultAsync(p => p.Id.ToString() == updateProductDTO.Id, cancellationToken);
+                var product = await _productReadRepository.Table.Include(p => p.ProductDetails).ThenInclude(pd => pd.Dimension).Include(p => p.Categories).Include(p => p.DiscountMappings).FirstOrDefaultAsync(p => p.Id == updateProductDTO.Id, cancellationToken);
 
                 if (product == null)
                 {
@@ -370,9 +370,9 @@ namespace Shoppe.Persistence.Concretes.Services
                     }
                 }
 
-                if(!string.IsNullOrEmpty(updateProductDTO.DiscountId))
+                if(updateProductDTO.DiscountId is Guid discountId)
                 {
-                    await _discountService.AssignDiscountAsync(product, updateProductDTO.DiscountId, cancellationToken, update: true);
+                    await _discountService.AssignDiscountAsync(product, discountId, cancellationToken, update: true);
                 }
 
                 // Handle product images
@@ -417,10 +417,10 @@ namespace Shoppe.Persistence.Concretes.Services
             }
         }
 
-        public async Task ChangeMainImageAsync(string productId, string newMainImageId, CancellationToken cancellationToken)
+        public async Task ChangeMainImageAsync(Guid productId, Guid newMainImageId, CancellationToken cancellationToken)
         {
 
-            var product = await _productReadRepository.Table.Include(p => p.ProductImageFiles).FirstOrDefaultAsync(p => p.Id.ToString() == productId, cancellationToken);
+            var product = await _productReadRepository.Table.Include(p => p.ProductImageFiles).FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
 
             if (product == null)
             {
@@ -434,7 +434,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var existingMainImage = product.ProductImageFiles.FirstOrDefault(i => i.IsMain);
 
-            var newMainImage = product.ProductImageFiles.FirstOrDefault(i => i.Id.ToString().ToLower() == newMainImageId.ToLower());
+            var newMainImage = product.ProductImageFiles.FirstOrDefault(i => i.Id == newMainImageId);
 
             if (newMainImage == null)
             {
@@ -457,7 +457,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         }
 
-        public async Task RemoveImageAsync(string productId, string imageId, CancellationToken cancellationToken)
+        public async Task RemoveImageAsync(Guid productId, Guid imageId, CancellationToken cancellationToken)
         {
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken);
@@ -469,7 +469,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync();
 
-            var imageToDelete = product.ProductImageFiles.FirstOrDefault(i => i.Id.ToString() == imageId);
+            var imageToDelete = product.ProductImageFiles.FirstOrDefault(i => i.Id == imageId);
 
             if (imageToDelete == null)
             {

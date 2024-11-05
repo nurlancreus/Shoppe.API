@@ -26,7 +26,7 @@ namespace Shoppe.Application.Features.Command.Review.CreateReview
             {
                 Body = request.Body,
                 Rating = request.Rating,
-            }, request.EntityId!, request.Type, cancellationToken);
+            }, (Guid)request.EntityId!, request.Type, cancellationToken);
 
             return new CreateReviewCommandResponse()
             {

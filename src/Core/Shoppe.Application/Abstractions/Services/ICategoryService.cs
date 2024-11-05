@@ -11,9 +11,9 @@ namespace Shoppe.Application.Abstractions.Services
     public interface ICategoryService
     {
         Task CreateCategoryAsync(CreateCategoryDTO createCategoryDTO, CancellationToken cancellationToken);
-        Task<GetCategoryDTO> GetCategoryAsync (string id, CancellationToken cancellationToken);
+        Task<GetCategoryDTO> GetCategoryAsync (Guid id, CancellationToken cancellationToken);
         Task<GetAllCategoriesDTO> GetAllCategoriesAsync(int page, int pageSize, CategoryType? type, CancellationToken cancellationToken);
         Task UpdateCategoryAsync(UpdateCategoryDTO updateCategoryDTO, CancellationToken cancellationToken);
-        Task DeleteCategoryAsync(string id, CancellationToken cancellationToken);
+        Task DeleteCategoryAsync(Guid id, CancellationToken cancellationToken);
     }
 }

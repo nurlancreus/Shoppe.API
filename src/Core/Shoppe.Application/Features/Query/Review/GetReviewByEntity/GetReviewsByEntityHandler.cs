@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Query.Review.GetReviewByEntity
 
         public async Task<GetReviewsByEntityResponse> Handle(GetReviewsByEntityRequest request, CancellationToken cancellationToken)
         {
-            var reviews = await _reviewService.GetReviewsByEntityAsync(request.EntityId!, request.ReviewType, cancellationToken);
+            var reviews = await _reviewService.GetReviewsByEntityAsync((Guid)request.EntityId!, request.ReviewType, cancellationToken);
 
             return new GetReviewsByEntityResponse
             {

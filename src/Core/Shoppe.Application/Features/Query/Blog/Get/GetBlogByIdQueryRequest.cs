@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Query.Blog.Get
 {
     public class GetBlogByIdQueryRequest : IRequest<GetBlogByIdQueryResponse>
     {
-        public string? BlogId { get; set; }
+        public Guid? BlogId { get; set; }
     }
 }

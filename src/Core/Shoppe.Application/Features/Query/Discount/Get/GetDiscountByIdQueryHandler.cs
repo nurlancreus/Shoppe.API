@@ -20,7 +20,7 @@ namespace Shoppe.Application.Features.Query.Discount.Get
 
         public async Task<GetDiscountByIdQueryResponse> Handle(GetDiscountByIdQueryRequest request, CancellationToken cancellationToken)
         {
-            var discount = await _discountService.GetAsync(request.Id!, cancellationToken);
+            var discount = await _discountService.GetAsync((Guid)request.Id!, cancellationToken);
 
             return new GetDiscountByIdQueryResponse
             {

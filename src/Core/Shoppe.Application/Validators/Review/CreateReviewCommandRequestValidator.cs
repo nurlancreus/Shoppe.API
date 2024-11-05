@@ -34,11 +34,11 @@ namespace Shoppe.Application.Validators.Review
                 .MustAsync(ValidateEntityIdAsync).WithMessage("Entity not found.");
         }
 
-        private async Task<bool> ValidateEntityIdAsync(CreateReviewCommandRequest request, string? entityId, CancellationToken cancellationToken)
+        private async Task<bool> ValidateEntityIdAsync(CreateReviewCommandRequest request, Guid? entityId, CancellationToken cancellationToken)
         {
             if (request.Type == ReviewType.Product)
             {
-                return await _productReadRepository.IsExistAsync(p => p.Id.ToString() == entityId, cancellationToken);
+                return await _productReadRepository.IsExistAsync(p => p.Id == entityId, cancellationToken);
             }
             //else if (request.Type == ReviewType.Blog.ToString())
             //{

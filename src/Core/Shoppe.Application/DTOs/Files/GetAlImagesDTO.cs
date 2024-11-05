@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Files
 {
-    public class GetAllImagesDTO : IPaginationInfo
+    public record GetAllImagesDTO : IPaginationInfo
     {
         public int Page { get; set; }
         public int PageSize { get; set; }

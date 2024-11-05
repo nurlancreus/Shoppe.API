@@ -20,7 +20,7 @@ namespace Shoppe.Application.Features.Command.Product.DeleteProduct
 
         public async Task<DeleteProductCommandResponse> Handle(DeleteProductCommandRequest request, CancellationToken cancellationToken)
         {
-            await _productService.DeleteProductAsync(request.Id!, cancellationToken);
+            await _productService.DeleteProductAsync((Guid)request.Id!, cancellationToken);
 
             return new DeleteProductCommandResponse()
             {

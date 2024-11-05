@@ -10,7 +10,7 @@ namespace Shoppe.Application.DTOs.Slide
 {
     public record GetSlideDTO
     {
-        public string Id { get; set; } = string.Empty;
+        public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
         public string URL { get; set; } = string.Empty;

@@ -47,7 +47,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _logger = logger;
         }
 
-        public async Task CreateAsync(CreateReplyDTO createReplyDTO, string entityId, ReplyType replyType, CancellationToken cancellationToken)
+        public async Task CreateAsync(CreateReplyDTO createReplyDTO, Guid entityId, ReplyType replyType, CancellationToken cancellationToken)
         {
             var reply = await CreateReplyByTypeAsync(entityId, replyType, cancellationToken);
             reply.Body = createReplyDTO.Body;
@@ -63,7 +63,7 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task DeleteAsync(string replyId, CancellationToken cancellationToken)
+        public async Task DeleteAsync(Guid replyId, CancellationToken cancellationToken)
         {
             var reply = await GetAndValidateReplyAsync(replyId, cancellationToken);
 
@@ -100,14 +100,14 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task<GetReplyDTO> GetAsync(string replyId, CancellationToken cancellationToken)
+        public async Task<GetReplyDTO> GetAsync(Guid replyId, CancellationToken cancellationToken)
         {
             var reply = await _replyReadRepository.Table
                 .Include(r => r.Replier)
                     .ThenInclude(u => u.ProfilePictureFiles)
                 .Include(r => r.Replies)
                     .ThenInclude(r => r.Replies)
-                .FirstOrDefaultAsync(r => r.Id.ToString() == replyId, cancellationToken);
+                .FirstOrDefaultAsync(r => r.Id == replyId, cancellationToken);
 
             if (reply == null)
             {
@@ -118,7 +118,7 @@ namespace Shoppe.Persistence.Concretes.Services
             return MapReplyToDTO(reply);
         }
 
-        public async Task<List<GetReplyDTO>> GetRepliesByEntityAsync(string entityId, ReplyType replyType, CancellationToken cancellationToken)
+        public async Task<List<GetReplyDTO>> GetRepliesByEntityAsync(Guid entityId, ReplyType replyType, CancellationToken cancellationToken)
         {
 
             var replyQuery = replyType switch
@@ -129,7 +129,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     // .Include(r => r.Blog)
                     .Include(r => r.Replies)
                         .ThenInclude(r => r.Replies)
-                    .Where(r => r.BlogId.ToString() == entityId)
+                    .Where(r => r.BlogId == entityId)
                     .AsNoTracking(),
                 _ => throw new InvalidOperationException("Invalid reply type"),
             };
@@ -139,12 +139,12 @@ namespace Shoppe.Persistence.Concretes.Services
             return replies.Select(MapReplyToDTO).ToList();
         }
 
-        public async Task<List<GetReplyDTO>> GetRepliesByParentAsync(string parentId, CancellationToken cancellationToken)
+        public async Task<List<GetReplyDTO>> GetRepliesByParentAsync(Guid parentId, CancellationToken cancellationToken)
         {
             var replies = await _replyReadRepository.Table
                 .Include(r => r.Replier)
                     .ThenInclude(u => u.ProfilePictureFiles)
-                .Where(r => r.ParentReplyId.ToString() == parentId)
+                .Where(r => r.ParentReplyId == parentId)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
@@ -164,7 +164,7 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        private async Task<Reply> CreateReplyByTypeAsync(string entityId, ReplyType replyType, CancellationToken cancellationToken)
+        private async Task<Reply> CreateReplyByTypeAsync(Guid entityId, ReplyType replyType, CancellationToken cancellationToken)
         {
             return replyType switch
             {
@@ -174,33 +174,33 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        private async Task<Reply> CreateBlogReplyAsync(string entityId, CancellationToken cancellationToken)
+        private async Task<Reply> CreateBlogReplyAsync(Guid entityId, CancellationToken cancellationToken)
         {
-            if (!await _blogReadRepository.IsExistAsync(b => b.Id.ToString() == entityId, cancellationToken))
+            if (!await _blogReadRepository.IsExistAsync(b => b.Id == entityId, cancellationToken))
             {
                 _logger.LogWarning("Blog with ID {EntityId} not found", entityId);
                 throw new EntityNotFoundException($"Blog with ID {entityId} not found");
             }
 
-            return new BlogReply { BlogId = Guid.Parse(entityId) };
+            return new BlogReply { BlogId = entityId };
         }
 
-        private async Task<Reply> CreateChildReplyAsync(string entityId, CancellationToken cancellationToken)
+        private async Task<Reply> CreateChildReplyAsync(Guid entityId, CancellationToken cancellationToken)
         {
-            if (!await _replyReadRepository.IsExistAsync(r => r.Id.ToString() == entityId, cancellationToken))
+            if (!await _replyReadRepository.IsExistAsync(r => r.Id == entityId, cancellationToken))
             {
                 _logger.LogWarning("Reply with ID {EntityId} not found", entityId);
                 throw new EntityNotFoundException($"Reply with ID {entityId} not found");
             }
 
-            return new Reply { ParentReplyId = Guid.Parse(entityId) };
+            return new Reply { ParentReplyId = entityId };
         }
 
-        private async Task<Reply> GetAndValidateReplyAsync(string replyId, CancellationToken cancellationToken)
+        private async Task<Reply> GetAndValidateReplyAsync(Guid replyId, CancellationToken cancellationToken)
         {
             var reply = await _replyReadRepository.Table
                 .Include(r => r.Replier)
-                .FirstOrDefaultAsync(r => r.Id.ToString() == replyId, cancellationToken);
+                .FirstOrDefaultAsync(r => r.Id== replyId, cancellationToken);
 
             if (reply == null)
             {
@@ -223,12 +223,12 @@ namespace Shoppe.Persistence.Concretes.Services
 
             return new GetReplyDTO
             {
-                Id = reply.Id.ToString(),
+                Id = reply.Id,
                 FirstName = reply.Replier.FirstName!,
                 LastName = reply.Replier.LastName!,
                 ProfilePhoto = profilePic != null ? new GetImageFileDTO
                 {
-                    Id = profilePic.Id.ToString(),
+                    Id = profilePic.Id,
                     FileName = profilePic.FileName,
                     PathName = profilePic.PathName,
                     CreatedAt = profilePic.CreatedAt,

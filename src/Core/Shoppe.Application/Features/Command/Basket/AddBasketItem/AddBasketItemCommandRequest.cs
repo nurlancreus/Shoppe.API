@@ -9,7 +9,7 @@ namespace Shoppe.Application.Features.Command.Basket.AddBasketItem
 {
     public class AddBasketItemCommandRequest : IRequest<AddBasketItemCommandResponse>
     {
-        public string ProductId { get; set; } = string.Empty;
+        public Guid ProductId { get; set; }
         public int? Quantity { get; set; }
     }
 }

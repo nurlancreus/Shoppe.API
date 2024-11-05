@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Query.Tag.Get
 
         public async Task<GetTagByIdQueryResponse> Handle(GetTagByIdQueryRequest request, CancellationToken cancellationToken)
         {
-            var tag = await _tagService.GetAsync(request.Id!, cancellationToken);
+            var tag = await _tagService.GetAsync((Guid)request.Id!, cancellationToken);
 
             return new GetTagByIdQueryResponse
             {

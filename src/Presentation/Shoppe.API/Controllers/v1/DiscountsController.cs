@@ -38,7 +38,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(Guid id)
         {
             var request = new GetDiscountByIdQueryRequest { Id = id };
 
@@ -48,7 +48,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateDiscountCommandRequest request)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateDiscountCommandRequest request)
         {
             request.Id = id;
             var response = await _sender.Send(request);
@@ -57,7 +57,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             var request = new DeleteDiscountCommandRequest { Id = id };
 
@@ -67,7 +67,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPatch("{id}/entity/{entityId}")]
-        public async Task<IActionResult> AssignDiscount(string id, string entityId, [FromQuery] string entityType)
+        public async Task<IActionResult> AssignDiscount(Guid id, Guid entityId, [FromQuery] string entityType)
         {
             var request = new AssignDiscountCommandRequest
             {

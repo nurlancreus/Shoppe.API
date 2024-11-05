@@ -70,7 +70,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task AssignRolesAsync(string userId, List<string> roles, CancellationToken cancellationToken)
         {
-            _jwtSession.ValidateAdminAccess();
+            _jwtSession.ValidateSuperAdminAccess();
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -78,7 +78,7 @@ namespace Shoppe.Persistence.Concretes.Services
                             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
             if (user == null) throw new EntityNotFoundException(nameof(user));
-            
+
             var userRoles = await _userManager.GetRolesAsync(user);
             // var rolesToDelete = userRoles.Except(roles).ToList();
 
@@ -184,7 +184,18 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (user == null) throw new EntityNotFoundException(nameof(user));
 
-            await DeleteUserAndPicturesAsync(user);
+            var result = await _userManager.DeleteAsync(user);
+
+            CheckDeleteSucceeded(result);
+
+            foreach (var picture in user.ProfilePictureFiles)
+            {
+                if (_userProfilePictureFileWriteRepository.Delete(picture))
+                {
+                    await _storage.DeleteAsync(picture.PathName, picture.FileName);
+                }
+            }
+
             scope.Complete();
         }
 
@@ -227,8 +238,8 @@ namespace Shoppe.Persistence.Concretes.Services
                          .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
             if (user == null) throw new EntityNotFoundException(nameof(user));
-            
-            return user.ProfilePictureFiles.Select(p => p.ToGetImageFileDTO()).ToList();
+
+            return user.ProfilePictureFiles.Where(p => !p.IsMain).Select(p => p.ToGetImageFileDTO()).ToList();
         }
 
         public async Task<List<GetRoleDTO>> GetRolesAsync(string userId, CancellationToken cancellationToken)
@@ -279,7 +290,6 @@ namespace Shoppe.Persistence.Concretes.Services
                     CheckUpdateSucceeded(result);
 
                     await _storage.DeleteAsync(picture.PathName, picture.FileName);
-
                 }
             }
 
@@ -312,6 +322,7 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 var userByName = await _userManager.FindByNameAsync(updateUserDTO.UserName);
                 if (userByName != null) throw new ValidationException("Username is already defined, choose another name");
+                user.UserName = updateUserDTO.UserName;
             }
 
             if (updateUserDTO.Email != null && user.Email != updateUserDTO.Email)
@@ -362,9 +373,33 @@ namespace Shoppe.Persistence.Concretes.Services
                 if (newProfilePicture == null) throw new EntityNotFoundException(nameof(newProfilePicture));
 
                 var existingProfilePicture = user.ProfilePictureFiles.FirstOrDefault(pp => pp.IsMain);
-                if (existingProfilePicture != null) existingProfilePicture.IsMain = false;
+                if (existingProfilePicture != null)
+                {
+                    existingProfilePicture.IsMain = false;
+
+                    // for now double save
+                    CheckUpdateSucceeded(await _userManager.UpdateAsync(user));
+                }
 
                 newProfilePicture.IsMain = true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(updateUserDTO.NewPassword) && !string.IsNullOrWhiteSpace(updateUserDTO.CurrentPassword))
+            {
+                if(!await _userManager.CheckPasswordAsync(user, updateUserDTO.CurrentPassword))
+                {
+                    throw new ValidationException("Current password is invalid");
+                }
+
+                if (updateUserDTO.ConfirmNewPassword != updateUserDTO.NewPassword)
+                {
+                    throw new ValidationException("Passwords do not match");
+                }
+
+               var passwordUpdateResult = await _userManager.ChangePasswordAsync(user, updateUserDTO.CurrentPassword, updateUserDTO.NewPassword);
+
+                CheckPasswordUpdateSucceeded(passwordUpdateResult);
+                
             }
 
             if (isUser)
@@ -398,25 +433,19 @@ namespace Shoppe.Persistence.Concretes.Services
             return user;
         }
 
-        private async Task DeleteUserAndPicturesAsync(ApplicationUser user)
-        {
-
-            var result = await _userManager.DeleteAsync(user);
-
-            CheckDeleteSucceeded(result);
-
-            foreach (var picture in user.ProfilePictureFiles)
-            {
-                await _storage.DeleteAsync(picture.PathName, picture.FileName);
-                _userProfilePictureFileWriteRepository.Delete(picture);
-            }
-        }
-
         private static void CheckUpdateSucceeded(IdentityResult result)
         {
             if (!result.Succeeded)
             {
                 throw new UpdateNotSucceedException("User update operation failed: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+
+        private static void CheckPasswordUpdateSucceeded(IdentityResult result)
+        {
+            if (!result.Succeeded)
+            {
+                throw new UpdateNotSucceedException("User password update operation failed: " + string.Join(", ", result.Errors.Select(e => e.Description)));
             }
         }
 

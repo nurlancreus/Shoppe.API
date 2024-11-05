@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Query.Slider.Get
 
         public async Task<GetSliderQueryResponse> Handle(GetSliderQueryRequest request, CancellationToken cancellationToken)
         {
-            var slider = await _sliderService.GetSliderAsync(request.SliderId!, cancellationToken);
+            var slider = await _sliderService.GetSliderAsync((Guid)request.SliderId!, cancellationToken);
 
             return new GetSliderQueryResponse
             {

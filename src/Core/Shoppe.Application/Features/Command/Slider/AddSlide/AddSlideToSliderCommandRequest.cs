@@ -10,7 +10,7 @@ namespace Shoppe.Application.Features.Command.Slider.AddSlide
 {
     public class AddSlideToSliderCommandRequest : IRequest<AddSlideToSliderCommandResponse>
     {
-        public string? SliderId { get; set; }
+        public Guid? SliderId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
         public string URL { get; set; } = string.Empty;

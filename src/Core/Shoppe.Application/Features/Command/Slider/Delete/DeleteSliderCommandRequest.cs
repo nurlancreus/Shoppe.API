@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Command.Slider.Delete
 {
     public class DeleteSliderCommandRequest : IRequest<DeleteSliderCommandResponse>
     {
-        public string? SliderId { get; set; }
+        public Guid? SliderId { get; set; }
     }
 }

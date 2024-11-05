@@ -53,7 +53,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         }
 
-        public async Task DeleteContactAsync(string id, CancellationToken cancellationToken)
+        public async Task DeleteContactAsync(Guid id, CancellationToken cancellationToken)
         {
             var contact = await _contactReadRepository.GetByIdAsync(id, cancellationToken);
 
@@ -90,7 +90,7 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task<GetContactDTO> GetContactAsync(string id, CancellationToken cancellationToken)
+        public async Task<GetContactDTO> GetContactAsync(Guid id, CancellationToken cancellationToken)
         {
             var contact = await _contactReadRepository.GetByIdAsync(id, cancellationToken);
 

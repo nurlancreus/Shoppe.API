@@ -26,7 +26,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(Guid id)
         {
             var request = new GetTagByIdQueryRequest
             {
@@ -38,14 +38,14 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateTagCommandRequest request)
+        public async Task<IActionResult> Create([FromBody] CreateTagCommandRequest request)
         {
             var response = await _sender.Send(request);
             return Ok(response);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateTagCommandRequest request)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateTagCommandRequest request)
         {
             request.Id = id;
 
@@ -54,7 +54,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] string id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var request = new DeleteTagCommandRequest { Id = id };
 

@@ -28,7 +28,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(Guid id)
         {
             var getContactByIdRequest = new GetContactByIdQueryRequest { Id = id };
 
@@ -47,7 +47,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdateContactCommandRequest updateContactCommandRequest)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateContactCommandRequest updateContactCommandRequest)
         {
             updateContactCommandRequest.Id = id;
 
@@ -57,7 +57,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             var deleteContactCommandRequest = new DeleteContactCommandRequest { Id = id };
 

@@ -8,7 +8,7 @@ namespace Shoppe.Application.DTOs.Files
 {
     public record GetImageFileDTO
     {
-        public string Id { get; set; } = string.Empty;
+        public Guid Id { get; set; }
         public string FileName { get; set; } = string.Empty;
         public string PathName { get; set; } = string.Empty;
         public bool IsMain { get; set; }

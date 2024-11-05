@@ -34,7 +34,7 @@ namespace Shoppe.Application.Features.Command.About.RemoveImage
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var section = await _sectionReadRepository.Table.OfType<AboutSection>().Include(s => s.SectionImageFiles).FirstOrDefaultAsync(s => s.Id.ToString() == request.SectionId, cancellationToken);
+            var section = await _sectionReadRepository.Table.OfType<AboutSection>().Include(s => s.SectionImageFiles).FirstOrDefaultAsync(s => s.Id == request.SectionId, cancellationToken);
 
 
             if (section == null)
@@ -42,7 +42,7 @@ namespace Shoppe.Application.Features.Command.About.RemoveImage
                 throw new EntityNotFoundException(nameof(section));
             }
 
-            var image = section.SectionImageFiles.FirstOrDefault(i => i.Id.ToString() == request.ImageId);
+            var image = section.SectionImageFiles.FirstOrDefault(i => i.Id == request.ImageId);
 
             if (image == null)
             {

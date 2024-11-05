@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Command.Review.DeleteReview
 {
     public class DeleteReviewCommandRequest : IRequest<DeleteReviewCommandResponse>
     {
-        public string? Id { get; set; } = null!;
+        public Guid? Id { get; set; } = null!;
     }
 }

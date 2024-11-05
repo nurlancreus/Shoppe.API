@@ -79,9 +79,17 @@ namespace Shoppe.API.Configurations
                 case ValidationException validationException:
                     problemDetails.Status = (int)HttpStatusCode.BadRequest;
                     problemDetails.Title = "Validation failed.";
-                    problemDetails.Extensions["errors"] = validationException.Errors
-                        .Select(e => new { e.PropertyName, e.ErrorMessage })
-                        .ToList();
+
+                    // Check if there are specific validation errors with properties
+                    var errors = validationException.Errors.ToList();
+                    if (errors.Any())
+                    {
+                        problemDetails.Extensions["errors"] = errors.Select(e => new { e.PropertyName, e.ErrorMessage }).ToList();
+                    }
+                    else
+                    {
+                        problemDetails.Detail = validationException.Message;
+                    }
                     break;
 
                 case UnauthorizedAccessException unauthorizedAccessException:
@@ -125,7 +133,6 @@ namespace Shoppe.API.Configurations
                 problemDetails.Extensions["innerExceptions"] = innerExceptionMessages;
             }
 
-            // Only include stack trace in development mode
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
             {
                 problemDetails.Extensions["stackTrace"] = exception.StackTrace;
@@ -133,6 +140,7 @@ namespace Shoppe.API.Configurations
 
             return problemDetails;
         }
+
 
         private static List<string> GetInnerExceptionMessages(Exception exception)
         {

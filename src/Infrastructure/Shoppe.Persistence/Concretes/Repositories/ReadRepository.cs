@@ -45,15 +45,14 @@ namespace Shoppe.Persistence.Concretes.Repositories
 
         }
 
-        public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken, bool isTracking = true)
+        public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken, bool isTracking = true)
         {
-            if (!Guid.TryParse(id, out Guid parsedId)) return null;
 
             var query = Table.AsQueryable();
 
             if (!isTracking) query.AsNoTracking();
 
-            return await query.FirstOrDefaultAsync(e => e.Id == parsedId, cancellationToken);
+            return await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
         }
 
         public async Task<bool> IsExistAsync(Expression<Func<T, bool>> method, CancellationToken cancellationToken)

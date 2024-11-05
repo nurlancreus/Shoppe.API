@@ -110,14 +110,14 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
 
-        public async Task DeleteSlideAsync(string slideId, CancellationToken cancellationToken)
+        public async Task DeleteSlideAsync(Guid slideId, CancellationToken cancellationToken)
         {
             ValidateAdminAccess();
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var slide = await _slideReadRepository.Table.Include(s => s.Slider).ThenInclude(s => s.Slides)
                 .Include(s => s.SlideImageFile)
-                .FirstOrDefaultAsync(s => s.Id.ToString() == slideId, cancellationToken);
+                .FirstOrDefaultAsync(s => s.Id == slideId, cancellationToken);
 
             if (slide == null)
             {
@@ -135,14 +135,14 @@ namespace Shoppe.Persistence.Concretes.Services
             }
         }
 
-        public async Task DeleteSliderAsync(string sliderId, CancellationToken cancellationToken)
+        public async Task DeleteSliderAsync(Guid sliderId, CancellationToken cancellationToken)
         {
             ValidateAdminAccess();
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var slider = await _sliderReadRepository.Table.Include(s => s.Slides)
                 .ThenInclude(s => s.SlideImageFile)
-                .FirstOrDefaultAsync(s => s.Id.ToString() == sliderId, cancellationToken);
+                .FirstOrDefaultAsync(s => s.Id == sliderId, cancellationToken);
 
             if (slider == null)
             {
@@ -166,10 +166,10 @@ namespace Shoppe.Persistence.Concretes.Services
             return sliders.Select(MapSliderToDTO).ToList();
         }
 
-        public async Task<GetSliderDTO> GetSliderAsync(string sliderId, CancellationToken cancellationToken)
+        public async Task<GetSliderDTO> GetSliderAsync(Guid sliderId, CancellationToken cancellationToken)
         {
             var slider = await _sliderReadRepository.Table.Include(s => s.Slides).ThenInclude(s => s.SlideImageFile).AsNoTracking()
-                .FirstOrDefaultAsync(s => s.Id.ToString() == sliderId, cancellationToken);
+                .FirstOrDefaultAsync(s => s.Id == sliderId, cancellationToken);
 
             if (slider == null)
             {
@@ -198,7 +198,7 @@ namespace Shoppe.Persistence.Concretes.Services
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var slide = await _slideReadRepository.Table.Include(s => s.SlideImageFile)
-                .FirstOrDefaultAsync(s => s.Id.ToString() == updateSlideDTO.SlideId, cancellationToken);
+                .FirstOrDefaultAsync(s => s.Id == updateSlideDTO.SlideId, cancellationToken);
 
             if (slide == null)
             {
@@ -254,7 +254,7 @@ namespace Shoppe.Persistence.Concretes.Services
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var slider = await _sliderReadRepository.Table.Include(s => s.Slides).ThenInclude(s => s.SlideImageFile)
-                .FirstOrDefaultAsync(s => s.Id.ToString() == updateSliderDTO.SliderId, cancellationToken);
+                .FirstOrDefaultAsync(s => s.Id == updateSliderDTO.SliderId, cancellationToken);
 
             if (slider == null)
             {
@@ -285,7 +285,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 if (slider.Slides.Count > updateSliderDTO.UpdatedSlides.Count)
                 {
                     var slidesToDelete = slider.Slides
-                            .Where(s => !updateSliderDTO.UpdatedSlides.Select(r => r.SlideId).Contains(s.Id.ToString()))
+                            .Where(s => !updateSliderDTO.UpdatedSlides.Select(r => r.SlideId).Contains(s.Id))
                             .ToList();
 
                     if (_slideWriteRepository.DeleteRange(slidesToDelete))
@@ -301,9 +301,9 @@ namespace Shoppe.Persistence.Concretes.Services
                 }
                 foreach (var slideRequest in updateSliderDTO.UpdatedSlides)
                 {
-                    if (!string.IsNullOrWhiteSpace(slideRequest.SlideId))
+                    if (slideRequest.SlideId is Guid slideId)
                     {
-                        var slide = slider.Slides.FirstOrDefault(s => s.Id.ToString() == slideRequest.SlideId);
+                        var slide = slider.Slides.FirstOrDefault(s => s.Id == slideId);
 
                         if (slide == null)
                         {
@@ -379,11 +379,11 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
 
-        public async Task ChangeSlideImageAsync(string slideId, IFormFile newImageFile, CancellationToken cancellationToken)
+        public async Task ChangeSlideImageAsync(Guid slideId, IFormFile newImageFile, CancellationToken cancellationToken)
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var slide = await _slideReadRepository.Table.Include(s => s.SlideImageFile).FirstOrDefaultAsync(s => s.Id.ToString() == slideId, cancellationToken);
+            var slide = await _slideReadRepository.Table.Include(s => s.SlideImageFile).FirstOrDefaultAsync(s => s.Id == slideId, cancellationToken);
 
 
             if (slide == null)
@@ -436,10 +436,10 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             return new GetSliderDTO
             {
-                Id = slider.Id.ToString(),
+                Id = slider.Id,
                 Slides = slider.Slides.Select(s => new GetSlideDTO
                 {
-                    Id = s.Id.ToString(),
+                    Id = s.Id,
                     Title = s.Title,
                     URL = s.URL,
                     Body = s.Body,
@@ -447,7 +447,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     Order = s.Order,
                     ImageFile = new GetImageFileDTO
                     {
-                        Id = s.SlideImageFile.Id.ToString(),
+                        Id = s.SlideImageFile.Id,
                         FileName = s.SlideImageFile.FileName,
                         PathName = s.SlideImageFile.PathName,
                         CreatedAt = s.CreatedAt,

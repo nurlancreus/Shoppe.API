@@ -188,7 +188,7 @@ namespace Shoppe.Persistence.Concretes.Services
                             DeactivatedAt = u.DeactivatedAt,
                             ProfilePicture = userProfilePicture != null ? new GetImageFileDTO
                             {
-                                Id = userProfilePicture.Id.ToString(),
+                                Id = userProfilePicture.Id,
                                 IsMain = userProfilePicture.IsMain,
                                 FileName = userProfilePicture.FileName,
                                 PathName = userProfilePicture.PathName,
@@ -244,7 +244,7 @@ namespace Shoppe.Persistence.Concretes.Services
                         DeactivatedAt = u.DeactivatedAt,
                         ProfilePicture = userProfilePicture != null ? new GetImageFileDTO
                         {
-                            Id = userProfilePicture.Id.ToString(),
+                            Id = userProfilePicture.Id,
                             IsMain = userProfilePicture.IsMain,
                             FileName = userProfilePicture.FileName,
                             PathName = userProfilePicture.PathName,
@@ -289,7 +289,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     DeactivatedAt = u.DeactivatedAt,
                     ProfilePicture = userProfilePicture != null ? new GetImageFileDTO
                     {
-                        Id = userProfilePicture.Id.ToString(),
+                        Id = userProfilePicture.Id,
                         IsMain = userProfilePicture.IsMain,
                         FileName = userProfilePicture.FileName,
                         PathName = userProfilePicture.PathName,

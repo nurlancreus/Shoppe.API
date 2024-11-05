@@ -14,7 +14,7 @@ namespace Shoppe.Application.DTOs.Blog
 {
     public record GetBlogDTO
     {
-        public string Id { get; set; } = string.Empty;
+        public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public GetImageFileDTO? CoverImage { get; set; }
         public GetUserDTO? Author { get; set; }

@@ -35,7 +35,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpDelete("{sectionId}/images/{imageId}")]
-        public async Task<IActionResult> RemoveImage(string sectionId, string imageId)
+        public async Task<IActionResult> RemoveImage(Guid sectionId, Guid imageId)
         {
             var request = new RemoveImageCommandRequest
             {

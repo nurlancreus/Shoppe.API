@@ -104,7 +104,7 @@ namespace Shoppe.Application.Features.Command.About.Update
                 if (about.Sections.Count > request.Sections.Count)
                 {
                     var sectionsToDelete = about.Sections
-                            .Where(s => !request.Sections.Select(r => r.Id).Contains(s.Id.ToString()))
+                            .Where(s => !request.Sections.Select(r => r.Id).Contains(s.Id))
                             .ToList();
 
                     if (_sectionWriteRepository.DeleteRange(sectionsToDelete))
@@ -122,9 +122,9 @@ namespace Shoppe.Application.Features.Command.About.Update
                 }
                 foreach (var sectionRequest in request.Sections)
                 {
-                    if (!string.IsNullOrWhiteSpace(sectionRequest.Id))
+                    if (sectionRequest.Id is Guid id)
                     {
-                        var section = about.Sections.FirstOrDefault(s => s.Id.ToString() == sectionRequest.Id);
+                        var section = about.Sections.FirstOrDefault(s => s.Id == id);
 
                         if (section == null)
                         {

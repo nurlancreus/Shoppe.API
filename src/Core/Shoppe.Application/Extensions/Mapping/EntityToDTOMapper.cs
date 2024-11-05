@@ -26,7 +26,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new GetCategoryDTO
             {
-                Id = category.Id.ToString(),
+                Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
                 Type = category.Type,
@@ -38,7 +38,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new GetTagDTO
             {
-                Id = tag.Id.ToString(),
+                Id = tag.Id,
                 Name = tag.Name,
                 Description = tag.Description,
                 Type = tag.Type,
@@ -50,10 +50,10 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new GetBlogDTO
             {
-                Id = blog.Id.ToString(),
+                Id = blog.Id    ,
                 CoverImage = new GetImageFileDTO
                 {
-                    Id = blog.BlogCoverImageFile.Id.ToString(),
+                    Id = blog.BlogCoverImageFile.Id,
                     FileName = blog.BlogCoverImageFile.FileName,
                     PathName = blog.BlogCoverImageFile.PathName,
                     CreatedAt = blog.BlogCoverImageFile.CreatedAt
@@ -70,13 +70,13 @@ namespace Shoppe.Application.Extensions.Mapping
                 Title = blog.Title,
                 Sections = blog.Sections.Select(s => new GetSectionDTO
                 {
-                    Id = s.Id.ToString(),
+                    Id = s.Id,
                     Title = s.Title,
                     Description = s.Description,
                     TextBody = s.TextBody,
                     ImageFiles = s.BlogImageMappings.Select(bi => new GetImageFileDTO
                     {
-                        Id = bi.BlogImage.Id.ToString(),
+                        Id = bi.BlogImage.Id,
                         FileName = bi.BlogImage.FileName,
                         PathName = bi.BlogImage.PathName,
                         CreatedAt = bi.BlogImage.CreatedAt
@@ -94,7 +94,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new GetImageFileDTO
             {
-                Id = imageFile.Id.ToString(),
+                Id = imageFile.Id,
                 FileName = imageFile.FileName,
                 PathName= imageFile.PathName,
                 IsMain = imageFile.IsMain,
@@ -114,6 +114,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 Phone = user.PhoneNumber!,
                 IsActive = user.IsActive,
                 ProfilePictures = user.ProfilePictureFiles.Select(ToGetImageFileDTO).ToList(),
+                ProfilePicture = user.ProfilePictureFiles.Where(i => i.IsMain).Select(i => i.ToGetImageFileDTO()).FirstOrDefault(),
                 CreatedAt = user.CreatedAt,
             };
         }
@@ -122,7 +123,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new GetReviewDTO()
             {
-                Id = review.Id.ToString(),
+                Id = review.Id,
                 FirstName = review.Reviewer?.FirstName!,
                 LastName = review.Reviewer?.LastName!,
                 Rating = (int)review.Rating,
@@ -135,7 +136,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new GetContactDTO()
             {
-                Id = contact.Id.ToString(),
+                Id = contact.Id,
                 FirstName = contact.FirstName,
                 LastName = contact.LastName,
                 Email = contact.Email,

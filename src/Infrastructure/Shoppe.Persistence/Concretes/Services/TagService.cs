@@ -63,7 +63,7 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
 
-        public async Task DeleteAsync(string id, CancellationToken cancellationToken)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -107,7 +107,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var tags = await paginatedQuery.Select(tag => new GetTagDTO
             {
-                Id = tag.Id.ToString(),
+                Id = tag.Id,
                 Name = tag.Name,
                 Description = tag.Description,
                 Type = tag.Type,
@@ -123,7 +123,7 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task<GetTagDTO> GetAsync(string id, CancellationToken cancellationToken)
+        public async Task<GetTagDTO> GetAsync(Guid id, CancellationToken cancellationToken)
         {
             var tag = await _tagReadRepository.GetByIdAsync(id, cancellationToken, false);
 
@@ -134,7 +134,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             return new GetTagDTO
             {
-                Id = tag.Id.ToString(),
+                Id = tag.Id,
                 Name = tag.Name,
                 Description = tag.Description,
                 Type = tag.Type,

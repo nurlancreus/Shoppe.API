@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Command.Slider.RemoveImage
 
         public async Task<ChangeSlideImageCommandResponse> Handle(ChangeSlideImageCommandRequest request, CancellationToken cancellationToken)
         {
-            await _sliderService.ChangeSlideImageAsync(request.SlideId!, request.NewImageFile, cancellationToken);
+            await _sliderService.ChangeSlideImageAsync((Guid)request.SlideId!, request.NewImageFile, cancellationToken);
 
             return new ChangeSlideImageCommandResponse
             {

@@ -52,7 +52,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _logger = logger;
         }
 
-        public async Task CreateAsync(CreateReviewDTO createReviewDTO, string entityId, ReviewType reviewType, CancellationToken cancellationToken)
+        public async Task CreateAsync(CreateReviewDTO createReviewDTO, Guid entityId, ReviewType reviewType, CancellationToken cancellationToken)
         {
             var review = await CreateReviewByTypeAsync(entityId, reviewType, cancellationToken);
             review.Body = createReviewDTO.Body;
@@ -69,7 +69,7 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task DeleteAsync(string reviewId, CancellationToken cancellationToken)
+        public async Task DeleteAsync(Guid reviewId, CancellationToken cancellationToken)
         {
             var review = await GetAndValidateReviewAsync(reviewId, cancellationToken);
 
@@ -104,12 +104,12 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task<GetReviewDTO> GetAsync(string reviewId, CancellationToken cancellationToken)
+        public async Task<GetReviewDTO> GetAsync(Guid reviewId, CancellationToken cancellationToken)
         {
             var review = await _reviewReadRepository.Table
                 .Include(r => r.Reviewer)
                     .ThenInclude(u => u.ProfilePictureFiles)
-                .FirstOrDefaultAsync(r => r.Id.ToString() == reviewId, cancellationToken);
+                .FirstOrDefaultAsync(r => r.Id == reviewId, cancellationToken);
 
             if (review == null)
             {
@@ -120,7 +120,7 @@ namespace Shoppe.Persistence.Concretes.Services
             return MapReviewToDTO(review);
         }
 
-        public async Task<List<GetReviewDTO>> GetReviewsByEntityAsync(string entityId, ReviewType reviewType, CancellationToken cancellationToken)
+        public async Task<List<GetReviewDTO>> GetReviewsByEntityAsync(Guid entityId, ReviewType reviewType, CancellationToken cancellationToken)
         {
             var reviewQuery = reviewType switch
             {
@@ -128,7 +128,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     .Include(r => r.Reviewer)
                         .ThenInclude(u => u.ProfilePictureFiles)
                    // .Include(r => r.Product)
-                    .Where(r => r.ProductId.ToString() == entityId)
+                    .Where(r => r.ProductId == entityId)
                     .AsNoTracking(),
 
                 _ => throw new InvalidOperationException("Invalid review type"),
@@ -170,7 +170,7 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        private async Task<Review> CreateReviewByTypeAsync(string entityId, ReviewType reviewType, CancellationToken cancellationToken)
+        private async Task<Review> CreateReviewByTypeAsync(Guid entityId, ReviewType reviewType, CancellationToken cancellationToken)
         {
             return reviewType switch
             {
@@ -179,23 +179,23 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        private async Task<Review> CreateProductReviewAsync(string entityId, CancellationToken cancellationToken)
+        private async Task<Review> CreateProductReviewAsync(Guid entityId, CancellationToken cancellationToken)
         {
-            if (!await _productReadRepository.IsExistAsync(p => p.Id.ToString() == entityId, cancellationToken))
+            if (!await _productReadRepository.IsExistAsync(p => p.Id == entityId, cancellationToken))
             {
                 _logger.LogWarning("Product with ID {EntityId} not found", entityId);
                 throw new EntityNotFoundException($"Product with ID {entityId} not found");
             }
 
-            return new ProductReview { ProductId = Guid.Parse(entityId) };
+            return new ProductReview { ProductId = entityId };
         }
 
-        private async Task<Review> GetAndValidateReviewAsync(string reviewId, CancellationToken cancellationToken)
+        private async Task<Review> GetAndValidateReviewAsync(Guid reviewId, CancellationToken cancellationToken)
         {
             var review = await _reviewReadRepository.Table
                 .Include(r => r.Reviewer)
                     .ThenInclude(u => u.ProfilePictureFiles)
-                .FirstOrDefaultAsync(r => r.Id.ToString() == reviewId, cancellationToken);
+                .FirstOrDefaultAsync(r => r.Id == reviewId, cancellationToken);
 
             if (review == null)
             {
@@ -222,7 +222,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 LastName = review.Reviewer.LastName!,
                 ProfilePhoto = profilePic != null ? new GetImageFileDTO
                 {
-                    Id = profilePic.Id.ToString(),
+                    Id = profilePic.Id,
                     FileName = profilePic.FileName,
                     PathName = profilePic.PathName,
                     CreatedAt = profilePic.CreatedAt,

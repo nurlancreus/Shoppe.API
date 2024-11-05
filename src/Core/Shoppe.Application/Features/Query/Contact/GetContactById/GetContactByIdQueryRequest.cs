@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Query.Contact.GetContactById
 {
     public class GetContactByIdQueryRequest : IRequest<GetContactByIdQueryResponse>
     {
-        public string? Id {  get; set; }
+        public Guid? Id {  get; set; }
     }
 }

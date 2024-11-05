@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.DTOs.Review
 {
-    public class GetAllReviewsDTO : IPaginationInfo
+    public record GetAllReviewsDTO : IPaginationInfo
     {
         public int Page { get; set; }
         public int PageSize { get; set; }

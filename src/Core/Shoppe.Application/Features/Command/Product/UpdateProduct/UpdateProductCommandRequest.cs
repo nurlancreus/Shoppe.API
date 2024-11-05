@@ -11,7 +11,7 @@ namespace Shoppe.Application.Features.Command.Product.UpdateProduct
 {
     public class UpdateProductCommandRequest : IRequest<UpdateProductCommandResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
         public string? Name { get; set; }
         public string? Info { get; set; }
         public string? Description { get; set; }
@@ -20,7 +20,7 @@ namespace Shoppe.Application.Features.Command.Product.UpdateProduct
         public float? Weight { get; set; }
         public float? Height { get; set; }
         public float? Width { get; set; }
-        public string? DiscountId { get; set; }
+        public Guid? DiscountId { get; set; }
         public List<string> Materials { get; set; } = [];
         public List<string> Colors { get; set; } = [];
         public List<string> Categories { get; set; } = [];

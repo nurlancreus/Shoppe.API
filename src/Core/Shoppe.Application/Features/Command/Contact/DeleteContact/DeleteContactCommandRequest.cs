@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Command.Contact.DeleteContact
 {
     public class DeleteContactCommandRequest : IRequest<DeleteContactCommandResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
     }
 }

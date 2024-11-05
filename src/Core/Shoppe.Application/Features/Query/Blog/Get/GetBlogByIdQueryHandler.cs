@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Query.Blog.Get
 
         public async Task<GetBlogByIdQueryResponse> Handle(GetBlogByIdQueryRequest request, CancellationToken cancellationToken)
         {
-           var blog = await _blogService.GetAsync(request.BlogId!, cancellationToken);
+           var blog = await _blogService.GetAsync((Guid)request.BlogId!, cancellationToken);
 
             return new GetBlogByIdQueryResponse
             {

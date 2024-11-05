@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Command.Tag.Delete
 {
     public class DeleteTagCommandRequest : IRequest<DeleteTagCommandResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
     }
 }

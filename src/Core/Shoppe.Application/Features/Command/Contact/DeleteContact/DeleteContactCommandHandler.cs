@@ -20,7 +20,7 @@ namespace Shoppe.Application.Features.Command.Contact.DeleteContact
 
         public async Task<DeleteContactCommandResponse> Handle(DeleteContactCommandRequest request, CancellationToken cancellationToken)
         {
-            await _contactService.DeleteContactAsync(request.Id!, cancellationToken);
+            await _contactService.DeleteContactAsync((Guid)request.Id!, cancellationToken);
 
             return new DeleteContactCommandResponse()
             {

@@ -8,7 +8,7 @@ namespace Shoppe.Application.DTOs.Tag
 {
     public record UpdateTagDTO
     {
-        public string Id { get; set; } = string.Empty;
+        public Guid Id { get; set; }
         public string? Name { get; set; }
         public string? Description { get; set; }
     }

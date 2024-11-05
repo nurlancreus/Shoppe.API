@@ -10,7 +10,7 @@ namespace Shoppe.Application.DTOs.Blog
 {
     public record UpdateBlogDTO
     {
-        public string? BlogId { get; set; }
+        public Guid? BlogId { get; set; }
         public string? Title { get; set; }
         public List<string> Categories { get; set; } = [];
         public List<string> Tags { get; set; } = [];

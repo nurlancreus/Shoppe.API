@@ -9,6 +9,6 @@ namespace Shoppe.Application.Features.Command.Product.DeleteProduct
 {
     public class DeleteProductCommandRequest : IRequest<DeleteProductCommandResponse>
     {
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
     }
 }

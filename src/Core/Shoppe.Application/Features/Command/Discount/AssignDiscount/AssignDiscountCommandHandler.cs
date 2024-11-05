@@ -20,7 +20,7 @@ namespace Shoppe.Application.Features.Command.Discount.AssignDiscount
             if (Enum.TryParse(request.EntityType, true, out enums.EntityType result))
             {
 
-                await _discountService.AssignDiscountAsync(request.EntityId!, request.DiscountId!, result, cancellationToken);
+                await _discountService.AssignDiscountAsync((Guid)request.EntityId!, (Guid)request.DiscountId!, result, cancellationToken);
             }
             else throw new InvalidOperationException("Invalid entity type.");
 

@@ -9,7 +9,7 @@ namespace Shoppe.Application.Features.Command.Product.ChangeMainImage
 {
     public class ChangeMainImageCommandRequest : IRequest<ChangeMainImageCommandResponse>
     {
-        public string? ProductId { get; set; }
-        public string? ImageId { get; set; }
+        public Guid? ProductId { get; set; }
+        public Guid? ImageId { get; set; }
     }
 }

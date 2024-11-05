@@ -11,7 +11,7 @@ namespace Shoppe.Application.Features.Command.Blog.Update
 {
     public class UpdateBlogCommandRequest : IRequest<UpdateBlogCommandResponse>
     {
-        public string? BlogId { get; set; }
+        public Guid? BlogId { get; set; }
         public string? Title { get; set; }
         public List<string> Categories { get; set; } = [];
         public List<string> Tags { get; set; } = [];

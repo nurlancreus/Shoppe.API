@@ -8,7 +8,7 @@ namespace Shoppe.Application.DTOs.Review
 {
     public record UpdateReviewDTO
     {
-        public string Id { get; set; } = string.Empty;
+        public Guid Id { get; set; }
         public string? Body { get; set; }
         public int? Rating { get; set; }
     }
