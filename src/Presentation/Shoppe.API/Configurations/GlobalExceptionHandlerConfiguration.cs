@@ -24,7 +24,7 @@ namespace Shoppe.API.Configurations
                     {
                         var exception = contextFeature.Error;
                         var problemDetails = CreateProblemDetails(exception, context.Request.Path);
-
+                        
                         problemDetails.Status ??= (int)HttpStatusCode.InternalServerError;
 
                         try

@@ -186,6 +186,9 @@ namespace Shoppe.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -224,6 +227,18 @@ namespace Shoppe.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("About");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("523ff621-0434-453c-9c92-d125c48dabf2"),
+                            CreatedAt = new DateTime(2024, 11, 9, 13, 13, 10, 714, DateTimeKind.Utc).AddTicks(2698),
+                            Description = "Who we are and why we do what we do!",
+                            Email = "contact@shoppe.com",
+                            Name = "Shoppe",
+                            Phone = "123-456-7890",
+                            Title = ""
+                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Address", b =>
@@ -608,8 +623,8 @@ namespace Shoppe.Persistence.Migrations
                         {
                             Id = "admin-role-id",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
+                            Name = "SuperAdmin",
+                            NormalizedName = "SUPERADMIN"
                         });
                 });
 
@@ -708,7 +723,7 @@ namespace Shoppe.Persistence.Migrations
                         {
                             Id = "admin-user-id",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7443bb1d-1f91-45c2-ab62-0630bf7a0692",
+                            ConcurrencyStamp = "e2166774-d182-4ef2-9026-0fb4ce27f87b",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "nurlancreus@example.com",
                             EmailConfirmed = false,
@@ -718,9 +733,9 @@ namespace Shoppe.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "NURLANCREUS@EXAMPLE.COM",
                             NormalizedUserName = "NURLANCREUS",
-                            PasswordHash = "AQAAAAIAAYagAAAAEEhZioof/8JmbCSHszgEjvCVlp+W1IuyzXGXCi+j9ZKI3PwmQ/JQAXFN3/lrJV3z7Q==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEP7x0aRnpNI5KZmbampcjXwHV1Hvgm8MLT8cs4KKknwxLK2I9YguLe9iiREsh/BWNg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "01c6ad1a-e71b-4ef4-ab0f-332abdf41eef",
+                            SecurityStamp = "41a82e4b-1cd2-42d2-b771-a44679e1a4c2",
                             TwoFactorEnabled = false,
                             UserName = "nurlancreus"
                         });
@@ -1206,6 +1221,17 @@ namespace Shoppe.Persistence.Migrations
                     b.HasDiscriminator().HasValue("BlogImageFile");
                 });
 
+            modelBuilder.Entity("Shoppe.Domain.Entities.Files.ContentImageFile", b =>
+                {
+                    b.HasBaseType("Shoppe.Domain.Entities.Files.ApplicationFile");
+
+                    b.Property<string>("PreviewUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("ContentImageFile");
+                });
+
             modelBuilder.Entity("Shoppe.Domain.Entities.Files.ImageFile", b =>
                 {
                     b.HasBaseType("Shoppe.Domain.Entities.Files.ApplicationFile");
@@ -1294,23 +1320,6 @@ namespace Shoppe.Persistence.Migrations
                     b.HasDiscriminator().HasValue("Product");
                 });
 
-            modelBuilder.Entity("Shoppe.Domain.Entities.Sections.AboutSection", b =>
-                {
-                    b.HasBaseType("Shoppe.Domain.Entities.Sections.Section");
-
-                    b.Property<Guid?>("AboutId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasIndex("AboutId");
-
-                    b.ToTable(t =>
-                        {
-                            t.HasCheckConstraint("CK_Section_Order", "[Order] >= 0 AND [Order] <= 255");
-                        });
-
-                    b.HasDiscriminator().HasValue("AboutSection");
-                });
-
             modelBuilder.Entity("Shoppe.Domain.Entities.Sections.BlogSection", b =>
                 {
                     b.HasBaseType("Shoppe.Domain.Entities.Sections.Section");
@@ -1342,18 +1351,16 @@ namespace Shoppe.Persistence.Migrations
                     b.HasDiscriminator().HasValue("Blog");
                 });
 
-            modelBuilder.Entity("Shoppe.Domain.Entities.Files.AboutSectionImageFile", b =>
+            modelBuilder.Entity("Shoppe.Domain.Entities.Files.AboutContentImageFile", b =>
                 {
-                    b.HasBaseType("Shoppe.Domain.Entities.Files.ImageFile");
+                    b.HasBaseType("Shoppe.Domain.Entities.Files.ContentImageFile");
 
-                    b.Property<Guid>("SectionId")
+                    b.Property<Guid>("AboutId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasIndex("SectionId", "IsMain")
-                        .IsUnique()
-                        .HasFilter("[IsMain] = 1");
+                    b.HasIndex("AboutId");
 
-                    b.HasDiscriminator().HasValue("AboutSectionImageFile");
+                    b.HasDiscriminator().HasValue("AboutContentImageFile");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Files.ProductImageFile", b =>
@@ -1774,13 +1781,6 @@ namespace Shoppe.Persistence.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Shoppe.Domain.Entities.Sections.AboutSection", b =>
-                {
-                    b.HasOne("Shoppe.Domain.Entities.About", null)
-                        .WithMany("Sections")
-                        .HasForeignKey("AboutId");
-                });
-
             modelBuilder.Entity("Shoppe.Domain.Entities.Sections.BlogSection", b =>
                 {
                     b.HasOne("Shoppe.Domain.Entities.Blog", "Blog")
@@ -1792,15 +1792,15 @@ namespace Shoppe.Persistence.Migrations
                     b.Navigation("Blog");
                 });
 
-            modelBuilder.Entity("Shoppe.Domain.Entities.Files.AboutSectionImageFile", b =>
+            modelBuilder.Entity("Shoppe.Domain.Entities.Files.AboutContentImageFile", b =>
                 {
-                    b.HasOne("Shoppe.Domain.Entities.Sections.AboutSection", "Section")
-                        .WithMany("SectionImageFiles")
-                        .HasForeignKey("SectionId")
+                    b.HasOne("Shoppe.Domain.Entities.About", "About")
+                        .WithMany("ContentImages")
+                        .HasForeignKey("AboutId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Section");
+                    b.Navigation("About");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Files.ProductImageFile", b =>
@@ -1827,7 +1827,7 @@ namespace Shoppe.Persistence.Migrations
 
             modelBuilder.Entity("Shoppe.Domain.Entities.About", b =>
                 {
-                    b.Navigation("Sections");
+                    b.Navigation("ContentImages");
 
                     b.Navigation("SocialMediaLinks");
                 });
@@ -1939,11 +1939,6 @@ namespace Shoppe.Persistence.Migrations
                     b.Navigation("BlogMappings");
 
                     b.Navigation("Blogs");
-                });
-
-            modelBuilder.Entity("Shoppe.Domain.Entities.Sections.AboutSection", b =>
-                {
-                    b.Navigation("SectionImageFiles");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Sections.BlogSection", b =>

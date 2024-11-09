@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Shoppe.Application.Abstractions.Repositories.AboutRepos;
 using Shoppe.Application.Abstractions.Repositories.FileRepos;
 using Shoppe.Application.Abstractions.Repositories.SectionRepos;
 using Shoppe.Application.Abstractions.Services.Storage;
@@ -17,14 +18,16 @@ namespace Shoppe.Application.Features.Command.About.RemoveImage
 {
     public class RemoveImageCommandHandler : IRequestHandler<RemoveImageCommandRequest, RemoveImageCommandResponse>
     {
-        private readonly ISectionReadRepository _sectionReadRepository;
+        private readonly IAboutReadRepository _aboutReadRepository;
+        private readonly IFileReadRepository _fileReadRepository;
         private readonly IFileWriteRepository _fileWriteRepository;
         private readonly IStorageService _storageService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public RemoveImageCommandHandler(ISectionReadRepository sectionReadRepository, IFileWriteRepository fileWriteRepository, IStorageService storageService, IUnitOfWork unitOfWork)
+        public RemoveImageCommandHandler(IFileWriteRepository fileWriteRepository, IStorageService storageService, IUnitOfWork unitOfWork, IFileReadRepository fileReadRepository, IAboutReadRepository aboutReadRepository)
         {
-            _sectionReadRepository = sectionReadRepository;
+            _aboutReadRepository = aboutReadRepository;
+            _fileReadRepository = fileReadRepository;
             _fileWriteRepository = fileWriteRepository;
             _storageService = storageService;
             _unitOfWork = unitOfWork;
@@ -33,16 +36,15 @@ namespace Shoppe.Application.Features.Command.About.RemoveImage
         public async Task<RemoveImageCommandResponse> Handle(RemoveImageCommandRequest request, CancellationToken cancellationToken)
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            var about = await _aboutReadRepository.Table.Include(a => a.ContentImages).FirstOrDefaultAsync(cancellationToken);
 
-            var section = await _sectionReadRepository.Table.OfType<AboutSection>().Include(s => s.SectionImageFiles).FirstOrDefaultAsync(s => s.Id == request.SectionId, cancellationToken);
-
-
-            if (section == null)
+            if (about == null)
             {
-                throw new EntityNotFoundException(nameof(section));
+                throw new EntityNotFoundException(nameof(about));
+
             }
 
-            var image = section.SectionImageFiles.FirstOrDefault(i => i.Id == request.ImageId);
+            var image = about.ContentImages.FirstOrDefault(i => i.Id == request.ImageId);
 
             if (image == null)
             {
@@ -50,8 +52,7 @@ namespace Shoppe.Application.Features.Command.About.RemoveImage
 
             }
 
-            bool isRemoved = section.SectionImageFiles.Remove(image);
-
+            bool isRemoved = about.ContentImages.Remove(image);
 
             if (isRemoved && _fileWriteRepository.Delete(image))
             {
@@ -68,6 +69,8 @@ namespace Shoppe.Application.Features.Command.About.RemoveImage
             {
                 IsSuccess = true,
             };
+
+
         }
     }
 }

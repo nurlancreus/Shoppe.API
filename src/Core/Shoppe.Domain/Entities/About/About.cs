@@ -1,4 +1,5 @@
 ﻿using Shoppe.Domain.Entities.Base;
+using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Sections;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,10 @@ namespace Shoppe.Domain.Entities
         public string Description { get; set; } = string.Empty;
         public string Email {  get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
-        public ICollection<AboutSection> Sections { get; set; } = [];
+        // public ICollection<AboutSection> Sections { get; set; } = [];
+        public string? Content { get; set; }
+        public ICollection<AboutContentImageFile> ContentImages { get; set; } = [];
+
         public ICollection<SocialMediaLink> SocialMediaLinks { get; set; } = [];
     }
 }

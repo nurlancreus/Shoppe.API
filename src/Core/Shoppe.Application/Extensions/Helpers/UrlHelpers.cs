@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,9 @@ namespace Shoppe.Application.Extensions.Helpers
     {
         public static bool BeAValidUrl(string url)
         {
-            return Uri.TryCreate(url, UriKind.Absolute, out var uriResult) &&
+            return Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uriResult) &&
                    (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
         }
+
     }
 }

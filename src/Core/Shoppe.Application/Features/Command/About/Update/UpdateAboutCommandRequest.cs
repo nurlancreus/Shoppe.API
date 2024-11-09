@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Shoppe.Application.DTOs.Section;
 using Shoppe.Application.DTOs.SocialMediaLink;
+using Shoppe.Domain.Entities.Files;
+using Microsoft.AspNetCore.Http;
+using Shoppe.Application.DTOs.About;
 
 namespace Shoppe.Application.Features.Command.About.Update
 {
@@ -18,8 +21,8 @@ namespace Shoppe.Application.Features.Command.About.Update
         public string? Description { get; set; }
         public string? Email { get; set; }
         public string? Phone { get; set; }
-        public List<CreateSectionDTO> Sections { get; set; } = [];
-        //public List<UpdateSectionDTO> UpdatedSections { get; set; } = [];
+        public string? Content { get; set; }
+        public List<CreateContentImageFileDTO> ContentImages { get; set; } = [];
         public List<CreateSocialMediaLinkDTO> SocialMediaLinks { get; set; } = [];
     }
 }

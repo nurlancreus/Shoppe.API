@@ -49,13 +49,17 @@ public class UpdateAboutCommandValidator : AbstractValidator<UpdateAboutCommandR
             .WithMessage("Invalid phone number format.")
             .When(x => !string.IsNullOrEmpty(x.Phone));
 
-        // Validate Sections
-        RuleForEach(x => x.Sections)
-            .SetValidator(new CreateAboutSectionDTOValidator())
-            .When(x => x.Sections != null && x.Sections.Count > 0);
-        //RuleForEach(x => x.UpdatedSections)
-        //    .SetValidator(new UpdateAboutSectionDTOValidator())
-        //    .When(x => x.UpdatedSections != null && x.UpdatedSections.Count > 0);
+        RuleFor(x => x.Content)
+           .MaximumLength(AboutConst.MaxContentLength).WithMessage($"Content cannot be longer than {AboutConst.MaxContentLength} characters.")
+           .When(x => !string.IsNullOrEmpty(x.Content));
+
+        RuleForEach(x => x.ContentImages)
+         .Must(image => image.ImageFile.IsImage()).WithMessage("Only image files are allowed.")
+         .Must(image => image.ImageFile.IsSizeOk(AboutConst.MaxFileSizeInMb)).WithMessage($"Image size cannot exceed {AboutConst.MaxFileSizeInMb}MB.")
+         .Must(image => image.ImageFile.RestrictExtension(new[] { ".jpg", ".png" })).WithMessage("Allowed file extensions are .jpg, .png.")
+         .Must(image => image.ImageFile.RestrictMimeTypes(new[] { "image/jpeg", "image/png" })).WithMessage("Allowed mime types are image/jpeg, image/png.")
+         .Must(image => image.PreviewUrl != null && image.PreviewUrl.Trim() != "").WithMessage("Preview URL is required.")
+         .When(x => x.ContentImages != null && x.ContentImages.Count > 0);
 
         // Validate SocialMediaLinks
         RuleForEach(x => x.SocialMediaLinks)

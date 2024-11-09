@@ -17,8 +17,8 @@ namespace Shoppe.Application.Validators.Auth
                 .EmailAddress().WithMessage("A valid email address is required.");
 
             RuleFor(login => login.Password)
-                .NotEmpty().WithMessage("Password is required.")
-                .MinimumLength(6).WithMessage("Password must be at least 6 characters long.");
+                .NotEmpty().WithMessage("Password is required.");
+                //.MinimumLength(6).WithMessage("Password must be at least 6 characters long.");
 
         }
     }

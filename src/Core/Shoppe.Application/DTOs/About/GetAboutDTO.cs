@@ -1,5 +1,7 @@
-﻿using Shoppe.Application.DTOs.Section;
+﻿using Shoppe.Application.DTOs.Files;
+using Shoppe.Application.DTOs.Section;
 using Shoppe.Application.DTOs.SocialMediaLink;
+using Shoppe.Domain.Entities.Files;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +17,8 @@ namespace Shoppe.Application.DTOs.About
         public string Description { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
-        public List<GetSectionDTO> Sections { get; set; } = [];
+        public string? Content { get; set; }
+        public ICollection<GetContentFileDTO> ContentImages { get; set; } = [];
         public List<GetSocialMediaLinkDTO> SocialMediaLinks { get; set; } = [];
     }
 }

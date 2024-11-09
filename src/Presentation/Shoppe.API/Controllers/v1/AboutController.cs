@@ -34,12 +34,11 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
-        [HttpDelete("{sectionId}/images/{imageId}")]
-        public async Task<IActionResult> RemoveImage(Guid sectionId, Guid imageId)
+        [HttpDelete("images/{imageId}")]
+        public async Task<IActionResult> RemoveImage(Guid imageId)
         {
             var request = new RemoveImageCommandRequest
             {
-                SectionId = sectionId,
                 ImageId = imageId
             };
 

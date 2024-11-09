@@ -46,6 +46,8 @@ namespace Shoppe.Infrastructure
 
                 case StorageType.AWS:
                     ConfigureAWSServices(services, configuration);
+                    services.AddScoped<IStorage, AWSStorage>();
+                    services.AddScoped<IFileUrlGenerator, AWSFileUrlGenerator>();
                     break;
 
                 default:
@@ -66,7 +68,7 @@ namespace Shoppe.Infrastructure
             services.AddDefaultAWSOptions(awsOptions);
             services.AddAWSService<IAmazonS3>();
 
-            services.AddScoped<IStorage, AWSStorage>();
+   
         }
     }
 }

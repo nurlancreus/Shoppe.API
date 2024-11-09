@@ -102,6 +102,18 @@ namespace Shoppe.Application.Extensions.Mapping
             };
         }
 
+        public static GetContentFileDTO ToGetContentFileDTO(this ContentImageFile contentImageFile)
+        {
+            return new GetContentFileDTO
+            {
+                Id = contentImageFile.Id,
+                FileName = contentImageFile.FileName,
+                PathName = contentImageFile.PathName,
+                PreviewUrl = contentImageFile.PreviewUrl,
+                CreatedAt = contentImageFile.CreatedAt,
+            };
+        }
+
         public static GetUserDTO ToGetUserDTO(this ApplicationUser user)
         {
             return new GetUserDTO

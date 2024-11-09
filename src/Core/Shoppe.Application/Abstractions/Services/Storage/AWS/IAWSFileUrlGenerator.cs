@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Application.DTOs.Files
+namespace Shoppe.Application.Abstractions.Services.Storage.AWS
 {
-    public record GetImageFileDTO : GetFileDTO
+    public interface IAWSFileUrlGenerator : IFileUrlGenerator
     {
-    
-        public bool IsMain { get; set; }
     }
 }

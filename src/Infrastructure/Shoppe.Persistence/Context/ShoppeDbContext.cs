@@ -36,7 +36,7 @@ namespace Shoppe.Persistence.Context
 
             const string adminRoleId = "admin-role-id"; // Use a constant GUID for reproducibility
             builder.Entity<ApplicationRole>().HasData(
-                new ApplicationRole { Id = adminRoleId, Name = "Admin", NormalizedName = "ADMIN" }
+                new ApplicationRole { Id = adminRoleId, Name = "SuperAdmin", NormalizedName = "SUPERADMIN" }
             );
 
             // Seed the admin user
@@ -71,7 +71,6 @@ namespace Shoppe.Persistence.Context
         public DbSet<About> About { get; set; }
 
         public DbSet<Section> Sections { get; set; }
-        public DbSet<AboutSection> AboutSections {  get; set; } 
 
         public DbSet<Slider> Sliders { get; set; }
         public DbSet<HeroSlider> HeroSlider { get; set; }
@@ -116,8 +115,8 @@ namespace Shoppe.Persistence.Context
         public DbSet<ProductImageFile> ProductImageFiles { get; set; }
         public DbSet<SlideImageFile> SlideImageFiles { get; set; }
         public DbSet<BlogImageFile> BlogImageFiles { get; set; }
-        public DbSet<AboutSectionImageFile> AboutSectionImageFiles { get; set; }
-
+        public DbSet<ContentImageFile> ContenImageFiles { get; set; }
+        public DbSet<AboutContentImageFile> AboutContentImageFiles { get; set; }
 
         public DbSet<Address> Addresses { get; set; }
         public DbSet<ShippingAddress> ShippingAddresses { get; set; }

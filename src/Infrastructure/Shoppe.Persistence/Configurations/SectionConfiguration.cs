@@ -23,16 +23,4 @@ namespace Shoppe.Persistence.Configurations
 
         }
     }
-
-    public class AboutSectionConfiguration : IEntityTypeConfiguration<AboutSection>
-    {
-        public void Configure(EntityTypeBuilder<AboutSection> builder)
-        {
-            builder
-                .HasMany(s => s.SectionImageFiles)
-                .WithOne(i => i.Section)
-                .HasForeignKey(i => i.SectionId)
-                .IsRequired();
-        }
-    }
 }
