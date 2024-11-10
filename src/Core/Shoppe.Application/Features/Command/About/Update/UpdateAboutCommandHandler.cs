@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Shoppe.Application.Abstractions.Repositories.AboutRepos;
 using Shoppe.Application.Abstractions.Repositories.SectionRepos;
 using Shoppe.Application.Abstractions.Repositories.SocialMediaRepos;
+using Shoppe.Application.Abstractions.Services.Content;
 using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.Constants;
@@ -26,18 +27,18 @@ namespace Shoppe.Application.Features.Command.About.Update
     public class UpdateAboutCommandHandler : IRequestHandler<UpdateAboutCommandRequest, UpdateAboutCommandResponse>
     {
         private readonly IAboutReadRepository _aboutReadRepository;
-        private readonly ISectionWriteRepository _sectionWriteRepository;
         private readonly ISocialMediaLinkWriteRepository _socialMediaLinkWriteRepository;
+        private readonly IContentUpdater _contentUpdater;
         private readonly IStorageService _storageService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateAboutCommandHandler(IAboutReadRepository aboutReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, ISectionWriteRepository sectionWriteRepository, ISocialMediaLinkWriteRepository socialMediaLinkWriteRepository)
+        public UpdateAboutCommandHandler(IAboutReadRepository aboutReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, ISocialMediaLinkWriteRepository socialMediaLinkWriteRepository, IContentUpdater contentUpdater)
         {
             _aboutReadRepository = aboutReadRepository;
             _unitOfWork = unitOfWork;
             _storageService = storageService;
-            _sectionWriteRepository = sectionWriteRepository;
             _socialMediaLinkWriteRepository = socialMediaLinkWriteRepository;
+            _contentUpdater = contentUpdater;
         }
 
         public async Task<UpdateAboutCommandResponse> Handle(UpdateAboutCommandRequest request, CancellationToken cancellationToken)
@@ -67,6 +68,7 @@ namespace Shoppe.Application.Features.Command.About.Update
 
             if (!string.IsNullOrEmpty(request.Content) && request.Content != about.Content)
             {
+
                 about.Content = request.Content;
             }
 
@@ -102,6 +104,9 @@ namespace Shoppe.Application.Features.Command.About.Update
                         Storage = _storageService.StorageName,
                     });
                 }
+
+                about.Content = _contentUpdater.UpdateBlobUrlsInContent(about.Content, about.ContentImages);
+
             }
 
             if (_socialMediaLinkWriteRepository.DeleteRange(about.SocialMediaLinks))

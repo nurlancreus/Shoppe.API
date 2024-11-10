@@ -18,6 +18,8 @@ using Shoppe.Application.Abstractions.Services.Token;
 using Shoppe.Infrastructure.Concretes.Services.Token;
 using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Infrastructure.Concretes.Services.Session;
+using Shoppe.Application.Abstractions.Services.Content;
+using Shoppe.Infrastructure.Concretes.Services.Content;
 
 namespace Shoppe.Infrastructure
 {
@@ -31,6 +33,7 @@ namespace Shoppe.Infrastructure
 
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IJwtSession, JwtSession>();
+            services.AddScoped<IContentUpdater, ContentUpdater>();
             #endregion
 
             return services;

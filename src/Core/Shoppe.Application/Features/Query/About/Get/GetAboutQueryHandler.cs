@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Shoppe.Application.Abstractions.Repositories.AboutRepos;
+using Shoppe.Application.Abstractions.Services.Content;
 using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.DTOs.About;
 using Shoppe.Application.DTOs.Files;
@@ -19,12 +20,10 @@ namespace Shoppe.Application.Features.Query.About.Get
     public class GetAboutQueryHandler : IRequestHandler<GetAboutQueryRequest, GetAboutQueryResponse>
     {
         private readonly IAboutReadRepository _aboutReadRepository;
-        private readonly IFileUrlGenerator _fileUrlGenerator;
 
-        public GetAboutQueryHandler(IAboutReadRepository aboutReadRepository, IFileUrlGenerator fileUrlGenerator)
+        public GetAboutQueryHandler(IAboutReadRepository aboutReadRepository)
         {
             _aboutReadRepository = aboutReadRepository;
-            _fileUrlGenerator = fileUrlGenerator;
         }
 
         public async Task<GetAboutQueryResponse> Handle(GetAboutQueryRequest request, CancellationToken cancellationToken)
@@ -55,8 +54,6 @@ namespace Shoppe.Application.Features.Query.About.Get
                 }).ToList(),
 
             };
-
-
 
             return new GetAboutQueryResponse
             {

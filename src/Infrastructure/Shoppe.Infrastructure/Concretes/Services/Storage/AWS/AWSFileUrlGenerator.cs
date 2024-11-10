@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Shoppe.Application.Abstractions.Services.Storage.AWS;
+using Shoppe.Domain.Entities.Files;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Shoppe.Infrastructure.Concretes.Services.Storage.AWS
@@ -32,7 +34,6 @@ namespace Shoppe.Infrastructure.Concretes.Services.Storage.AWS
                 return string.Empty;
             }
 
-            // Construct the S3 URL
             return $"https://{bucketName}.s3.{region}.amazonaws.com/{pathName}/{fileName}";
         }
     }
