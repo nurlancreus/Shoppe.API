@@ -81,7 +81,7 @@ namespace Shoppe.Application.Helpers
 
         public static bool RestrictExtension(this IFormFile formFile, string[]? permittedExtensions = null)
         {
-            permittedExtensions ??= new[] { ".jpg", ".png", ".gif" };
+            permittedExtensions ??= new[] { ".jpg", ".png", ".webp" };
             var permittedSet = new HashSet<string>(permittedExtensions, StringComparer.OrdinalIgnoreCase);
 
             string extension = Path.GetExtension(formFile.FileName);

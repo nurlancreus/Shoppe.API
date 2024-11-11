@@ -7,7 +7,6 @@ using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Entities.Reactions;
 using Shoppe.Domain.Entities.Replies;
 using Shoppe.Domain.Entities.Reviews;
-using Shoppe.Domain.Entities.Sections;
 using Shoppe.Domain.Entities.Tags;
 
 namespace Shoppe.Persistence.Configurations
@@ -39,10 +38,6 @@ namespace Shoppe.Persistence.Configurations
             builder.HasMany(b => b.Reactions)
                 .WithOne(br => br.Blog) // Assuming BlogReaction has a navigation property to Blog
                 .HasForeignKey(br => br.BlogId);
-
-            builder.HasMany(b => b.Sections)
-                .WithOne(bs => bs.Blog) // Assuming BlogSection has a navigation property to Blog
-                .HasForeignKey(bs => bs.BlogId);
         }
     }
 }

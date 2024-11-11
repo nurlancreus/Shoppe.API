@@ -7,7 +7,6 @@ using Shoppe.Application.Abstractions.Repositories.AboutRepos;
 using Shoppe.Application.Abstractions.Repositories.AddressRepos;
 using Shoppe.Application.Abstractions.Repositories.BasketItemRepos;
 using Shoppe.Application.Abstractions.Repositories.BasketRepos;
-using Shoppe.Application.Abstractions.Repositories.BlogImageFileRepos;
 using Shoppe.Application.Abstractions.Repositories.BlogRepos;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Application.Abstractions.Repositories.ContactRepos;
@@ -37,7 +36,6 @@ using Shoppe.Persistence.Concretes.Repositories.AboutRepos;
 using Shoppe.Persistence.Concretes.Repositories.AddressRepos;
 using Shoppe.Persistence.Concretes.Repositories.BasketItemRepos;
 using Shoppe.Persistence.Concretes.Repositories.BasketRepos;
-using Shoppe.Persistence.Concretes.Repositories.BlogImageFileRepos;
 using Shoppe.Persistence.Concretes.Repositories.BlogRepos;
 using Shoppe.Persistence.Concretes.Repositories.CategoryRepos;
 using Shoppe.Persistence.Concretes.Repositories.ContactRepos;
@@ -65,8 +63,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Shoppe.Persistence.Concretes.Repositories.SlideRepos;
-using Shoppe.Application.Abstractions.Repositories.SectionRepos;
-using Shoppe.Persistence.Concretes.Repositories.SectionRepos;
 using Shoppe.Application.Abstractions.Repositories.SocialMediaRepos;
 using Shoppe.Persistence.Concretes.Repositories.SocialMediaRepos;
 using Shoppe.Application.Abstractions.Repositories.FileRepos;
@@ -125,9 +121,6 @@ namespace Shoppe.Persistence
             services.AddScoped<ITagReadRepository, TagReadRepository>();
             services.AddScoped<ITagWriteRepository, TagWriteRepository>();
 
-            services.AddScoped<IBlogImageFileReadRepository, BlogImageFileReadRepository>();
-            services.AddScoped<IBlogImageFileWriteRepository, BlogImageFileWriteRepository>();
-
             services.AddScoped<IBlogReadRepository, BlogReadRepository>();
             services.AddScoped<IBlogWriteRepository, BlogWriteRepository>();
 
@@ -154,9 +147,6 @@ namespace Shoppe.Persistence
 
             services.AddScoped<IAddressReadRepository, AddressReadRepository>();
             services.AddScoped<IAddressWriteRepository, AddressWriteRepository>();
-
-            services.AddScoped<ISectionReadRepository, SectionReadRepository>();
-            services.AddScoped<ISectionWriteRepository, SectionWriteRepository>();
 
             services.AddScoped<ISocialMediaLinkReadRepository, SocialMediaLinkReadRepository>();
             services.AddScoped<ISocialMediaLinkWriteRepository, SocialMediaLinkWriteRepository>();

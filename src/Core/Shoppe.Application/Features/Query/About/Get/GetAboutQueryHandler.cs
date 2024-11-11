@@ -5,7 +5,6 @@ using Shoppe.Application.Abstractions.Services.Content;
 using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.DTOs.About;
 using Shoppe.Application.DTOs.Files;
-using Shoppe.Application.DTOs.Section;
 using Shoppe.Application.DTOs.SocialMediaLink;
 using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Domain.Exceptions;

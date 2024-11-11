@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Application.DTOs.About
+namespace Shoppe.Application.DTOs.Content
 {
     public record CreateContentImageFileDTO
     {

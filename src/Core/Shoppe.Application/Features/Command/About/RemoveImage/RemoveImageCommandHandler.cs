@@ -2,10 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Shoppe.Application.Abstractions.Repositories.AboutRepos;
 using Shoppe.Application.Abstractions.Repositories.FileRepos;
-using Shoppe.Application.Abstractions.Repositories.SectionRepos;
 using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.Abstractions.UoW;
-using Shoppe.Domain.Entities.Sections;
 using Shoppe.Domain.Exceptions;
 using System;
 using System.Collections.Generic;

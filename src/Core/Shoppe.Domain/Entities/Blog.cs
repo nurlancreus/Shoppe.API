@@ -5,7 +5,6 @@ using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Entities.Reactions;
 using Shoppe.Domain.Entities.Replies;
 using Shoppe.Domain.Entities.Reviews;
-using Shoppe.Domain.Entities.Sections;
 using Shoppe.Domain.Entities.Tags;
 using System;
 using System.Collections.Generic;
@@ -23,7 +22,7 @@ namespace Shoppe.Domain.Entities
 
         [ForeignKey(nameof(BlogCoverImageFile))]
         public Guid BlogCoverId { get; set; }
-        public BlogImageFile BlogCoverImageFile { get; set; } = null!;
+        public BlogContentImageFile BlogCoverImageFile { get; set; } = null!;
 
         [ForeignKey(nameof(Author))]
         public string AuthorId { get; set; } = null!;
@@ -32,7 +31,9 @@ namespace Shoppe.Domain.Entities
         public ICollection<BlogTag> Tags { get; set; } = [];
         public ICollection<BlogReply> Replies { get; set; } = [];
         public ICollection<BlogReaction> Reactions { get; set; } = [];
-        public ICollection<BlogSection> Sections { get; set; } = [];
+        public ICollection<BlogContentImageFile> ContentImages { get; set; } = [];
+        public string Content { get; set; } = string.Empty;
+        // public ICollection<BlogSection> Sections { get; set; } = [];
        // public ICollection<BlogReview> Reviews { get; set; } = [];
 
     }

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Shoppe.Application.DTOs.Section;
+using Shoppe.Application.DTOs.Content;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,8 @@ namespace Shoppe.Application.DTOs.Blog
         public string Title { get; set; } = string.Empty;
         public List<string> Categories { get; set; } = [];
         public List<string> Tags { get; set; } = [];
-        public FormFile CoverImageFile { get; set; } = null!;
-        public List<CreateSectionDTO> Sections { get; set; } = [];
+        public IFormFile CoverImageFile { get; set; } = null!;
+        public string Content { get; set; } = string.Empty;
+        public ICollection<CreateContentImageFileDTO> ContentImages { get; set; } = []; 
     }
 }

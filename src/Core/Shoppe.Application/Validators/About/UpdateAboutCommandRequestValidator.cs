@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using Shoppe.Domain.Entities;
 using System.Text.RegularExpressions;
-using Shoppe.Application.DTOs.Section;
 using Shoppe.Application.DTOs.SocialMediaLink;
 using Shoppe.Application.Features.Command.About.Update;
 using Shoppe.Domain.Enums;
@@ -13,7 +12,6 @@ using Shoppe.Application.Helpers;
 using Shoppe.Application.Constants;
 using Shoppe.Application.Abstractions.Repositories.AboutRepos;
 using Microsoft.EntityFrameworkCore;
-using Shoppe.Application.Validators.Section;
 using Shoppe.Application.Extensions.Helpers;
 
 public class UpdateAboutCommandValidator : AbstractValidator<UpdateAboutCommandRequest>

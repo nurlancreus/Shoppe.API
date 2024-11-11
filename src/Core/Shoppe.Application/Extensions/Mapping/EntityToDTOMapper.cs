@@ -3,7 +3,6 @@ using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Contact;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Review;
-using Shoppe.Application.DTOs.Section;
 using Shoppe.Application.DTOs.Tag;
 using Shoppe.Application.DTOs.User;
 using Shoppe.Domain.Entities;
@@ -50,7 +49,7 @@ namespace Shoppe.Application.Extensions.Mapping
         {
             return new GetBlogDTO
             {
-                Id = blog.Id    ,
+                Id = blog.Id,
                 CoverImage = new GetImageFileDTO
                 {
                     Id = blog.BlogCoverImageFile.Id,
@@ -68,22 +67,8 @@ namespace Shoppe.Application.Extensions.Mapping
                     CreatedAt = blog.Author.CreatedAt
                 },
                 Title = blog.Title,
-                Sections = blog.Sections.Select(s => new GetSectionDTO
-                {
-                    Id = s.Id,
-                    Title = s.Title,
-                    Description = s.Description,
-                    TextBody = s.TextBody,
-                    ImageFiles = s.BlogImageMappings.Select(bi => new GetImageFileDTO
-                    {
-                        Id = bi.BlogImage.Id,
-                        FileName = bi.BlogImage.FileName,
-                        PathName = bi.BlogImage.PathName,
-                        CreatedAt = bi.BlogImage.CreatedAt
-                    }).ToList(),
-                    Order = s.Order,
-                    CreatedAt = s.CreatedAt
-                }).ToList(),
+                Content = blog.Content,
+                ContentImages = blog.ContentImages.Select(i => i.ToGetContentFileDTO()).ToList(),
                 Categories = blog.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
                 Tags = blog.Tags.Select(t => t.ToGetTagDTO()).ToList(),
                 CreatedAt = blog.CreatedAt
@@ -96,7 +81,7 @@ namespace Shoppe.Application.Extensions.Mapping
             {
                 Id = imageFile.Id,
                 FileName = imageFile.FileName,
-                PathName= imageFile.PathName,
+                PathName = imageFile.PathName,
                 IsMain = imageFile.IsMain,
                 CreatedAt = imageFile.CreatedAt,
             };

@@ -9,7 +9,6 @@ using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Entities.Reactions;
 using Shoppe.Domain.Entities.Replies;
 using Shoppe.Domain.Entities.Reviews;
-using Shoppe.Domain.Entities.Sections;
 using Shoppe.Domain.Entities.Sliders;
 using Shoppe.Domain.Entities.Tags;
 using Shoppe.Persistence.Configurations;
@@ -70,8 +69,6 @@ namespace Shoppe.Persistence.Context
         }
         public DbSet<About> About { get; set; }
 
-        public DbSet<Section> Sections { get; set; }
-
         public DbSet<Slider> Sliders { get; set; }
         public DbSet<HeroSlider> HeroSlider { get; set; }
         public DbSet<Slide> Slides { get; set; }
@@ -114,7 +111,7 @@ namespace Shoppe.Persistence.Context
         public DbSet<ImageFile> ImageFiles { get; set; } 
         public DbSet<ProductImageFile> ProductImageFiles { get; set; }
         public DbSet<SlideImageFile> SlideImageFiles { get; set; }
-        public DbSet<BlogImageFile> BlogImageFiles { get; set; }
+        public DbSet<BlogContentImageFile> BlogImageFiles { get; set; }
         public DbSet<ContentImageFile> ContenImageFiles { get; set; }
         public DbSet<AboutContentImageFile> AboutContentImageFiles { get; set; }
 

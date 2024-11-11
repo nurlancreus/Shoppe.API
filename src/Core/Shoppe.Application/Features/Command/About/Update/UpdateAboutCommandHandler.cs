@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Shoppe.Application.Abstractions.Repositories.AboutRepos;
-using Shoppe.Application.Abstractions.Repositories.SectionRepos;
 using Shoppe.Application.Abstractions.Repositories.SocialMediaRepos;
 using Shoppe.Application.Abstractions.Services.Content;
 using Shoppe.Application.Abstractions.Services.Storage;
@@ -10,7 +9,6 @@ using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.Constants;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Files;
-using Shoppe.Domain.Entities.Sections;
 using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
 using System;

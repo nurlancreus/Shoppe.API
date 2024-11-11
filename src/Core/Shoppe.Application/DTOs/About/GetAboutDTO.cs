@@ -1,5 +1,4 @@
 ﻿using Shoppe.Application.DTOs.Files;
-using Shoppe.Application.DTOs.Section;
 using Shoppe.Application.DTOs.SocialMediaLink;
 using Shoppe.Domain.Entities.Files;
 using System;

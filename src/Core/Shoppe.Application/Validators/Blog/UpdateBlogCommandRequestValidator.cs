@@ -1,11 +1,10 @@
 ﻿using FluentValidation;
-using Shoppe.Application.DTOs.Section;
 using Shoppe.Application.Features.Command.Blog.Update;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
-using Shoppe.Application.Validators.Section;
 using Shoppe.Domain.Enums;
 using Shoppe.Application.Constants;
 using Shoppe.Application.Abstractions.Repositories.TagRepos;
+using Shoppe.Application.Helpers;
 
 public class UpdateBlogCommandRequestValidator : AbstractValidator<UpdateBlogCommandRequest>
 {
@@ -37,12 +36,16 @@ public class UpdateBlogCommandRequestValidator : AbstractValidator<UpdateBlogCom
             .WithMessage("Category '{PropertyValue}' must be defined and exist in the system.")
             .When(x => x.Tags.Count > 0);
 
-        RuleForEach(x => x.NewSections)
-            .SetValidator(new CreateBlogSectionDTOValidator())
-            .When(x => x.UpdatedSections != null && x.UpdatedSections.Count > 0);
+        RuleFor(x => x.Content)
+             .MaximumLength(BlogConst.MaxContentLength).WithMessage($"Content cannot be longer than {BlogConst.MaxContentLength} characters.")
+             .When(x => !string.IsNullOrEmpty(x.Content));
 
-        RuleForEach(x => x.UpdatedSections)
-            .SetValidator(new UpdateBlogSectionDTOValidator())
-            .When(x => x.UpdatedSections != null && x.UpdatedSections.Count > 0);
+        RuleForEach(x => x.ContentImages)
+         .Must(image => image.ImageFile.IsImage()).WithMessage("Only image files are allowed.")
+         .Must(image => image.ImageFile.IsSizeOk(BlogConst.MaxFileSizeInMb)).WithMessage($"Image size cannot exceed {BlogConst.MaxFileSizeInMb}MB.")
+         .Must(image => image.ImageFile.RestrictExtension(new[] { ".jpg", ".png" })).WithMessage("Allowed file extensions are .jpg, .png.")
+         .Must(image => image.ImageFile.RestrictMimeTypes(new[] { "image/jpeg", "image/png" })).WithMessage("Allowed mime types are image/jpeg, image/png.")
+         .Must(image => image.PreviewUrl != null && image.PreviewUrl.Trim() != "").WithMessage("Preview URL is required.")
+         .When(x => x.ContentImages != null && x.ContentImages.Count > 0);
     }
 }

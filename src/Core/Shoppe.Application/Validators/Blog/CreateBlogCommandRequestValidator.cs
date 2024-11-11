@@ -1,9 +1,6 @@
 ﻿using FluentValidation;
-using Shoppe.Application.DTOs.Section;
 using Shoppe.Application.Features.Command.Blog.Create;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
-using Shoppe.Application.Validators.Section;
-using Shoppe.Domain.Enums;
 using Shoppe.Application.Constants;
 using Shoppe.Application.Helpers;
 using Shoppe.Application.Abstractions.Repositories.TagRepos;
@@ -42,11 +39,14 @@ public class CreateBlogCommandRequestValidator : AbstractValidator<CreateBlogCom
                 .Must(formFile => FileHelpers.IsSizeOk(formFile!, BlogConst.MaxFileSizeInMb))
                 .WithMessage($"Profile picture size must not exceed {BlogConst.MaxFileSizeInMb}MB.");
 
-        RuleFor(x => x.NewSections)
-            .NotEmpty().WithMessage("At least one section must be defined.")
-            .ForEach(section =>
-            {
-                section.SetValidator(new CreateBlogSectionDTOValidator());
-            });
+        RuleFor(x => x.Content)
+           .MaximumLength(BlogConst.MaxContentLength).WithMessage($"Content cannot be longer than {BlogConst.MaxContentLength} characters.");
+
+        RuleForEach(x => x.ContentImages)
+         .Must(image => image.ImageFile.IsImage()).WithMessage("Only image files are allowed.")
+         .Must(image => image.ImageFile.IsSizeOk(BlogConst.MaxFileSizeInMb)).WithMessage($"Image size cannot exceed {BlogConst.MaxFileSizeInMb}MB.")
+         .Must(image => image.ImageFile.RestrictExtension(new[] { ".jpg", ".png" })).WithMessage("Allowed file extensions are .jpg, .png.")
+         .Must(image => image.ImageFile.RestrictMimeTypes(new[] { "image/jpeg", "image/png" })).WithMessage("Allowed mime types are image/jpeg, image/png.")
+         .Must(image => image.PreviewUrl != null && image.PreviewUrl.Trim() != "").WithMessage("Preview URL is required.");
     }
 }

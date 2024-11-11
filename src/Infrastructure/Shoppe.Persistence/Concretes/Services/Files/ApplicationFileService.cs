@@ -31,7 +31,7 @@ namespace Shoppe.Persistence.Concretes.Services.Files
 
             //if (type == null) query = _fileReadRepository.Table.AsNoTracking().Where(f => EF.Property<string>(f, "discriminator").Contains("Image"));
             if (type == null) query = _fileReadRepository.Table.AsNoTracking().OfType<ImageFile>();
-            else if (type == ImageFileType.Blog) query = _fileReadRepository.Table.AsNoTracking().OfType<BlogImageFile>();
+            else if (type == ImageFileType.Blog) query = _fileReadRepository.Table.AsNoTracking().OfType<BlogContentImageFile>();
             else if (type == ImageFileType.Product) query = _fileReadRepository.Table.AsNoTracking().OfType<ProductImageFile>();
             else if (type == ImageFileType.Slider) query = _fileReadRepository.Table.AsNoTracking().OfType<SlideImageFile>();
             else if (type == ImageFileType.User) query = _fileReadRepository.Table.AsNoTracking().OfType<UserProfileImageFile>();

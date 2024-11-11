@@ -1,16 +1,14 @@
 ﻿using MediatR;
-using Shoppe.Domain.Entities.Sections;
 using Shoppe.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Shoppe.Application.DTOs.Section;
 using Shoppe.Application.DTOs.SocialMediaLink;
 using Shoppe.Domain.Entities.Files;
 using Microsoft.AspNetCore.Http;
-using Shoppe.Application.DTOs.About;
+using Shoppe.Application.DTOs.Content;
 
 namespace Shoppe.Application.Features.Command.About.Update
 {

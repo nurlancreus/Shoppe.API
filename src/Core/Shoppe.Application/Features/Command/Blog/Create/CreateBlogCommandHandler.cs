@@ -26,7 +26,8 @@ namespace Shoppe.Application.Features.Command.Blog.Create
                 Categories = request.Categories,
                 Tags = request.Tags,
                 CoverImageFile = request.CoverImageFile,
-                Sections = request.NewSections
+                Content = request.Content,
+                ContentImages = request.ContentImages,
             }, cancellationToken);
 
             return new CreateBlogCommandResponse

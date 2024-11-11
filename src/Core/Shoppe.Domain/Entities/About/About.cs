@@ -1,6 +1,5 @@
 ﻿using Shoppe.Domain.Entities.Base;
 using Shoppe.Domain.Entities.Files;
-using Shoppe.Domain.Entities.Sections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
