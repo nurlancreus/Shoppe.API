@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Query.Files.GetAllImageFiles
 
         public async Task<GetAllImageFIlesQueryResponse> Handle(GetAllImageFIlesQueryRequest request, CancellationToken cancellationToken)
         {
-            var result = await _applicationImageFIleService.GetAllImagesDTO(request.Page, request.PageSize, request.Type, cancellationToken);
+            var result = await _applicationImageFIleService.GetAllImages(request.Page, request.PageSize, request.Type, cancellationToken);
 
             return new GetAllImageFIlesQueryResponse
             {

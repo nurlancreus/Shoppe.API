@@ -34,6 +34,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Shoppe.Persistence.Concretes.Services
 {
@@ -49,7 +50,8 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IPaginationService _paginationService;
         private readonly IJwtSession _jwtSession;
         private readonly IFileReadRepository _fileReadRepository;
-        public BlogService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, ICategoryReadRepository categoryReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IJwtSession jwtSession, ITagReadRepository tagReadRepository, IContentUpdater contentUpdater, IFileReadRepository fileReadRepository)
+        private readonly IFileWriteRepository _fileWriteRepository;
+        public BlogService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, ICategoryReadRepository categoryReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IJwtSession jwtSession, ITagReadRepository tagReadRepository, IContentUpdater contentUpdater, IFileReadRepository fileReadRepository, IFileWriteRepository fileWriteRepository)
         {
             _blogReadRepository = blogReadRepository;
             _blogWriteRepository = blogWriteRepository;
@@ -61,6 +63,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _tagReadRepository = tagReadRepository;
             _contentUpdater = contentUpdater;
             _fileReadRepository = fileReadRepository;
+            _fileWriteRepository = fileWriteRepository;
         }
 
         public async Task ChangeCoverImageAsync(Guid blogId, Guid? newCoverImageId, IFormFile? newCoverImageFile, CancellationToken cancellationToken)
@@ -119,7 +122,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var blog = await _blogReadRepository.Table
                 .Include(b => b.BlogCoverImageFile)
-                .Include(b => b.ContentImages.Select(i => i.Id))
+                .Include(b => b.ContentImages)
+                .ThenInclude(i => i.Blogs)
                 .FirstOrDefaultAsync(b => b.Id == blogId, cancellationToken);
 
             if (blog == null)
@@ -134,7 +138,9 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(image));
             }
 
-            if (image == blog.BlogCoverImageFile) throw new DeleteNotSucceedException("Cannot remove cover image. First change it.");
+            var blogCovers = _blogReadRepository.Table.Select(b => b.BlogCoverImageFile);
+
+            if (blogCovers.Contains(image)) throw new DeleteNotSucceedException("Cannot remove cover image. First change it.");
 
             bool isRemoved = blog.ContentImages.Remove(image);
 
@@ -142,7 +148,8 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 if (image.Blogs.Count == 0)
                 {
-                    await _storageService.DeleteAsync(image.PathName, image.FileName);
+                    if (_fileWriteRepository.Delete(image))
+                        await _storageService.DeleteAsync(image.PathName, image.FileName);
                 }
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -242,7 +249,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var blog = await _blogReadRepository.GetByIdAsync(blogId, cancellationToken);
+            var blog = await _blogReadRepository.Table.Include(b => b.ContentImages).Include(b => b.BlogCoverImageFile).ThenInclude(i => i.Blogs).FirstOrDefaultAsync(b => b.Id == blogId);
 
             if (blog == null)
             {
@@ -255,6 +262,20 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 throw new DeleteNotSucceedException();
             }
+
+            bool isRemoved = _fileWriteRepository.DeleteRange(blog.ContentImages);
+
+            if (isRemoved)
+            {
+                await _storageService.DeleteMultipleAsync(blog.ContentImages);
+            }
+
+            if (blog.BlogCoverImageFile.Blogs.Count == 0)
+            {
+                if (_fileWriteRepository.Delete(blog.BlogCoverImageFile))
+                    await _storageService.DeleteAsync(blog.BlogCoverImageFile.PathName, blog.BlogCoverImageFile.FileName);
+            }
+
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

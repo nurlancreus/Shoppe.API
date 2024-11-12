@@ -11,6 +11,6 @@ namespace Shoppe.Application.Features.Query.Files.GetAllImageFiles
 {
     public class GetAllImageFIlesQueryRequest : PaginationRequestParams, IRequest<GetAllImageFIlesQueryResponse>
     {
-        public ImageFileType? Type { get; set; } = null;
+        public ImageFileType? Type { get; set; }
     }
 }

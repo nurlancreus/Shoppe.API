@@ -14,6 +14,6 @@ namespace Shoppe.Application.DTOs.Files
         public int PageSize { get; set; }
         public int TotalPages { get; set; }
         public int TotalItems { get; set; }
-        public List<GetImageFileDTO> Images { get; set; } = [];
+        public List<GetFileDTO> Images { get; set; } = [];
     }
 }

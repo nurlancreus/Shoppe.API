@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.Helpers;
+using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -42,6 +43,14 @@ namespace Shoppe.Infrastructure.Concretes.Services.Storage
 
         public async Task DeleteAsync(string path, string fileName)
             => await _storage.DeleteAsync(path, fileName);
+
+        public async Task DeleteMultipleAsync<T>(ICollection<T> files) where T : ApplicationFile
+        {
+            foreach (var file in files)
+            {
+                await _storage.DeleteAsync(file.PathName, file.FileName);
+            }
+        }
 
         public Task<List<(string path, string fileName)>> GetFilesAsync(string path)
             => _storage.GetFilesAsync(path);

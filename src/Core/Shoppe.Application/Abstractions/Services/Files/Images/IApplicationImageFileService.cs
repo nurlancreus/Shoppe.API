@@ -10,6 +10,6 @@ namespace Shoppe.Application.Abstractions.Services.Files.Images
 {
     public interface IApplicationImageFileService
     {
-        Task<GetAllImagesDTO> GetAllImagesDTO (int page, int pageSize, ImageFileType? type, CancellationToken cancellationToken);
+        Task<GetAllImagesDTO> GetAllImages(int page, int pageSize, ImageFileType? type, CancellationToken cancellationToken);
     }
 }

@@ -25,7 +25,7 @@ namespace Shoppe.Persistence.Concretes.Services.Files
             _paginationService = paginationService;
         }
 
-        public async Task<GetAllImagesDTO> GetAllImagesDTO(int page, int pageSize, ImageFileType? type, CancellationToken cancellationToken)
+        public async Task<GetAllImagesDTO> GetAllImages(int page, int pageSize, ImageFileType? type, CancellationToken cancellationToken)
         {
             IQueryable<ApplicationFile>? query = null;
 
@@ -37,11 +37,17 @@ namespace Shoppe.Persistence.Concretes.Services.Files
             else if (type == ImageFileType.User) query = _fileReadRepository.Table.AsNoTracking().OfType<UserProfileImageFile>();
             else throw new ArgumentException("Invalid image file type");
 
-            if (query is not IQueryable<ImageFile> imagesQuery) throw new InvalidCastException("Invalid image file type");
+            if (query is not IQueryable<ImageFile> and not IQueryable<ContentImageFile>) throw new InvalidCastException("Invalid image file type");
 
-            var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, imagesQuery, cancellationToken);
+            var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, query, cancellationToken);
 
-            var imageDtos = await paginationResult.PaginatedQuery.Select(i => i.ToGetImageFileDTO()).ToListAsync(cancellationToken);
+            var imageDtos = await paginationResult.PaginatedQuery.Select(i => new GetFileDTO
+            {
+                Id = i.Id,
+                FileName = i.FileName,
+                PathName = i.PathName,
+                CreatedAt = i.CreatedAt,
+            }).ToListAsync(cancellationToken);
 
             return new GetAllImagesDTO
             {

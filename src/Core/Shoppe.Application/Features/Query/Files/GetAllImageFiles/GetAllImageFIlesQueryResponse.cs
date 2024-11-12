@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Features.Query.Files.GetAllImageFiles
 {
-    public class GetAllImageFIlesQueryResponse : AppResponseWithPaginatedData<List<GetImageFileDTO>>
+    public class GetAllImageFIlesQueryResponse : AppResponseWithPaginatedData<List<GetFileDTO>>
     {
     }
 }
