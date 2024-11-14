@@ -8,6 +8,7 @@ using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Reply;
+using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Domain.Entities.Replies;
 using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
@@ -88,7 +89,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     .ThenInclude(r => r.Replies)
                 .ToListAsync(cancellationToken);
 
-            var repliesDto = replies.Select(MapReplyToDTO).ToList();
+            var repliesDto = replies.Select(r => r.ToGetReplyDTO()).ToList();
 
             return new GetAllRepliesDTO
             {
@@ -115,7 +116,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException("Reply not found");
             }
 
-            return MapReplyToDTO(reply);
+            return reply.ToGetReplyDTO();
         }
 
         public async Task<List<GetReplyDTO>> GetRepliesByEntityAsync(Guid entityId, ReplyType replyType, CancellationToken cancellationToken)
@@ -136,7 +137,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var replies = await replyQuery.ToListAsync(cancellationToken);
 
-            return replies.Select(MapReplyToDTO).ToList();
+            return replies.Select(r => r.ToGetReplyDTO()).ToList();
         }
 
         public async Task<List<GetReplyDTO>> GetRepliesByParentAsync(Guid parentId, CancellationToken cancellationToken)
@@ -148,7 +149,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            return replies.Select(MapReplyToDTO).ToList();
+            return replies.Select(r => r.ToGetReplyDTO()).ToList();
         }
 
         public async Task UpdateAsync(UpdateReplyDTO updateReplyDTO, CancellationToken cancellationToken)
@@ -200,7 +201,7 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             var reply = await _replyReadRepository.Table
                 .Include(r => r.Replier)
-                .FirstOrDefaultAsync(r => r.Id== replyId, cancellationToken);
+                .FirstOrDefaultAsync(r => r.Id == replyId, cancellationToken);
 
             if (reply == null)
             {
@@ -217,28 +218,6 @@ namespace Shoppe.Persistence.Concretes.Services
             return reply;
         }
 
-        private GetReplyDTO MapReplyToDTO(Reply reply)
-        {
-            var profilePic = reply.Replier.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
-
-            return new GetReplyDTO
-            {
-                Id = reply.Id,
-                FirstName = reply.Replier.FirstName!,
-                LastName = reply.Replier.LastName!,
-                ProfilePhoto = profilePic != null ? new GetImageFileDTO
-                {
-                    Id = profilePic.Id,
-                    FileName = profilePic.FileName,
-                    PathName = profilePic.PathName,
-                    CreatedAt = profilePic.CreatedAt,
-                } : null,
-                Body = reply.Body,
-                Type = reply.Type,
-                Replies = reply.Replies.Select(MapReplyToDTO).ToList(),
-                CreatedAt = reply.CreatedAt
-            };
-        }
 
         public async Task<List<GetReplyDTO>> GetRepliesByUserAsync(string userId, CancellationToken cancellationToken)
         {
@@ -247,11 +226,11 @@ namespace Shoppe.Persistence.Concretes.Services
                     .ThenInclude(u => u.ProfilePictureFiles)
                 .Include(r => r.Replies)
                     .ThenInclude(r => r.Replies)
-                .Where(r => r.Replier.Id.ToString() == userId)
+                .Where(r => r.Replier.Id == userId)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            return replies.Select(MapReplyToDTO).ToList();
+            return replies.Select(r => r.ToGetReplyDTO()).ToList();
         }
     }
 }

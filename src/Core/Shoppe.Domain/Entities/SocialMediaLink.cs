@@ -12,5 +12,6 @@ namespace Shoppe.Domain.Entities
     {
         public string URL { get; set; } = string.Empty;
         public SocialPlatform SocialPlatform { get; set; }
+        public Guid AboutId { get; set; }
     }
 }

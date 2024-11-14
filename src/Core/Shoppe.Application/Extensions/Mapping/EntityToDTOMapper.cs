@@ -2,6 +2,7 @@
 using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Contact;
 using Shoppe.Application.DTOs.Files;
+using Shoppe.Application.DTOs.Reply;
 using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.DTOs.Tag;
 using Shoppe.Application.DTOs.User;
@@ -9,6 +10,7 @@ using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Identity;
+using Shoppe.Domain.Entities.Replies;
 using Shoppe.Domain.Entities.Reviews;
 using Shoppe.Domain.Entities.Tags;
 using System;
@@ -126,6 +128,29 @@ namespace Shoppe.Application.Extensions.Mapping
                 Rating = (int)review.Rating,
                 Body = review.Body,
                 CreatedAt = review.CreatedAt,
+            };
+        }
+
+        public static GetReplyDTO ToGetReplyDTO(this Reply reply)
+        {
+            var profilePic = reply.Replier.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
+
+            return new GetReplyDTO
+            {
+                Id = reply.Id,
+                FirstName = reply.Replier.FirstName!,
+                LastName = reply.Replier.LastName!,
+                ProfilePhoto = profilePic != null ? new GetImageFileDTO
+                {
+                    Id = profilePic.Id,
+                    FileName = profilePic.FileName,
+                    PathName = profilePic.PathName,
+                    CreatedAt = profilePic.CreatedAt,
+                } : null,
+                Body = reply.Body,
+                Type = reply.Type,
+                Replies = reply.Replies.Select(r => r.ToGetReplyDTO()).ToList(),
+                CreatedAt = reply.CreatedAt
             };
         }
 

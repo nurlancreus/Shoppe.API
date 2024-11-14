@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Shoppe.Application.Constants;
 using Shoppe.Domain.Entities;
+using Shoppe.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +17,6 @@ namespace Shoppe.Persistence.Configurations
         {
             builder
                 .HasKey(a => a.Id);  // Ensure Id is the primary key
-
-            builder.HasIndex(a => a.Id).IsUnique();
 
             builder.Property(a => a.Name)
                 .IsRequired()
@@ -37,30 +36,23 @@ namespace Shoppe.Persistence.Configurations
                 .HasMaxLength(AboutConst.MaxPhoneLength)
                 .HasAnnotation("RegexPattern", @"^\+?\d{1,3}?[-.●]?\(?\d{1,4}?\)?[-.●]?\d{1,4}[-.●]?\d{1,9}$");  // Phone format validation
 
+            var aboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb");
+
             builder.HasData(new About
             {
-                Id = Guid.NewGuid(),
+                Id = aboutId,
                 Name = "Shoppe",
                 Description = "Who we are and why we do what we do!",
                 Email = "contact@shoppe.com",
                 Phone = "123-456-7890",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
             });
 
-
-
             builder
                 .HasMany(a => a.SocialMediaLinks)
-                .WithOne();
-            //.HasForeignKey("ShopId")
-            //.IsRequired();
-
-            builder
-                .HasMany(a => a.SocialMediaLinks)
-                .WithOne();
-            //.HasForeignKey("ShopId")
-            //.IsRequired();
-
+                .WithOne()
+                .HasForeignKey(s => s.AboutId)
+                .IsRequired();
         }
     }
 }
