@@ -8,6 +8,7 @@ using Shoppe.Application.Features.Command.Review.DeleteReview;
 using Shoppe.Application.Features.Command.Review.UpdateReview;
 using Shoppe.Application.Features.Query.Reply.Get;
 using Shoppe.Application.Features.Query.Reply.GetAll;
+using Shoppe.Application.Features.Query.Reply.GetRepliesByEntity;
 using Shoppe.Application.Features.Query.Review.GetAllReviews;
 using Shoppe.Application.Features.Query.Review.GetReviewById;
 using Shoppe.Domain.Entities;
@@ -15,8 +16,6 @@ using Shoppe.Domain.Enums;
 
 namespace Shoppe.API.Controllers.v1
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class RepliesController : ApplicationControllerBase
     {
         private readonly ISender _sender;
@@ -55,7 +54,17 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
-        [HttpPut("{id}")]
+        [HttpGet("{ReplyId}/replies")]
+        public async Task<IActionResult> GetReplies(Guid ReplyId)
+        {
+            var request = new GetRepliesByEntityQueryRequest { EntityId = ReplyId, ReplyType = ReplyType.Reply };
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpPatch("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateReplyCommandRequest request)
         {
             request.Id = id;

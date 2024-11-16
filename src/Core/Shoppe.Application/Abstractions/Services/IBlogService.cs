@@ -15,7 +15,7 @@ namespace Shoppe.Application.Abstractions.Services
     public interface IBlogService
     {
         Task<GetBlogDTO> GetAsync(Guid blogId, CancellationToken cancellationToken);
-        Task<GetAllBlogsDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken);
+        Task<GetAllBlogsDTO> GetAllAsync(BlogFilterParamsDTO blogFilterParamsDTO, CancellationToken cancellationToken);
         Task CreateAsync(CreateBlogDTO createBlogDTO, CancellationToken cancellationToken);
         Task UpdateAsync(UpdateBlogDTO updateBlogDTO, CancellationToken cancellationToken);
         Task DeleteAsync(Guid blogId, CancellationToken cancellationToken);

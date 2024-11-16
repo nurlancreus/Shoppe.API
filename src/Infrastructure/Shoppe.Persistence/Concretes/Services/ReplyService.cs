@@ -6,6 +6,7 @@ using Shoppe.Application.Abstractions.Repositories.ReplyRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.UoW;
+using Shoppe.Application.Constants;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Reply;
 using Shoppe.Application.Extensions.Mapping;
@@ -17,6 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
+using System.Xml;
 
 namespace Shoppe.Persistence.Concretes.Services
 {
@@ -68,7 +71,9 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             var reply = await GetAndValidateReplyAsync(replyId, cancellationToken);
 
-            if (!_replyWriteRepository.Delete(reply))
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            if (!RecursiveDelete(reply))
             {
                 _logger.LogWarning("Failed to delete reply with ID {ReplyId}", replyId);
                 throw new DeleteNotSucceedException("Cannot delete the reply");
@@ -76,6 +81,22 @@ namespace Shoppe.Persistence.Concretes.Services
 
             _logger.LogInformation("Reply deleted successfully with ID {ReplyId}", replyId);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
+        }
+
+        private bool RecursiveDelete(Reply parent)
+        {
+            if (parent.Replies != null && parent.Replies.Count != 0)
+            {
+                // Recursively delete children
+                foreach (var child in parent.Replies)
+                {
+                    RecursiveDelete(child);
+                }
+            }
+
+            return _replyWriteRepository.Delete(parent);
         }
 
         public async Task<GetAllRepliesDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
@@ -85,8 +106,8 @@ namespace Shoppe.Persistence.Concretes.Services
             var replies = await paginationResult.PaginatedQuery
                 .Include(r => r.Replier)
                     .ThenInclude(u => u.ProfilePictureFiles)
-                .Include(r => r.Replies)
-                    .ThenInclude(r => r.Replies)
+                //.Include(r => r.Replies)
+                //    .ThenInclude(r => r.Replies)
                 .ToListAsync(cancellationToken);
 
             var repliesDto = replies.Select(r => r.ToGetReplyDTO()).ToList();
@@ -106,8 +127,8 @@ namespace Shoppe.Persistence.Concretes.Services
             var reply = await _replyReadRepository.Table
                 .Include(r => r.Replier)
                     .ThenInclude(u => u.ProfilePictureFiles)
-                .Include(r => r.Replies)
-                    .ThenInclude(r => r.Replies)
+                //.Include(r => r.Replies)
+                //    .ThenInclude(r => r.Replies)
                 .FirstOrDefaultAsync(r => r.Id == replyId, cancellationToken);
 
             if (reply == null)
@@ -127,15 +148,21 @@ namespace Shoppe.Persistence.Concretes.Services
                 ReplyType.Blog => _replyReadRepository.Table.OfType<BlogReply>()
                     .Include(r => r.Replier)
                         .ThenInclude(u => u.ProfilePictureFiles)
-                    // .Include(r => r.Blog)
-                    .Include(r => r.Replies)
-                        .ThenInclude(r => r.Replies)
+                    //.Include(r => r.Blog)
+                    //.Include(r => r.Replies)
                     .Where(r => r.BlogId == entityId)
-                    .AsNoTracking(),
+                    .AsNoTrackingWithIdentityResolution(),
+
+                ReplyType.Reply => _replyReadRepository.Table.OfType<Reply>()
+                    .Include(r => r.Replier)
+                        .ThenInclude(u => u.ProfilePictureFiles)
+                    // .Include(r => r.Replies)
+                    .Where(r => r.ParentReplyId == entityId)
+                    .AsNoTrackingWithIdentityResolution(),
                 _ => throw new InvalidOperationException("Invalid reply type"),
             };
 
-            var replies = await replyQuery.ToListAsync(cancellationToken);
+            var replies = await replyQuery.OrderBy(r => r.CreatedAt).ToListAsync(cancellationToken);
 
             return replies.Select(r => r.ToGetReplyDTO()).ToList();
         }
@@ -183,18 +210,22 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException($"Blog with ID {entityId} not found");
             }
 
-            return new BlogReply { BlogId = entityId };
+            return new BlogReply { BlogId = entityId, Depth = 0 };
         }
 
         private async Task<Reply> CreateChildReplyAsync(Guid entityId, CancellationToken cancellationToken)
         {
-            if (!await _replyReadRepository.IsExistAsync(r => r.Id == entityId, cancellationToken))
+            var parentReply = await _replyReadRepository.GetByIdAsync(entityId, cancellationToken, false);
+
+            if (parentReply == null)
             {
                 _logger.LogWarning("Reply with ID {EntityId} not found", entityId);
                 throw new EntityNotFoundException($"Reply with ID {entityId} not found");
             }
 
-            return new Reply { ParentReplyId = entityId };
+            var newDepth = Math.Min(ReplyConst.MaxDepthLevel, (byte)(parentReply.Depth + 1));
+
+            return new Reply { ParentReplyId = entityId, Depth = newDepth };
         }
 
         private async Task<Reply> GetAndValidateReplyAsync(Guid replyId, CancellationToken cancellationToken)
@@ -224,8 +255,8 @@ namespace Shoppe.Persistence.Concretes.Services
             var replies = await _replyReadRepository.Table
                 .Include(r => r.Replier)
                     .ThenInclude(u => u.ProfilePictureFiles)
-                .Include(r => r.Replies)
-                    .ThenInclude(r => r.Replies)
+                //.Include(r => r.Replies)
+                //    .ThenInclude(r => r.Replies)
                 .Where(r => r.Replier.Id == userId)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);

@@ -282,7 +282,7 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
 
-        public async Task<GetAllBlogsDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
+        public async Task<GetAllBlogsDTO> GetAllAsync(BlogFilterParamsDTO blogFilterParamsDTO, CancellationToken cancellationToken)
         {
             var blogQuery = _blogReadRepository.Table
                                     .Include(b => b.Author)
@@ -293,9 +293,24 @@ namespace Shoppe.Persistence.Concretes.Services
                                     .AsNoTrackingWithIdentityResolution()
                                     .AsQueryable();
 
-            var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, blogQuery, cancellationToken);
+            if (blogFilterParamsDTO.TagName is string tagName and not "all")
+            {
+                blogQuery = blogQuery.Where(b => b.Tags.Any(t => t.Name == tagName));
+            }
 
-            var blogDtos = await blogQuery.Select(blog => blog.ToGetBlogDTO()).ToListAsync(cancellationToken);
+            if (blogFilterParamsDTO.CategoryName is string categoryName and not "all")
+            {
+                blogQuery = blogQuery.Where(b => b.Categories.Any(c => c.Name == categoryName));
+            }
+
+            if (blogFilterParamsDTO.SearchQuery is string searchQuery and not "")
+            {
+                blogQuery = blogQuery.Where(b => b.Title.Contains(searchQuery) || b.Content.Contains(searchQuery));
+            }
+
+            var paginationResult = await _paginationService.ConfigurePaginationAsync(blogFilterParamsDTO.Page, blogFilterParamsDTO.PageSize, blogQuery, cancellationToken);
+
+            var blogDtos = await paginationResult.PaginatedQuery.Select(blog => blog.ToGetBlogDTO()).ToListAsync(cancellationToken);
 
             return new GetAllBlogsDTO
             {

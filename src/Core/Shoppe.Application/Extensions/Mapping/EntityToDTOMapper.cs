@@ -120,12 +120,22 @@ namespace Shoppe.Application.Extensions.Mapping
 
         public static GetReviewDTO ToGetReviewDTO(this Review review)
         {
+            var profilePic = review.Reviewer.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
+
             return new GetReviewDTO()
             {
                 Id = review.Id,
+                AuthorId = review.ReviewerId,
                 FirstName = review.Reviewer?.FirstName!,
                 LastName = review.Reviewer?.LastName!,
                 Rating = (int)review.Rating,
+                ProfilePhoto = profilePic != null ? new GetImageFileDTO
+                {
+                    Id = profilePic.Id,
+                    FileName = profilePic.FileName,
+                    PathName = profilePic.PathName,
+                    CreatedAt = profilePic.CreatedAt,
+                } : null,
                 Body = review.Body,
                 CreatedAt = review.CreatedAt,
             };
@@ -138,6 +148,7 @@ namespace Shoppe.Application.Extensions.Mapping
             return new GetReplyDTO
             {
                 Id = reply.Id,
+                AuthorId = reply.ReplierId,
                 FirstName = reply.Replier.FirstName!,
                 LastName = reply.Replier.LastName!,
                 ProfilePhoto = profilePic != null ? new GetImageFileDTO
@@ -148,7 +159,7 @@ namespace Shoppe.Application.Extensions.Mapping
                     CreatedAt = profilePic.CreatedAt,
                 } : null,
                 Body = reply.Body,
-                Type = reply.Type,
+                Depth = reply.Depth,
                 Replies = reply.Replies.Select(r => r.ToGetReplyDTO()).ToList(),
                 CreatedAt = reply.CreatedAt
             };

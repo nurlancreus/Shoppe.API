@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Shoppe.Application.Abstractions.Services;
+using Shoppe.Application.DTOs.Blog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,14 @@ namespace Shoppe.Application.Features.Query.Blog.GetAll
 
         public async Task<GetAllBlogsQueryResponse> Handle(GetAllBlogsQueryRequest request, CancellationToken cancellationToken)
         {
-            var result = await _blogService.GetAllAsync(request.Page, request.PageSize, cancellationToken);
+            var result = await _blogService.GetAllAsync(new BlogFilterParamsDTO
+            {
+                CategoryName = request.CategoryName,
+                TagName = request.TagName,
+                SearchQuery = request.SearchQuery,
+                Page = request.Page,
+                PageSize = request.PageSize,
+            }, cancellationToken);
 
             return new GetAllBlogsQueryResponse
             {

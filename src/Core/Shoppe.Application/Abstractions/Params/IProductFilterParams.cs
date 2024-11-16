@@ -9,10 +9,10 @@ namespace Shoppe.Application.Abstractions.Params
 {
     public interface IProductFilterParams
     {
-        public string? CategoryName { get; set; }
-        public double? MinPrice { get; set; }
-        public double? MaxPrice { get; set; }
-        public bool? InStock { get; set; }
-        public string? SortBy { get; set; }
+        string? CategoryName { get; set; }
+        double? MinPrice { get; set; }
+        double? MaxPrice { get; set; }
+        bool? InStock { get; set; }
+        string? SortBy { get; set; }
     }
 }

@@ -12,17 +12,16 @@ namespace Shoppe.Infrastructure.Concretes.Services
     {
         public async Task<PaginatedQueryDTO<T>> ConfigurePaginationAsync<T>(int page, int pageSize, IQueryable<T> entities, CancellationToken cancellationToken) where T : IBase
         {
+            var totalItems = await entities.CountAsync(cancellationToken);
             // Handle the case where both page and pageSize are -1
             if (page == -1 && pageSize == -1)
             {
-                // Return all entities without pagination
-                var total = await entities.CountAsync(cancellationToken: cancellationToken);
 
                 return new PaginatedQueryDTO<T>()
                 {
                     Page = 1,  // Set Page to 1 (since we are returning everything)
-                    PageSize = total,  // PageSize is set to totalItems as we're returning all items
-                    TotalItems = total,
+                    PageSize = totalItems,  // PageSize is set to totalItems as we're returning all items
+                    TotalItems = totalItems,
                     TotalPages = 1,  // Only 1 "page" as everything is returned
                     PaginatedQuery = entities  // No pagination, return full query
                 };
@@ -34,8 +33,7 @@ namespace Shoppe.Infrastructure.Concretes.Services
                 throw new InvalidPaginationException(PaginationErrorType.InvalidPageSize, pageSize);
             }
 
-            // Get total items count
-            var totalItems = await entities.CountAsync(cancellationToken);
+            // Get total pages count
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
             // Adjust totalPages to be at least 1

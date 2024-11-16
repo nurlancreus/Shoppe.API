@@ -223,16 +223,13 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id")
-                        .IsUnique();
-
                     b.ToTable("About");
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 389, DateTimeKind.Utc).AddTicks(3952),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 851, DateTimeKind.Utc).AddTicks(4842),
                             Description = "Who we are and why we do what we do!",
                             Email = "contact@shoppe.com",
                             Name = "Shoppe",
@@ -712,7 +709,7 @@ namespace Shoppe.Persistence.Migrations
                         {
                             Id = "admin-user-id",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c9377adc-b946-4d5a-9125-b96294affa28",
+                            ConcurrencyStamp = "2ca09e91-f2a9-45e0-8e07-949b90ab8a1d",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "nurlancreus@example.com",
                             EmailConfirmed = false,
@@ -722,9 +719,9 @@ namespace Shoppe.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "NURLANCREUS@EXAMPLE.COM",
                             NormalizedUserName = "NURLANCREUS",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGwZCfJMGAZHLQw7ip4WOP0zQNm2bio6evVleS0pdbJ8uHrjBT1tA+G/CoW2Fd1lxA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENm3XkC+9N2NKQBjshRnyFatf55EyBTI+7qe1LNin3WZTStZVNSczb5QoJqF+j2sgg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e3bf8171-feb6-4474-b346-0b9b5dfce0c2",
+                            SecurityStamp = "ba05b545-cc7a-4cf4-86c1-135ef4ffba28",
                             TwoFactorEnabled = false,
                             UserName = "nurlancreus"
                         });
@@ -934,6 +931,9 @@ namespace Shoppe.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<byte>("Depth")
+                        .HasColumnType("tinyint");
+
                     b.Property<Guid?>("ParentReplyId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1102,33 +1102,33 @@ namespace Shoppe.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e1aff70e-bdb8-403b-a976-9e8f1ab11ac5"),
+                            Id = new Guid("a4996047-92c5-4099-a069-a764e579307e"),
                             AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 405, DateTimeKind.Utc).AddTicks(5927),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 901, DateTimeKind.Utc).AddTicks(1773),
                             SocialPlatform = "Facebook",
                             URL = "https://facebook.com/shoppe"
                         },
                         new
                         {
-                            Id = new Guid("e12a4c6b-eabb-48d4-9da9-de9393ada406"),
+                            Id = new Guid("5334fa0b-5461-4510-8093-f4dfd2be1fbe"),
                             AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 405, DateTimeKind.Utc).AddTicks(5932),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 901, DateTimeKind.Utc).AddTicks(1816),
                             SocialPlatform = "X",
                             URL = "https://x.com/shoppe"
                         },
                         new
                         {
-                            Id = new Guid("a7477752-518e-4de6-93d9-b2e99f7a225b"),
+                            Id = new Guid("1384094b-7281-47ad-9ffc-e87237e9922e"),
                             AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 405, DateTimeKind.Utc).AddTicks(5935),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 901, DateTimeKind.Utc).AddTicks(1825),
                             SocialPlatform = "Instagram",
                             URL = "https://instagram.com/shoppe"
                         },
                         new
                         {
-                            Id = new Guid("6b53913a-8e9d-46de-ad51-56229baf5182"),
+                            Id = new Guid("f2d0c8bb-5a8c-4dc1-97bc-76a9bd2616e2"),
                             AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 405, DateTimeKind.Utc).AddTicks(5938),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 901, DateTimeKind.Utc).AddTicks(1833),
                             SocialPlatform = "Youtube",
                             URL = "https://youtube.com/shoppe"
                         });
@@ -1190,40 +1190,40 @@ namespace Shoppe.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("fa9cf34e-7f8f-4d09-aef2-39db52fd44f4"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 391, DateTimeKind.Utc).AddTicks(1564),
+                            Id = new Guid("59c6d7c2-1911-48da-ae7c-29cb46078746"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 854, DateTimeKind.Utc).AddTicks(3585),
                             Description = "Tips on how to take care of your jewelry",
                             Name = "Jewelry Care",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("0a9d90d2-c1db-4ebd-b629-28293a72d5c9"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 391, DateTimeKind.Utc).AddTicks(1569),
+                            Id = new Guid("42b30ac8-3380-400b-91ca-dbf0a7102306"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 854, DateTimeKind.Utc).AddTicks(3598),
                             Description = "Updates on the latest jewelry trends",
                             Name = "Latest Trends",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("a5e7f063-353d-4d51-9bf3-43144e359712"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 391, DateTimeKind.Utc).AddTicks(1572),
+                            Id = new Guid("ece4baf5-08cb-4a64-88ac-cbcc0cee5943"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 854, DateTimeKind.Utc).AddTicks(3605),
                             Description = "Learn about different gemstones and their meanings",
                             Name = "Gemstone Guide",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("2a6a77d3-23a3-4d73-870d-c9be8b9d0555"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 391, DateTimeKind.Utc).AddTicks(1575),
+                            Id = new Guid("bf464cb2-002e-4f86-870a-3dc6c556293b"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 854, DateTimeKind.Utc).AddTicks(3628),
                             Description = "Jewelry gift ideas for various occasions",
                             Name = "Gift Ideas",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("a010490d-2e18-4274-9bf9-2d5b4b5efa79"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 391, DateTimeKind.Utc).AddTicks(1578),
+                            Id = new Guid("b533e44a-8c48-437e-8eda-ac8d3ee6fcab"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 854, DateTimeKind.Utc).AddTicks(3635),
                             Description = "Guides and inspiration for making your own jewelry",
                             Name = "DIY Jewelry",
                             Type = "Blog"
@@ -1239,40 +1239,40 @@ namespace Shoppe.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ce96dc00-381b-4b1f-baba-8aac959d0858"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 399, DateTimeKind.Utc).AddTicks(7095),
+                            Id = new Guid("2e394add-31b9-484b-9b7e-9b08bc2fc7b4"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 887, DateTimeKind.Utc).AddTicks(5105),
                             Description = "Elegant and modern necklaces",
                             Name = "Necklaces",
                             Type = "Product"
                         },
                         new
                         {
-                            Id = new Guid("6f719a55-ea0c-4334-be0b-658de44961df"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 399, DateTimeKind.Utc).AddTicks(7100),
+                            Id = new Guid("cc9bcfc6-d213-4724-8c58-0bb2068fd909"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 887, DateTimeKind.Utc).AddTicks(5116),
                             Description = "Stylish earrings for all occasions",
                             Name = "Earrings",
                             Type = "Product"
                         },
                         new
                         {
-                            Id = new Guid("b6f2a0d3-023b-43d8-8584-67a0177eb70d"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 399, DateTimeKind.Utc).AddTicks(7103),
+                            Id = new Guid("ef55cf4c-c917-4762-8c0b-0a371418e3c5"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 887, DateTimeKind.Utc).AddTicks(5121),
                             Description = "Beautiful bracelets in various styles",
                             Name = "Bracelets",
                             Type = "Product"
                         },
                         new
                         {
-                            Id = new Guid("37ec125a-cb3e-4633-aebe-765f14ad3ffb"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 399, DateTimeKind.Utc).AddTicks(7107),
+                            Id = new Guid("68797f71-e145-49e0-8d86-844c1ecb1e18"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 887, DateTimeKind.Utc).AddTicks(5126),
                             Description = "Rings for engagement, fashion, and more",
                             Name = "Rings",
                             Type = "Product"
                         },
                         new
                         {
-                            Id = new Guid("cf01d319-7c54-4e8b-a0ae-4f267be50eac"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 399, DateTimeKind.Utc).AddTicks(7110),
+                            Id = new Guid("29fbeeee-dcb3-4331-8cc0-8ccdfbe7a01c"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 887, DateTimeKind.Utc).AddTicks(5131),
                             Description = "Unique brooches to complement any outfit",
                             Name = "Brooches",
                             Type = "Product"
@@ -1390,36 +1390,36 @@ namespace Shoppe.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("a4ed4bd6-2a5d-4132-a7b5-f6f1c939e69a"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 394, DateTimeKind.Utc).AddTicks(2935),
+                            Id = new Guid("4db58e0c-57df-4216-bf3b-24f189c9e89e"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 862, DateTimeKind.Utc).AddTicks(8662),
                             Name = "Fashion",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("d968fa55-9fd3-420e-aee4-a1388694729e"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 394, DateTimeKind.Utc).AddTicks(2939),
+                            Id = new Guid("3be49e7f-74da-4ff1-8981-57513492a00a"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 862, DateTimeKind.Utc).AddTicks(8670),
                             Name = "Jewelry Care",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("3ed6467f-ce3d-4d3a-a75d-2a6e9bd215bc"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 394, DateTimeKind.Utc).AddTicks(2956),
+                            Id = new Guid("ac3fb6b8-224a-453c-a763-2cf01b714e0b"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 862, DateTimeKind.Utc).AddTicks(8675),
                             Name = "Gemstones",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("291b385f-79c8-4dbf-96b2-64ef0aeb74e3"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 394, DateTimeKind.Utc).AddTicks(2959),
+                            Id = new Guid("d85856df-c757-4f6e-9f10-c2095130110d"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 862, DateTimeKind.Utc).AddTicks(8680),
                             Name = "DIY Jewelry",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("b7954637-d3ca-4d8f-9085-9a280f167d64"),
-                            CreatedAt = new DateTime(2024, 11, 14, 11, 29, 50, 394, DateTimeKind.Utc).AddTicks(2961),
+                            Id = new Guid("fb428df7-6fa5-481f-b569-320bb2fa9c43"),
+                            CreatedAt = new DateTime(2024, 11, 16, 12, 23, 43, 862, DateTimeKind.Utc).AddTicks(8685),
                             Name = "Trends",
                             Type = "Blog"
                         });

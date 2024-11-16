@@ -10,6 +10,7 @@ namespace Shoppe.Application.DTOs.Review
     public record GetReviewDTO
     {
         public Guid Id { get; set; }
+        public string AuthorId { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public GetImageFileDTO? ProfilePhoto { get; set; }

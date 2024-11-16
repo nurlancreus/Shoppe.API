@@ -15,6 +15,8 @@ namespace Shoppe.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Reply> builder)
         {
+           
+
             builder
                 .HasDiscriminator(r => r.Type)
                 .HasValue<BlogReply>("Blog");

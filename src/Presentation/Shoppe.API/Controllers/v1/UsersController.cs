@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Features.Command.User.AssignRoles;
 using Shoppe.Application.Features.Command.User.ChangeProfilePicture;
 using Shoppe.Application.Features.Command.User.Deactivate;
@@ -19,10 +20,12 @@ namespace Shoppe.API.Controllers.v1
     public class UsersController : ApplicationControllerBase
     {
         private readonly ISender _sender;
+        private readonly IJwtSession _jwtSession;
 
-        public UsersController(ISender sender)
+        public UsersController(ISender sender, IJwtSession jwtSession)
         {
             _sender = sender;
+            _jwtSession = jwtSession;
         }
 
         [HttpGet]
@@ -37,6 +40,16 @@ namespace Shoppe.API.Controllers.v1
         public async Task<IActionResult> Get(string id)
         {
             var request = new GetUserQueryRequest { UserId = id };
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMe()
+        {
+            var request = new GetUserQueryRequest { UserId = _jwtSession.GetUserId() };
 
             var response = await _sender.Send(request);
 
