@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Shoppe.Domain.Entities.Base;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Reactions;
@@ -14,6 +15,21 @@ namespace Shoppe.Domain.Entities.Identity
 {
     public class ApplicationUser : IdentityUser, IBase
     {
+        private readonly ILazyLoader _lazyLoader;
+
+        public ApplicationUser()
+        {
+
+        }
+
+        public ApplicationUser(ILazyLoader lazyLoader)
+        {
+            _lazyLoader = lazyLoader;
+        }
+
+        private ICollection<UserProfileImageFile> _profilePictureFiles = [];
+
+
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? RefreshToken { get; set; }
@@ -23,7 +39,12 @@ namespace Shoppe.Domain.Entities.Identity
         public ICollection<Reply> Replies { get; set; } = [];
         public ICollection<Reaction> Reactions { get; set; } = [];
         public ICollection<Basket> Baskets { get; set; } = [];
-        public ICollection<UserProfileImageFile> ProfilePictureFiles { get; set; } = [];
+
+        public ICollection<UserProfileImageFile> ProfilePictureFiles
+        {
+            get => _lazyLoader.Load(this, ref _profilePictureFiles) ?? [];
+            set => _profilePictureFiles = value;
+        }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

@@ -8,7 +8,7 @@ namespace Shoppe.Domain.Enums
 {
     public enum ReplyReactionType
     {
+        Like,
         Dislike,
-        Like
     }
 }

@@ -15,7 +15,7 @@ namespace Shoppe.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Reply> builder)
         {
-           
+            builder.ToTable(s => s.HasCheckConstraint("CK_Reply_Depth", "[Depth] >= 0 AND [Depth] <= 3"));
 
             builder
                 .HasDiscriminator(r => r.Type)

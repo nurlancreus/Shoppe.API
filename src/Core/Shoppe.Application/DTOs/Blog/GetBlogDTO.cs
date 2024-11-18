@@ -1,6 +1,7 @@
 ﻿using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Content;
 using Shoppe.Application.DTOs.Files;
+using Shoppe.Application.DTOs.Reaction;
 using Shoppe.Application.DTOs.Tag;
 using Shoppe.Application.DTOs.User;
 using Shoppe.Domain.Entities.Files;
@@ -22,6 +23,7 @@ namespace Shoppe.Application.DTOs.Blog
         public ICollection<GetContentFileDTO> ContentImages { get; set; } = [];
         public List<GetCategoryDTO> Categories { get; set; } = [];
         public List<GetTagDTO> Tags { get; set; } = [];
+        public List<GetReactionDTO> Reactions { get; set; } = [];
         public DateTime CreatedAt { get; set; }
     }
 }

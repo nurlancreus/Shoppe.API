@@ -174,6 +174,8 @@ namespace Shoppe.Persistence
 
             services.AddScoped<ITagService, TagService>();
 
+            services.AddScoped<IReactionService, ReactionService>();
+
             services.AddScoped<IReplyService, ReplyService>();
             services.AddScoped<ISliderService, SliderService>();
 

@@ -8,11 +8,13 @@ using Shoppe.Application.Features.Command.Blog.Create;
 using Shoppe.Application.Features.Command.Blog.Delete;
 using Shoppe.Application.Features.Command.Blog.RemoveImage;
 using Shoppe.Application.Features.Command.Blog.Update;
+using Shoppe.Application.Features.Command.Reaction.ToggleReaction;
 using Shoppe.Application.Features.Command.Reply.Create;
 using Shoppe.Application.Features.Command.Review.CreateReview;
 using Shoppe.Application.Features.Query.Blog.Get;
 using Shoppe.Application.Features.Query.Blog.GetAll;
 using Shoppe.Application.Features.Query.Files.GetAllImageFiles;
+using Shoppe.Application.Features.Query.Reaction.GetBlogReactions;
 using Shoppe.Application.Features.Query.Reply.GetRepliesByEntity;
 using Shoppe.Application.Features.Query.Review.GetReviewByEntity;
 using Shoppe.Domain.Entities;
@@ -131,6 +133,27 @@ namespace Shoppe.API.Controllers.v1
         public async Task<IActionResult> GetAllBlogsImages([FromQuery] GetAllImageFIlesQueryRequest request)
         {
             request.Type = ImageFileType.Blog;
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpGet("{id}/reactions")]
+        public async Task<IActionResult> GetReactions(Guid id)
+        {
+            var request = new GetBlogReactionsQueryRequest { BlogId = id };
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpPost("{id}/reactions")]
+        public async Task<IActionResult> ToggleReaction(Guid id, ToggleReactionCommandRequest request)
+        {
+            request.EntityId = id;
+            request.EntityType = ReactionEntityType.Blog;
 
             var response = await _sender.Send(request);
 

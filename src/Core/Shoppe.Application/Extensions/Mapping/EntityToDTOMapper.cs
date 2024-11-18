@@ -1,4 +1,5 @@
-﻿using Shoppe.Application.DTOs.Blog;
+﻿using Shoppe.Application.Abstractions.Services;
+using Shoppe.Application.DTOs.Blog;
 using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Contact;
 using Shoppe.Application.DTOs.Files;
@@ -47,7 +48,7 @@ namespace Shoppe.Application.Extensions.Mapping
             };
         }
 
-        public static GetBlogDTO ToGetBlogDTO(this Blog blog)
+        public static GetBlogDTO ToGetBlogDTO(this Blog blog, IReactionService reactionService)
         {
             return new GetBlogDTO
             {
@@ -73,6 +74,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 ContentImages = blog.ContentImages.Select(i => i.ToGetContentFileDTO()).ToList(),
                 Categories = blog.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
                 Tags = blog.Tags.Select(t => t.ToGetTagDTO()).ToList(),
+                Reactions = reactionService.GetBlogReactions(blog),
                 CreatedAt = blog.CreatedAt
             };
         }
@@ -141,7 +143,7 @@ namespace Shoppe.Application.Extensions.Mapping
             };
         }
 
-        public static GetReplyDTO ToGetReplyDTO(this Reply reply)
+        public static GetReplyDTO ToGetReplyDTO(this Reply reply, IReactionService reactionService)
         {
             var profilePic = reply.Replier.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
 
@@ -153,6 +155,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 LastName = reply.Replier.LastName!,
                 ProfilePhoto = profilePic != null ? new GetImageFileDTO
                 {
+                    IsMain = profilePic.IsMain,
                     Id = profilePic.Id,
                     FileName = profilePic.FileName,
                     PathName = profilePic.PathName,
@@ -160,8 +163,9 @@ namespace Shoppe.Application.Extensions.Mapping
                 } : null,
                 Body = reply.Body,
                 Depth = reply.Depth,
-                Replies = reply.Replies.Select(r => r.ToGetReplyDTO()).ToList(),
-                CreatedAt = reply.CreatedAt
+                Replies = reply.Replies.Select(r => r.ToGetReplyDTO(reactionService)).ToList(),
+                CreatedAt = reply.CreatedAt,
+                Reactions = reactionService.GetReplyReactions(reply)
             };
         }
 

@@ -51,7 +51,8 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IJwtSession _jwtSession;
         private readonly IFileReadRepository _fileReadRepository;
         private readonly IFileWriteRepository _fileWriteRepository;
-        public BlogService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, ICategoryReadRepository categoryReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IJwtSession jwtSession, ITagReadRepository tagReadRepository, IContentUpdater contentUpdater, IFileReadRepository fileReadRepository, IFileWriteRepository fileWriteRepository)
+        private readonly IReactionService _reactionService;
+        public BlogService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, ICategoryReadRepository categoryReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IJwtSession jwtSession, ITagReadRepository tagReadRepository, IContentUpdater contentUpdater, IFileReadRepository fileReadRepository, IFileWriteRepository fileWriteRepository, IReactionService reactionService)
         {
             _blogReadRepository = blogReadRepository;
             _blogWriteRepository = blogWriteRepository;
@@ -64,6 +65,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _contentUpdater = contentUpdater;
             _fileReadRepository = fileReadRepository;
             _fileWriteRepository = fileWriteRepository;
+            _reactionService = reactionService;
         }
 
         public async Task ChangeCoverImageAsync(Guid blogId, Guid? newCoverImageId, IFormFile? newCoverImageFile, CancellationToken cancellationToken)
@@ -289,6 +291,7 @@ namespace Shoppe.Persistence.Concretes.Services
                                     .Include(b => b.Tags)
                                     .Include(b => b.Categories)
                                     .Include(b => b.ContentImages)
+                                    .Include(b => b.Reactions)
                                     .Include(b => b.BlogCoverImageFile)
                                     .AsNoTrackingWithIdentityResolution()
                                     .AsQueryable();
@@ -310,7 +313,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var paginationResult = await _paginationService.ConfigurePaginationAsync(blogFilterParamsDTO.Page, blogFilterParamsDTO.PageSize, blogQuery, cancellationToken);
 
-            var blogDtos = await paginationResult.PaginatedQuery.Select(blog => blog.ToGetBlogDTO()).ToListAsync(cancellationToken);
+            var blogDtos = await paginationResult.PaginatedQuery.Select(blog => blog.ToGetBlogDTO(_reactionService)).ToListAsync(cancellationToken);
 
             return new GetAllBlogsDTO
             {
@@ -330,6 +333,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 .Include(b => b.Tags)
                 .Include(b => b.Categories)
                 .Include(b => b.ContentImages)
+                .Include(b => b.Reactions)
                 .AsNoTrackingWithIdentityResolution()
                 .FirstOrDefaultAsync(b => b.Id == blogId, cancellationToken);
 
@@ -339,7 +343,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(blog));
             }
 
-            return blog.ToGetBlogDTO();
+            return blog.ToGetBlogDTO(_reactionService);
         }
 
         public async Task UpdateAsync(UpdateBlogDTO updateBlogDTO, CancellationToken cancellationToken)

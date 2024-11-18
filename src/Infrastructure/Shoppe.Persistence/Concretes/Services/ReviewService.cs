@@ -126,7 +126,6 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 ReviewType.Product => _reviewReadRepository.Table.OfType<ProductReview>()
                     .Include(r => r.Reviewer)
-                        .ThenInclude(u => u.ProfilePictureFiles)
                    // .Include(r => r.Product)
                     .Where(r => r.ProductId == entityId)
                     .AsNoTracking(),
@@ -143,7 +142,6 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             var replies = await _reviewReadRepository.Table
                 .Include(r => r.Reviewer)
-                    .ThenInclude(u => u.ProfilePictureFiles)
                 .Where(r => r.Reviewer.Id.ToString() == userId)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);

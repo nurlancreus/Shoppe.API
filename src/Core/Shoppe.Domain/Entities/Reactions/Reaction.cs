@@ -1,4 +1,5 @@
-﻿using Shoppe.Domain.Entities.Base;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Shoppe.Domain.Entities.Base;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Entities.Replies;
 using Shoppe.Domain.Enums;
@@ -13,8 +14,25 @@ namespace Shoppe.Domain.Entities.Reactions
 {
     public class Reaction : BaseEntity
     {
+        private readonly ILazyLoader _lazyLoader;
+
+        public Reaction()
+        {
+
+        }
+
+        public Reaction(ILazyLoader lazyLoader)
+        {
+            _lazyLoader = lazyLoader;
+        }
+
+        private ApplicationUser _user = null!;
         public string UserId { get; set; } = null!;
-        public ApplicationUser User { get; set; } = null!;
+        public ApplicationUser User
+        {
+            get => _lazyLoader.Load(this, ref _user!)!;
+            set => _user = value;
+        }
 
         public string EntityType { get; set; } 
 

@@ -32,6 +32,7 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IPaginationService _paginationService;
         private readonly IJwtSession _jwtSession;
         private readonly ILogger<ReplyService> _logger;
+        private readonly IReactionService _reactionService;
 
         public ReplyService(
             IReplyReadRepository replyReadRepository,
@@ -40,7 +41,8 @@ namespace Shoppe.Persistence.Concretes.Services
             IPaginationService paginationService,
             IJwtSession jwtSession,
             IBlogReadRepository blogReadRepository,
-            ILogger<ReplyService> logger)
+            ILogger<ReplyService> logger,
+            IReactionService reactionService)
         {
             _replyReadRepository = replyReadRepository;
             _replyWriteRepository = replyWriteRepository;
@@ -49,6 +51,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _jwtSession = jwtSession;
             _blogReadRepository = blogReadRepository;
             _logger = logger;
+            _reactionService = reactionService;
         }
 
         public async Task CreateAsync(CreateReplyDTO createReplyDTO, Guid entityId, ReplyType replyType, CancellationToken cancellationToken)
@@ -104,13 +107,9 @@ namespace Shoppe.Persistence.Concretes.Services
             var replyQuery = _replyReadRepository.Table.AsQueryable().AsNoTracking();
             var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, replyQuery, cancellationToken);
             var replies = await paginationResult.PaginatedQuery
-                .Include(r => r.Replier)
-                    .ThenInclude(u => u.ProfilePictureFiles)
-                //.Include(r => r.Replies)
-                //    .ThenInclude(r => r.Replies)
                 .ToListAsync(cancellationToken);
 
-            var repliesDto = replies.Select(r => r.ToGetReplyDTO()).ToList();
+            var repliesDto = replies.Select(r => r.ToGetReplyDTO(_reactionService)).ToList();
 
             return new GetAllRepliesDTO
             {
@@ -125,10 +124,6 @@ namespace Shoppe.Persistence.Concretes.Services
         public async Task<GetReplyDTO> GetAsync(Guid replyId, CancellationToken cancellationToken)
         {
             var reply = await _replyReadRepository.Table
-                .Include(r => r.Replier)
-                    .ThenInclude(u => u.ProfilePictureFiles)
-                //.Include(r => r.Replies)
-                //    .ThenInclude(r => r.Replies)
                 .FirstOrDefaultAsync(r => r.Id == replyId, cancellationToken);
 
             if (reply == null)
@@ -137,7 +132,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException("Reply not found");
             }
 
-            return reply.ToGetReplyDTO();
+            return reply.ToGetReplyDTO(_reactionService);
         }
 
         public async Task<List<GetReplyDTO>> GetRepliesByEntityAsync(Guid entityId, ReplyType replyType, CancellationToken cancellationToken)
@@ -146,37 +141,28 @@ namespace Shoppe.Persistence.Concretes.Services
             var replyQuery = replyType switch
             {
                 ReplyType.Blog => _replyReadRepository.Table.OfType<BlogReply>()
-                    .Include(r => r.Replier)
-                        .ThenInclude(u => u.ProfilePictureFiles)
-                    //.Include(r => r.Blog)
-                    //.Include(r => r.Replies)
                     .Where(r => r.BlogId == entityId)
-                    .AsNoTrackingWithIdentityResolution(),
+                    .AsNoTracking(),
 
                 ReplyType.Reply => _replyReadRepository.Table.OfType<Reply>()
-                    .Include(r => r.Replier)
-                        .ThenInclude(u => u.ProfilePictureFiles)
-                    // .Include(r => r.Replies)
                     .Where(r => r.ParentReplyId == entityId)
-                    .AsNoTrackingWithIdentityResolution(),
+                    .AsNoTracking(),
                 _ => throw new InvalidOperationException("Invalid reply type"),
             };
 
             var replies = await replyQuery.OrderBy(r => r.CreatedAt).ToListAsync(cancellationToken);
 
-            return replies.Select(r => r.ToGetReplyDTO()).ToList();
+            return replies.Select(r => r.ToGetReplyDTO(_reactionService)).ToList();
         }
 
         public async Task<List<GetReplyDTO>> GetRepliesByParentAsync(Guid parentId, CancellationToken cancellationToken)
         {
             var replies = await _replyReadRepository.Table
-                .Include(r => r.Replier)
-                    .ThenInclude(u => u.ProfilePictureFiles)
                 .Where(r => r.ParentReplyId == parentId)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            return replies.Select(r => r.ToGetReplyDTO()).ToList();
+            return replies.Select(r => r.ToGetReplyDTO(_reactionService)).ToList();
         }
 
         public async Task UpdateAsync(UpdateReplyDTO updateReplyDTO, CancellationToken cancellationToken)
@@ -253,15 +239,11 @@ namespace Shoppe.Persistence.Concretes.Services
         public async Task<List<GetReplyDTO>> GetRepliesByUserAsync(string userId, CancellationToken cancellationToken)
         {
             var replies = await _replyReadRepository.Table
-                .Include(r => r.Replier)
-                    .ThenInclude(u => u.ProfilePictureFiles)
-                //.Include(r => r.Replies)
-                //    .ThenInclude(r => r.Replies)
                 .Where(r => r.Replier.Id == userId)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            return replies.Select(r => r.ToGetReplyDTO()).ToList();
+            return replies.Select(r => r.ToGetReplyDTO(_reactionService)).ToList();
         }
     }
 }

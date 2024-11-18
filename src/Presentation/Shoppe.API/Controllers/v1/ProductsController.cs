@@ -104,12 +104,7 @@ namespace Shoppe.API.Controllers.v1
         [HttpGet("colors")]
         public async Task<IActionResult> GetColors()
         {
-            List<string> colors = [];
-
-            foreach (var color in Enum.GetNames<Color>())
-            {
-                colors.Add(color);
-            }
+            var colors = Enum.GetNames<Color>();
 
             return await Task.FromResult(Ok(colors));
         }
@@ -117,12 +112,7 @@ namespace Shoppe.API.Controllers.v1
         [HttpGet("materials")]
         public async Task<IActionResult> GetMaterials()
         {
-            List<string> materials = [];
-
-            foreach (var material in Enum.GetNames<Material>())
-            {
-                materials.Add(material);
-            }
+            var materials = Enum.GetNames<Material>();
 
             return await Task.FromResult(Ok(materials));
         }

@@ -113,7 +113,7 @@ namespace Shoppe.Persistence.Concretes.Services
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var user = await _userManager.Users
-                .Include(u => u.ProfilePictureFiles)
+                
                 .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
             if (user == null) throw new EntityNotFoundException(nameof(user));
@@ -179,7 +179,7 @@ namespace Shoppe.Persistence.Concretes.Services
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var user = await _userManager.Users
-               .Include(u => u.ProfilePictureFiles)
+               
                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
             if (user == null) throw new EntityNotFoundException(nameof(user));
@@ -201,7 +201,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task<GetAllUsersDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
-            var userQuery = _userManager.Users.Include(u => u.ProfilePictureFiles).AsNoTracking();
+            var userQuery = _userManager.Users.AsNoTracking();
 
             var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, userQuery, cancellationToken);
 
@@ -220,7 +220,7 @@ namespace Shoppe.Persistence.Concretes.Services
         public async Task<GetUserDTO> GetAsync(string userId, CancellationToken cancellationToken)
         {
             var user = await _userManager.Users
-               .Include(u => u.ProfilePictureFiles)
+               
                .AsNoTracking()
                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
@@ -232,8 +232,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task<List<GetImageFileDTO>> GetImagesAsync(string userId, CancellationToken cancellationToken)
         {
-            var user = await _userManager.Users
-                         .Include(u => u.ProfilePictureFiles)
+            var user = await _userManager.Users         
                          .AsNoTracking()
                          .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
@@ -271,9 +270,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var user = await _userManager.Users
-                 .Include(u => u.ProfilePictureFiles)
-                 .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
             if (user == null) throw new EntityNotFoundException(nameof(user));
 
@@ -307,7 +304,7 @@ namespace Shoppe.Persistence.Concretes.Services
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var user = await _userManager.Users
-             .Include(u => u.ProfilePictureFiles)
+             
              .FirstOrDefaultAsync(u => u.Id == updateUserDTO.UserId, cancellationToken);
 
             if (user == null) throw new EntityNotFoundException(nameof(user));
