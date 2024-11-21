@@ -22,7 +22,7 @@ namespace Shoppe.Application.Features.Command.Contact.CreateContact
 
         public async Task<CreateContactCommandResponse> Handle(CreateContactCommandRequest request, CancellationToken cancellationToken)
         {
-            await _contactService.CreateContactAsync(request.ToCreateContactDTO(), cancellationToken);
+            await _contactService.CreateAsync(request.ToCreateContactDTO(), cancellationToken);
 
             return new CreateContactCommandResponse()
             {

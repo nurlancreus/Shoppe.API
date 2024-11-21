@@ -2,16 +2,22 @@
 using Shoppe.Application.Abstractions.Pagination;
 using Shoppe.Application.Abstractions.Repositories.ContactRepos;
 using Shoppe.Application.Abstractions.Services;
+using Shoppe.Application.Abstractions.Services.Mail;
+using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Contact;
+using Shoppe.Application.DTOs.Mail;
 using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Domain.Entities;
+using Shoppe.Domain.Entities.Contacts;
+using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Shoppe.Persistence.Concretes.Services
 {
@@ -19,27 +25,94 @@ namespace Shoppe.Persistence.Concretes.Services
     {
         private readonly IContactReadRepository _contactReadRepository;
         private readonly IContactWriteRepository _contactWriteRepository;
+        private readonly IJwtSession _jwtSession;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPaginationService _paginationService;
+        private readonly IEmailService _emailService;
+        private readonly IEmailTemplateService _emailTemplateService;
 
-        public ContactService(IContactReadRepository contactReadRepository, IContactWriteRepository contactWriteRepository, IUnitOfWork unitOfWork, IPaginationService paginationService)
+        public ContactService(IContactReadRepository contactReadRepository, IContactWriteRepository contactWriteRepository, IUnitOfWork unitOfWork, IPaginationService paginationService, IJwtSession jwtSession, IEmailService emailService)
         {
             _contactReadRepository = contactReadRepository;
             _contactWriteRepository = contactWriteRepository;
             _unitOfWork = unitOfWork;
             _paginationService = paginationService;
+            _jwtSession = jwtSession;
+            _emailService = emailService;
         }
 
-        public async Task CreateContactAsync(CreateContactDTO createContactDTO, CancellationToken cancellationToken)
+        public async Task AnswerContactMessageAsync(AnswerContactMessageDTO answerContactMessageDTO, CancellationToken cancellationToken)
         {
-            var contact = new Contact()
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            var contact = await _contactReadRepository.Table.Include(c => (c as RegisteredContact)!.User).FirstOrDefaultAsync(c => c.Id == answerContactMessageDTO.ContactId, cancellationToken);
+
+            if (contact == null)
             {
-                FirstName = createContactDTO.FirstName,
-                LastName = createContactDTO.LastName,
-                Email = createContactDTO.Email,
-                Subject = createContactDTO.Subject,
-                Message = createContactDTO.Message,
-            };
+                throw new EntityNotFoundException(nameof(contact));
+            }
+
+            if (!string.IsNullOrEmpty(answerContactMessageDTO.Message))
+            {
+                string emailSubject = $"Regarding Your Question: {contact.Subject}";
+
+                if (contact is RegisteredContact registeredContact && registeredContact.User != null)
+                {
+                    var name = $"{registeredContact.User.FirstName} {registeredContact.User.LastName}";
+                    var emailBody = _emailTemplateService.GenerateContactResponseTemplate(name, emailSubject, answerContactMessageDTO.Message);
+
+                    await _emailService.SendEmailAsync(new RecipientDetailsDTO
+                    {
+                        Name = $"{registeredContact.User.FirstName} {registeredContact.User.LastName}",
+                        Email = registeredContact.User.Email!,
+                    }, emailSubject, emailBody);
+
+                }
+                else if (contact is UnRegisteredContact unRegisteredContact)
+                {
+                    var name = $"{unRegisteredContact.FirstName} {unRegisteredContact.LastName}";
+                    var emailBody = _emailTemplateService.GenerateContactResponseTemplate(name, emailSubject, answerContactMessageDTO.Message);
+
+                    await _emailService.SendEmailAsync(new RecipientDetailsDTO
+                    {
+                        Name = name,
+                        Email = unRegisteredContact.Email,
+                    }, emailSubject, emailBody);
+                }
+
+                contact.IsAnswered = true;
+                contact.AnsweredAt = DateTime.UtcNow;
+            }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
+        }
+
+        public async Task CreateAsync(CreateContactDTO createContactDTO, CancellationToken cancellationToken)
+        {
+            Contact contact = new();
+
+            if (_jwtSession.IsAuthenticated())
+            {
+                contact = new RegisteredContact
+                {
+                    UserId = _jwtSession.GetUserId(),
+                };
+            }
+
+            else if (!string.IsNullOrEmpty(createContactDTO.FirstName) && !string.IsNullOrEmpty(createContactDTO.LastName) && !string.IsNullOrEmpty(createContactDTO.Email))
+            {
+                contact = new UnRegisteredContact
+                {
+                    FirstName = createContactDTO.FirstName,
+                    LastName = createContactDTO.LastName,
+                    Email = createContactDTO.Email,
+                };
+            }
+
+            contact.Subject = createContactDTO.Subject;
+            contact.Message = createContactDTO.Message;
 
             bool isAdded = await _contactWriteRepository.AddAsync(contact, cancellationToken);
 
@@ -53,7 +126,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         }
 
-        public async Task DeleteContactAsync(Guid id, CancellationToken cancellationToken)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
             var contact = await _contactReadRepository.GetByIdAsync(id, cancellationToken);
 
@@ -72,9 +145,9 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<GetAllContactsDTO> GetAllContactsAsync(int page, int size, CancellationToken cancellationToken)
+        public async Task<GetAllContactsDTO> GetAllAsync(int page, int size, CancellationToken cancellationToken)
         {
-            var query = await _contactReadRepository.GetAllAsync(false);
+            var query = _contactReadRepository.Table.Include(c => (c as RegisteredContact)!.User).AsNoTracking();
 
             var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, size, query, cancellationToken);
 
@@ -90,9 +163,9 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task<GetContactDTO> GetContactAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<GetContactDTO> GetAsync(Guid id, CancellationToken cancellationToken)
         {
-            var contact = await _contactReadRepository.GetByIdAsync(id, cancellationToken);
+            var contact = await _contactReadRepository.Table.Include(c => (c as RegisteredContact)!.User).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
             if (contact == null)
             {
@@ -102,7 +175,7 @@ namespace Shoppe.Persistence.Concretes.Services
             return contact.ToGetContactDTO();
         }
 
-        public async Task UpdateContactAsync(UpdateContactDTO updateContactDTO, CancellationToken cancellationToken)
+        public async Task UpdateAsync(UpdateContactDTO updateContactDTO, CancellationToken cancellationToken)
         {
             var contact = await _contactReadRepository.GetByIdAsync(updateContactDTO.Id, cancellationToken);
 
@@ -111,24 +184,19 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(contact));
             }
 
-            if (updateContactDTO.FirstName != null && contact.FirstName != updateContactDTO.FirstName)
+            if (contact is UnRegisteredContact unregisteredContact)
             {
-                contact.FirstName = updateContactDTO.FirstName;
+
+                if (updateContactDTO.Email != null && unregisteredContact.Email != updateContactDTO.Email)
+                {
+                    unregisteredContact.Email = updateContactDTO.Email;
+                }
             }
 
-            if (updateContactDTO.LastName != null &&contact.LastName != updateContactDTO.LastName)
-            {
-                contact.LastName = updateContactDTO.LastName;
-            }
 
-            if (updateContactDTO.Email != null && contact.Email != updateContactDTO.Email)
+            if (updateContactDTO.Subject is ContactSubject contactSubject && contact.Subject != contactSubject)
             {
-                contact.Email = updateContactDTO.Email;
-            }
-
-            if (updateContactDTO.Subject != null && contact.Subject != updateContactDTO.Subject)
-            {
-                contact.Subject = updateContactDTO.Subject;
+                contact.Subject = contactSubject;
             }
 
             if (updateContactDTO.Message != null && contact.Message != updateContactDTO.Message)

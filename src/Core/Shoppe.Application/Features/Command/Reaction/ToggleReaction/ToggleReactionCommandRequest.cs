@@ -12,7 +12,7 @@ namespace Shoppe.Application.Features.Command.Reaction.ToggleReaction
     {
         public Guid EntityId { get; set; }
         public ReactionEntityType? EntityType { get; set; }
-        public ReplyReactionType? ReplyReactionType { get; set; }
-        public BlogReactionType? BlogReactionType { get; set; }
+        public string? ReplyReactionType { get; set; }
+        public string? BlogReactionType { get; set; }
     }
 }

@@ -145,27 +145,31 @@ namespace Shoppe.Application.Extensions.Mapping
 
         public static CreateContactDTO ToCreateContactDTO(this CreateContactCommandRequest request)
         {
-            return new CreateContactDTO
+            var contactDTO = new CreateContactDTO
             {
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email,
-                Subject = request.Subject,
                 Message = request.Message
             };
+
+            contactDTO.Subject = Enum.Parse<ContactSubject>(request.Subject);
+
+            return contactDTO;
         }
 
         public static UpdateContactDTO ToUpdateContactDTO(this UpdateContactCommandRequest request)
         {
-            return new UpdateContactDTO
+            var contactDTO = new UpdateContactDTO
             {
-                Id = (Guid)request.Id!,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
                 Email = request.Email,
-                Subject = request.Subject,
                 Message = request.Message
             };
+
+            if (request.Subject != null)
+                contactDTO.Subject = Enum.Parse<ContactSubject>(request.Subject);
+
+            return contactDTO;
         }
 
         public static CreateDiscountDTO ToCreateDiscountDTO(this CreateDiscountCommandRequest request)

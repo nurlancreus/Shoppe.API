@@ -1,5 +1,5 @@
 ﻿using Shoppe.Application.Abstractions.Repositories.ContactRepos;
-using Shoppe.Domain.Entities;
+using Shoppe.Domain.Entities.Contacts;
 using Shoppe.Persistence.Context;
 using System;
 using System.Collections.Generic;

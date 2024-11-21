@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Query.Contact.GetContactById
 
         public async Task<GetContactByIdQueryResponse> Handle(GetContactByIdQueryRequest request, CancellationToken cancellationToken)
         {
-            var contact = await _contactService.GetContactAsync((Guid)request.Id!, cancellationToken);
+            var contact = await _contactService.GetAsync((Guid)request.Id!, cancellationToken);
 
             return new GetContactByIdQueryResponse()
             {

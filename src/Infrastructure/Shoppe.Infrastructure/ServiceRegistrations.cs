@@ -20,6 +20,8 @@ using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Infrastructure.Concretes.Services.Session;
 using Shoppe.Application.Abstractions.Services.Content;
 using Shoppe.Infrastructure.Concretes.Services.Content;
+using Shoppe.Application.Abstractions.Services.Mail;
+using Shoppe.Infrastructure.Concretes.Services.Mail;
 
 namespace Shoppe.Infrastructure
 {
@@ -34,6 +36,9 @@ namespace Shoppe.Infrastructure
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IJwtSession, JwtSession>();
             services.AddScoped<IContentUpdater, ContentUpdater>();
+
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IEmailTemplateService, EmailTemplateService>();
             #endregion
 
             return services;
@@ -71,7 +76,7 @@ namespace Shoppe.Infrastructure
             services.AddDefaultAWSOptions(awsOptions);
             services.AddAWSService<IAmazonS3>();
 
-   
+
         }
     }
 }

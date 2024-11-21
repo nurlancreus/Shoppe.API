@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Shoppe.Application.Abstractions.Pagination;
 using Shoppe.Application.Abstractions.Repositories.BlogRepos;
+using Shoppe.Application.Abstractions.Repositories.ReactionRepos;
 using Shoppe.Application.Abstractions.Repositories.ReplyRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Session;
@@ -27,6 +28,7 @@ namespace Shoppe.Persistence.Concretes.Services
     {
         private readonly IReplyReadRepository _replyReadRepository;
         private readonly IReplyWriteRepository _replyWriteRepository;
+        private readonly IReactionWriteRepository _reactionWriteRepository;
         private readonly IBlogReadRepository _blogReadRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPaginationService _paginationService;
@@ -42,7 +44,8 @@ namespace Shoppe.Persistence.Concretes.Services
             IJwtSession jwtSession,
             IBlogReadRepository blogReadRepository,
             ILogger<ReplyService> logger,
-            IReactionService reactionService)
+            IReactionService reactionService,
+            IReactionWriteRepository reactionWriteRepository)
         {
             _replyReadRepository = replyReadRepository;
             _replyWriteRepository = replyWriteRepository;
@@ -52,6 +55,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _blogReadRepository = blogReadRepository;
             _logger = logger;
             _reactionService = reactionService;
+            _reactionWriteRepository = reactionWriteRepository;
         }
 
         public async Task CreateAsync(CreateReplyDTO createReplyDTO, Guid entityId, ReplyType replyType, CancellationToken cancellationToken)
@@ -99,7 +103,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 }
             }
 
-            return _replyWriteRepository.Delete(parent);
+            return _replyWriteRepository.Delete(parent) && _reactionWriteRepository.DeleteRange(parent.Reactions);
         }
 
         public async Task<GetAllRepliesDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)

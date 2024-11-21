@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.DTOs.Reaction;
+using Shoppe.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,13 +21,22 @@ namespace Shoppe.Application.Features.Command.Reaction.ToggleReaction
 
         public async Task<ToggleReactionCommandResponse> Handle(ToggleReactionCommandRequest request, CancellationToken cancellationToken)
         {
-            await _reactionService.ToggleReactionAsync(new ToggleReactionDTO
+            var toggleReactionDTO = new ToggleReactionDTO
             {
-                BlogReactionType = request.BlogReactionType,
                 EntityId = request.EntityId,
                 EntityType = request.EntityType,
-                ReplyReactionType = request.ReplyReactionType   
-            }, cancellationToken);
+            };
+
+            if (request.BlogReactionType != null)
+            {
+                toggleReactionDTO.BlogReactionType = Enum.Parse<BlogReactionType>(request.BlogReactionType!);
+            }
+            else if (request.ReplyReactionType != null)
+            {
+                toggleReactionDTO.ReplyReactionType = Enum.Parse<ReplyReactionType>(request.ReplyReactionType!);
+            }
+
+            await _reactionService.ToggleReactionAsync(toggleReactionDTO, cancellationToken);
 
             return new ToggleReactionCommandResponse
             {

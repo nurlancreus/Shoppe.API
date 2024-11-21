@@ -14,6 +14,7 @@ using Shoppe.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,10 +30,11 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IReplyReadRepository _replyReadRepository;
         private readonly IReplyWriteRepository _replyWriteRepository;
         private readonly IReactionReadRepository _reactionReadRepository;
+        private readonly IReactionWriteRepository _reactionWriteRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtSession _jwtSession;
 
-        public ReactionService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, IReplyReadRepository replyReadRepository, IReplyWriteRepository replyWriteRepository, IJwtSession jwtSession, IReactionReadRepository reactionReadRepository, IUnitOfWork unitOfWork)
+        public ReactionService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, IReplyReadRepository replyReadRepository, IReplyWriteRepository replyWriteRepository, IJwtSession jwtSession, IReactionReadRepository reactionReadRepository, IUnitOfWork unitOfWork, IReactionWriteRepository reactionWriteRepository)
         {
             _blogReadRepository = blogReadRepository;
             _blogWriteRepository = blogWriteRepository;
@@ -41,6 +43,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _jwtSession = jwtSession;
             _reactionReadRepository = reactionReadRepository;
             _unitOfWork = unitOfWork;
+            _reactionWriteRepository = reactionWriteRepository;
         }
 
         public async Task<List<GetReactionDTO>> GetBlogReactionsAsync(Guid id, CancellationToken cancellationToken)
@@ -204,7 +207,10 @@ namespace Shoppe.Persistence.Concretes.Services
 
                     if (userReaction?.BlogReactionType == toggleReactionDTO.BlogReactionType)
                     {
-                        blog.Reactions.Remove(userReact);
+                        if (blog.Reactions.Remove(userReact))
+                        {
+                            _reactionWriteRepository.Delete(userReact);
+                        }
                     }
                     else
                     {
@@ -240,7 +246,10 @@ namespace Shoppe.Persistence.Concretes.Services
 
                     if (userReaction?.ReplyReactionType == toggleReactionDTO.ReplyReactionType)
                     {
-                        reply.Reactions.Remove(userReact);
+                        if (reply.Reactions.Remove(userReact))
+                        {
+                            _reactionWriteRepository.Delete(userReact);
+                        }
                     }
                     else
                     {

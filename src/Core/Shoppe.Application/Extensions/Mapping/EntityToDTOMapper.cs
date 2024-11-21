@@ -9,6 +9,7 @@ using Shoppe.Application.DTOs.Tag;
 using Shoppe.Application.DTOs.User;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Categories;
+using Shoppe.Domain.Entities.Contacts;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Entities.Replies;
@@ -171,16 +172,30 @@ namespace Shoppe.Application.Extensions.Mapping
 
         public static GetContactDTO ToGetContactDTO(this Contact contact)
         {
-            return new GetContactDTO()
+            var contactDTO = new GetContactDTO()
             {
                 Id = contact.Id,
-                FirstName = contact.FirstName,
-                LastName = contact.LastName,
-                Email = contact.Email,
-                Subject = contact.Subject,
+                Subject = contact.Subject.ToString(),
                 Message = contact.Message,
+                IsAnswered = contact.IsAnswered,
                 CreatedAt = contact.CreatedAt
             };
+
+            if (contact is RegisteredContact registered)
+            {
+                contactDTO.FirstName = registered.User.FirstName!;
+                contactDTO.LastName = registered.User.LastName!;
+                contactDTO.Email = registered.User.Email!;
+
+            }
+            else if (contact is UnRegisteredContact unRegistered) 
+            {
+                contactDTO.FirstName = unRegistered.FirstName!;
+                contactDTO.LastName = unRegistered.LastName!;
+                contactDTO.Email = unRegistered.Email!;
+            }
+
+            return contactDTO;
         }
     }
 }

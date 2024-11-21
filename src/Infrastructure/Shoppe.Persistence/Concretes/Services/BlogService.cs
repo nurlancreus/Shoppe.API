@@ -5,6 +5,7 @@ using Shoppe.Application.Abstractions.Pagination;
 using Shoppe.Application.Abstractions.Repositories.BlogRepos;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Application.Abstractions.Repositories.FileRepos;
+using Shoppe.Application.Abstractions.Repositories.ReactionRepos;
 using Shoppe.Application.Abstractions.Repositories.TagRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Content;
@@ -51,8 +52,9 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IJwtSession _jwtSession;
         private readonly IFileReadRepository _fileReadRepository;
         private readonly IFileWriteRepository _fileWriteRepository;
+        private readonly IReactionWriteRepository _reactionWriteRepository;
         private readonly IReactionService _reactionService;
-        public BlogService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, ICategoryReadRepository categoryReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IJwtSession jwtSession, ITagReadRepository tagReadRepository, IContentUpdater contentUpdater, IFileReadRepository fileReadRepository, IFileWriteRepository fileWriteRepository, IReactionService reactionService)
+        public BlogService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, ICategoryReadRepository categoryReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IJwtSession jwtSession, ITagReadRepository tagReadRepository, IContentUpdater contentUpdater, IFileReadRepository fileReadRepository, IFileWriteRepository fileWriteRepository, IReactionService reactionService, IReactionWriteRepository reactionWriteRepository)
         {
             _blogReadRepository = blogReadRepository;
             _blogWriteRepository = blogWriteRepository;
@@ -66,6 +68,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _fileReadRepository = fileReadRepository;
             _fileWriteRepository = fileWriteRepository;
             _reactionService = reactionService;
+            _reactionWriteRepository = reactionWriteRepository;
         }
 
         public async Task ChangeCoverImageAsync(Guid blogId, Guid? newCoverImageId, IFormFile? newCoverImageFile, CancellationToken cancellationToken)
@@ -251,7 +254,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var blog = await _blogReadRepository.Table.Include(b => b.ContentImages).Include(b => b.BlogCoverImageFile).ThenInclude(i => i.Blogs).FirstOrDefaultAsync(b => b.Id == blogId);
+            var blog = await _blogReadRepository.Table.Include(b => b.ContentImages).Include(b => b.BlogCoverImageFile).ThenInclude(i => i.Blogs).Include(b => b.Reactions).FirstOrDefaultAsync(b => b.Id == blogId);
 
             if (blog == null)
             {
@@ -264,6 +267,8 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 throw new DeleteNotSucceedException();
             }
+
+            _reactionWriteRepository.DeleteRange(blog.Reactions);
 
             bool isRemoved = _fileWriteRepository.DeleteRange(blog.ContentImages);
 
@@ -293,7 +298,7 @@ namespace Shoppe.Persistence.Concretes.Services
                                     .Include(b => b.ContentImages)
                                     .Include(b => b.Reactions)
                                     .Include(b => b.BlogCoverImageFile)
-                                    .AsNoTrackingWithIdentityResolution()
+                                    .AsNoTracking()
                                     .AsQueryable();
 
             if (blogFilterParamsDTO.TagName is string tagName and not "all")
@@ -334,7 +339,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 .Include(b => b.Categories)
                 .Include(b => b.ContentImages)
                 .Include(b => b.Reactions)
-                .AsNoTrackingWithIdentityResolution()
+                .AsNoTracking()
                 .FirstOrDefaultAsync(b => b.Id == blogId, cancellationToken);
 
 

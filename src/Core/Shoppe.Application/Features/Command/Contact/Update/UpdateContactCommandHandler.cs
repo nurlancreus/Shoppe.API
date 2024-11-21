@@ -21,7 +21,7 @@ namespace Shoppe.Application.Features.Command.Contact.UpdateContact
 
         public async Task<UpdateContactCommandResponse> Handle(UpdateContactCommandRequest request, CancellationToken cancellationToken)
         {
-            await _contactService.UpdateContactAsync(request.ToUpdateContactDTO(), cancellationToken);
+            await _contactService.UpdateAsync(request.ToUpdateContactDTO(), cancellationToken);
 
             return new UpdateContactCommandResponse()
             {

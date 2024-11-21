@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Base;
 using Shoppe.Domain.Entities.Categories;
+using Shoppe.Domain.Entities.Contacts;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Entities.Reactions;
@@ -102,7 +103,10 @@ namespace Shoppe.Persistence.Context
         public DbSet<Category> Categories { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<BlogCategory> BlogCategories { get; set; }
-
+          
+        public DbSet<Contact> Contacts { get; set; }
+        public DbSet<RegisteredContact> RegisteredContacts { get; set; }
+        public DbSet<UnRegisteredContact> UnRegisteredContacts { get; set; }
 
         public DbSet<Tag> Tags { get; set; }
         public DbSet<BlogTag> BlogTags { get; set; }

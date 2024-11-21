@@ -19,7 +19,7 @@ namespace Shoppe.Application.Features.Query.Contact.GetAllContacts
 
         public async Task<GetAllContactsQueryResponse> Handle(GetAllContactsQueryRequest request, CancellationToken cancellationToken)
         {
-            var result = await _contactService.GetAllContactsAsync(request.Page, request.PageSize, cancellationToken);
+            var result = await _contactService.GetAllAsync(request.Page, request.PageSize, cancellationToken);
 
             return new GetAllContactsQueryResponse()
             {

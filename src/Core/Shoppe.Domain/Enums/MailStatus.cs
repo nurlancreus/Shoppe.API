@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Enums
 {
-    public enum BlogReactionType
+    public enum MailStatus
     {
-        Like,
-        Love,
-        Haha,
-        Sad,
-        Angry
+        Sent,
+        Failed,
+        Queued,
+        Delivered,
+        Bounced
     }
+
 }

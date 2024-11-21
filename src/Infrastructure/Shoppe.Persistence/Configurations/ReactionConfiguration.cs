@@ -35,8 +35,8 @@ namespace Shoppe.Persistence.Configurations
                 .HasConversion<string>();
 
             builder
-                .HasOne(r => r.Blog) // Assuming BlogReaction has a navigation property to Blog
-                .WithMany(b => b.Reactions) // Assuming Blog has a collection of BlogReactions
+                .HasOne(r => r.Blog) 
+                .WithMany(b => b.Reactions) 
                 .HasForeignKey(r => r.BlogId)
                 .OnDelete(DeleteBehavior.NoAction); 
         }
@@ -53,8 +53,8 @@ namespace Shoppe.Persistence.Configurations
                 .HasConversion<string>();
 
             builder
-                .HasOne(r => r.Reply) // Assuming ReplyReaction has a navigation property to Reply
-                .WithMany(reply => reply.Reactions) // Assuming Reply has a collection of ReplyReactions
+                .HasOne(r => r.Reply)
+                .WithMany(reply => reply.Reactions)
                 .HasForeignKey(r => r.ReplyId)
                 .OnDelete(DeleteBehavior.NoAction); 
         }
