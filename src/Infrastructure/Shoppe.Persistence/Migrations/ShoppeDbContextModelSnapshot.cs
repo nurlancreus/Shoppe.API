@@ -34,7 +34,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("CategoriesId");
 
-                    b.ToTable("BlogBlogCategory", (string)null);
+                    b.ToTable("BlogBlogCategory");
                 });
 
             modelBuilder.Entity("BlogBlogTag", b =>
@@ -49,7 +49,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("BlogBlogTag", (string)null);
+                    b.ToTable("BlogBlogTag");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -177,7 +177,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("ProductsId");
 
-                    b.ToTable("ProductProductCategory", (string)null);
+                    b.ToTable("ProductProductCategory");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.About", b =>
@@ -223,13 +223,13 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("About", (string)null);
+                    b.ToTable("About");
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 760, DateTimeKind.Utc).AddTicks(3711),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 796, DateTimeKind.Utc).AddTicks(4750),
                             Description = "Who we are and why we do what we do!",
                             Email = "contact@shoppe.com",
                             Name = "Shoppe",
@@ -273,7 +273,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Addresses", (string)null);
+                    b.ToTable("Addresses");
 
                     b.HasDiscriminator<string>("AddressType").HasValue("Address");
 
@@ -305,7 +305,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Baskets", (string)null);
+                    b.ToTable("Baskets");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.BasketItem", b =>
@@ -337,7 +337,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("BasketItems", null, t =>
+                    b.ToTable("BasketItems", t =>
                         {
                             t.HasCheckConstraint("CK_BasketItem_Quantity", "Quantity >= 0");
                         });
@@ -376,7 +376,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("BlogCoverId");
 
-                    b.ToTable("Blogs", (string)null);
+                    b.ToTable("Blogs");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Categories.Category", b =>
@@ -405,7 +405,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
 
                     b.HasDiscriminator<string>("Type").HasValue("Category");
 
@@ -445,7 +445,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contacts", (string)null);
+                    b.ToTable("Contacts");
 
                     b.HasDiscriminator<string>("Type").HasValue("Contact");
 
@@ -488,7 +488,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Coupons", (string)null);
+                    b.ToTable("Coupons");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Discount", b =>
@@ -525,7 +525,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Discounts", null, t =>
+                    b.ToTable("Discounts", t =>
                         {
                             t.HasCheckConstraint("CK_Discount_DiscountPercentage", "[DiscountPercentage] > 0 AND [DiscountPercentage] <= 100");
                         });
@@ -550,7 +550,7 @@ namespace Shoppe.Persistence.Migrations
                     b.HasIndex("CategoryId", "DiscountId")
                         .IsUnique();
 
-                    b.ToTable("DiscountCategory", (string)null);
+                    b.ToTable("DiscountCategory");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.DiscountProduct", b =>
@@ -572,7 +572,7 @@ namespace Shoppe.Persistence.Migrations
                     b.HasIndex("ProductId", "DiscountId")
                         .IsUnique();
 
-                    b.ToTable("DiscountProduct", (string)null);
+                    b.ToTable("DiscountProduct");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Files.ApplicationFile", b =>
@@ -602,7 +602,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApplicationFiles", (string)null);
+                    b.ToTable("ApplicationFiles");
 
                     b.HasDiscriminator().HasValue("ApplicationFile");
 
@@ -749,7 +749,7 @@ namespace Shoppe.Persistence.Migrations
                         {
                             Id = "admin-user-id",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4da196ba-983f-4484-9c58-b887f8cea772",
+                            ConcurrencyStamp = "80d3fabe-7f50-467d-a6ce-ed9972bafe91",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "nurlancreus@example.com",
                             EmailConfirmed = false,
@@ -759,9 +759,9 @@ namespace Shoppe.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "NURLANCREUS@EXAMPLE.COM",
                             NormalizedUserName = "NURLANCREUS",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDDZmKe0MS0VShRs1qJSs0+V2ocVv0ekgWvPouVXeCY5+l4rLpwi/14GdIxMAMXwUw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENcMe5rfCTSwr8qIdy5PFPjlxBWmZmWFJSxLLa4YKuCB5OjOrDuKyVKvFWIgaSDVkg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2cf37bc9-12a3-42bb-b40d-1b0f62aeef8e",
+                            SecurityStamp = "40bb6371-88b6-49f9-a615-cf866f023fe7",
                             TwoFactorEnabled = false,
                             UserName = "nurlancreus"
                         });
@@ -813,7 +813,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("ShippingAddressId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Payment", b =>
@@ -837,7 +837,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Product", b =>
@@ -875,7 +875,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.ProductDetails", b =>
@@ -902,7 +902,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductDetails", (string)null);
+                    b.ToTable("ProductDetails");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.ProductDimension", b =>
@@ -924,7 +924,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductDimensions", (string)null);
+                    b.ToTable("ProductDimensions");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Reactions.Reaction", b =>
@@ -952,7 +952,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reactions", (string)null);
+                    b.ToTable("Reactions");
 
                     b.HasDiscriminator<string>("EntityType").HasValue("Reaction");
 
@@ -974,7 +974,7 @@ namespace Shoppe.Persistence.Migrations
                     b.Property<byte>("Depth")
                         .HasColumnType("tinyint");
 
-                    b.Property<Guid?>("ParentReplyId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ReplierId")
@@ -991,11 +991,11 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentReplyId");
+                    b.HasIndex("ParentId");
 
                     b.HasIndex("ReplierId");
 
-                    b.ToTable("Replies", null, t =>
+                    b.ToTable("Replies", t =>
                         {
                             t.HasCheckConstraint("CK_Reply_Depth", "[Depth] >= 0 AND [Depth] <= 3");
                         });
@@ -1036,7 +1036,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("ReviewerId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
 
                     b.HasDiscriminator<string>("Type").HasValue("Review");
 
@@ -1081,7 +1081,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("SliderId");
 
-                    b.ToTable("Slides", null, t =>
+                    b.ToTable("Slides", t =>
                         {
                             t.HasCheckConstraint("CK_Slide_Order", "[Order] >= 0 AND [Order] <= 255");
                         });
@@ -1106,7 +1106,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sliders", (string)null);
+                    b.ToTable("Sliders");
 
                     b.HasDiscriminator<string>("Type").HasValue("Slider");
 
@@ -1140,38 +1140,38 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("AboutId");
 
-                    b.ToTable("SocialMediaLinks", (string)null);
+                    b.ToTable("SocialMediaLinks");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("0506dba2-f9d1-4aa8-9c4d-ae27e86ca8d1"),
+                            Id = new Guid("e6d4953c-88d2-4320-a661-3af03ddcee1c"),
                             AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 780, DateTimeKind.Utc).AddTicks(9371),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 828, DateTimeKind.Utc).AddTicks(2759),
                             SocialPlatform = "Facebook",
                             URL = "https://facebook.com/shoppe"
                         },
                         new
                         {
-                            Id = new Guid("de96a81f-3ae6-4fff-8268-6af3acb656da"),
+                            Id = new Guid("bcb14f6b-2221-466e-aa4b-bb5379b1828c"),
                             AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 780, DateTimeKind.Utc).AddTicks(9378),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 828, DateTimeKind.Utc).AddTicks(2764),
                             SocialPlatform = "X",
                             URL = "https://x.com/shoppe"
                         },
                         new
                         {
-                            Id = new Guid("f8e5cc42-206b-46a2-9993-264cc3c094e0"),
+                            Id = new Guid("08779f9f-b74e-4cf0-a3d0-a39e62db01e2"),
                             AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 780, DateTimeKind.Utc).AddTicks(9382),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 828, DateTimeKind.Utc).AddTicks(2767),
                             SocialPlatform = "Instagram",
                             URL = "https://instagram.com/shoppe"
                         },
                         new
                         {
-                            Id = new Guid("23580eb4-e67e-43c0-8982-e21f6bf454df"),
+                            Id = new Guid("88290fc0-78ab-4f71-9367-250d3e17b08b"),
                             AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 780, DateTimeKind.Utc).AddTicks(9385),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 828, DateTimeKind.Utc).AddTicks(2770),
                             SocialPlatform = "Youtube",
                             URL = "https://youtube.com/shoppe"
                         });
@@ -1203,7 +1203,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags", (string)null);
+                    b.ToTable("Tags");
 
                     b.HasDiscriminator<string>("Type").HasValue("Tag");
 
@@ -1233,40 +1233,40 @@ namespace Shoppe.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("9dba532d-1587-4187-bd04-fe03d73364e9"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 761, DateTimeKind.Utc).AddTicks(9982),
+                            Id = new Guid("61b1b6f4-5300-4503-a008-424081233a62"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 798, DateTimeKind.Utc).AddTicks(2760),
                             Description = "Tips on how to take care of your jewelry",
                             Name = "Jewelry Care",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("7b3b90e4-47a6-4224-b7aa-1be6e659ec28"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 761, DateTimeKind.Utc).AddTicks(9987),
+                            Id = new Guid("ee9c04e4-3bf5-4fb3-ac4f-e2b8e66d40b6"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 798, DateTimeKind.Utc).AddTicks(2765),
                             Description = "Updates on the latest jewelry trends",
                             Name = "Latest Trends",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("4a22634d-ce5b-402c-97e7-80f9f83979e9"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 761, DateTimeKind.Utc).AddTicks(9990),
+                            Id = new Guid("cc3471d3-1475-44b0-8f4f-b7bc53ccd956"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 798, DateTimeKind.Utc).AddTicks(2781),
                             Description = "Learn about different gemstones and their meanings",
                             Name = "Gemstone Guide",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("4645dbc2-cd11-4566-80d4-2721503ddf28"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 761, DateTimeKind.Utc).AddTicks(9992),
+                            Id = new Guid("b7dc85dd-626f-4463-96b2-4245fe264317"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 798, DateTimeKind.Utc).AddTicks(2784),
                             Description = "Jewelry gift ideas for various occasions",
                             Name = "Gift Ideas",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("64864688-174d-47a7-91e0-9748be9f2e95"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 762, DateTimeKind.Utc).AddTicks(7),
+                            Id = new Guid("395f86da-00d3-41cf-920c-1710dbf9c9cb"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 798, DateTimeKind.Utc).AddTicks(2786),
                             Description = "Guides and inspiration for making your own jewelry",
                             Name = "DIY Jewelry",
                             Type = "Blog"
@@ -1282,40 +1282,40 @@ namespace Shoppe.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("0df684d7-f1e2-4ce4-ba10-9244f80f564c"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 771, DateTimeKind.Utc).AddTicks(4572),
+                            Id = new Guid("aaf65213-624b-4d1a-a2bf-1e0db70174fc"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 821, DateTimeKind.Utc).AddTicks(6495),
                             Description = "Elegant and modern necklaces",
                             Name = "Necklaces",
                             Type = "Product"
                         },
                         new
                         {
-                            Id = new Guid("9641d6a9-c01b-4773-9a3c-9febb34c3a51"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 771, DateTimeKind.Utc).AddTicks(4580),
+                            Id = new Guid("d1b47eff-ba1c-4bb2-9ba3-e8d9ae7c401f"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 821, DateTimeKind.Utc).AddTicks(6513),
                             Description = "Stylish earrings for all occasions",
                             Name = "Earrings",
                             Type = "Product"
                         },
                         new
                         {
-                            Id = new Guid("1f234ff7-6449-4672-acc9-2367e35f91da"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 771, DateTimeKind.Utc).AddTicks(4596),
+                            Id = new Guid("f921097c-be86-4efc-9e78-f3f7b167118a"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 821, DateTimeKind.Utc).AddTicks(6516),
                             Description = "Beautiful bracelets in various styles",
                             Name = "Bracelets",
                             Type = "Product"
                         },
                         new
                         {
-                            Id = new Guid("f259588c-da2c-44ad-aa56-487485f9f0b8"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 771, DateTimeKind.Utc).AddTicks(4600),
+                            Id = new Guid("e93de8ad-3b6b-41a7-b373-cc708129fafa"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 821, DateTimeKind.Utc).AddTicks(6519),
                             Description = "Rings for engagement, fashion, and more",
                             Name = "Rings",
                             Type = "Product"
                         },
                         new
                         {
-                            Id = new Guid("79ffed00-12c6-4412-9626-db6d3bf308bd"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 771, DateTimeKind.Utc).AddTicks(4604),
+                            Id = new Guid("84867f4d-9a91-4797-9231-6ea84df162bf"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 821, DateTimeKind.Utc).AddTicks(6522),
                             Description = "Unique brooches to complement any outfit",
                             Name = "Brooches",
                             Type = "Product"
@@ -1470,36 +1470,36 @@ namespace Shoppe.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("94184f86-1b37-4be5-b464-b3598200519d"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 765, DateTimeKind.Utc).AddTicks(3867),
+                            Id = new Guid("ecba83f0-f1da-42af-be2a-37d0b79b5cd8"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 814, DateTimeKind.Utc).AddTicks(4852),
                             Name = "Fashion",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("4cac68d5-70fa-4652-8e5e-8aa88820f2be"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 765, DateTimeKind.Utc).AddTicks(3870),
+                            Id = new Guid("d484e0a1-68a3-4548-b85c-c1c31d044789"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 814, DateTimeKind.Utc).AddTicks(4860),
                             Name = "Jewelry Care",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("01a800da-8383-4c89-867f-c17322c72145"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 765, DateTimeKind.Utc).AddTicks(3873),
+                            Id = new Guid("2341d635-4e44-4861-9776-ce7975ae2fb7"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 814, DateTimeKind.Utc).AddTicks(4864),
                             Name = "Gemstones",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("3a409aaf-d4b2-4a83-a011-d8bfdfa13b33"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 765, DateTimeKind.Utc).AddTicks(3875),
+                            Id = new Guid("c5e99232-8dbc-4cf0-89ad-dc86accec705"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 814, DateTimeKind.Utc).AddTicks(4868),
                             Name = "DIY Jewelry",
                             Type = "Blog"
                         },
                         new
                         {
-                            Id = new Guid("66387255-f5a8-4aa2-b800-4b2981a337de"),
-                            CreatedAt = new DateTime(2024, 11, 21, 11, 52, 58, 765, DateTimeKind.Utc).AddTicks(3878),
+                            Id = new Guid("6e29d249-3d4f-4056-8576-9152ca3bbaeb"),
+                            CreatedAt = new DateTime(2024, 11, 22, 13, 35, 31, 814, DateTimeKind.Utc).AddTicks(4871),
                             Name = "Trends",
                             Type = "Blog"
                         });
@@ -1828,9 +1828,9 @@ namespace Shoppe.Persistence.Migrations
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Replies.Reply", b =>
                 {
-                    b.HasOne("Shoppe.Domain.Entities.Replies.Reply", "ParentReply")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentReplyId")
+                    b.HasOne("Shoppe.Domain.Entities.Replies.Reply", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Shoppe.Domain.Entities.Identity.ApplicationUser", "Replier")
@@ -1839,7 +1839,7 @@ namespace Shoppe.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("ParentReply");
+                    b.Navigation("Parent");
 
                     b.Navigation("Replier");
                 });
@@ -2059,9 +2059,9 @@ namespace Shoppe.Persistence.Migrations
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Replies.Reply", b =>
                 {
-                    b.Navigation("Reactions");
+                    b.Navigation("Children");
 
-                    b.Navigation("Replies");
+                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Slide", b =>

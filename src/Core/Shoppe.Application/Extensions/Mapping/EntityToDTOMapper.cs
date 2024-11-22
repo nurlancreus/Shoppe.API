@@ -164,7 +164,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 } : null,
                 Body = reply.Body,
                 Depth = reply.Depth,
-                Replies = reply.Replies.Select(r => r.ToGetReplyDTO(reactionService)).ToList(),
+                Replies = reply.Children.Select(r => r.ToGetReplyDTO(reactionService)).ToList(),
                 CreatedAt = reply.CreatedAt,
                 Reactions = reactionService.GetReplyReactions(reply)
             };

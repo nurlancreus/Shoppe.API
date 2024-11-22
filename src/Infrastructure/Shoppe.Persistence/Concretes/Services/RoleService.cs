@@ -7,6 +7,7 @@ using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Role;
 using Shoppe.Application.DTOs.User;
+using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
@@ -173,7 +174,8 @@ namespace Shoppe.Persistence.Concretes.Services
                     CreatedAt = role.CreatedAt,
                     Users = users.Select(u =>
                     {
-                        var userProfilePicture = u.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
+                        //var userProfilePicture = u.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
+                        UserProfileImageFile? userProfilePicture = null;
 
                         return new GetUserDTO
                         {
@@ -229,7 +231,9 @@ namespace Shoppe.Persistence.Concretes.Services
                 Users = users.Select(u =>
                 {
 
-                    var userProfilePicture = u.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
+                    //var userProfilePicture = u.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
+                    UserProfileImageFile? userProfilePicture = null;
+
 
                     return new GetUserDTO
                     {
@@ -269,12 +273,13 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, usersQuery, cancellationToken);
 
-            var users = await paginationResult.PaginatedQuery.Include(u => u.ProfilePictureFiles).ToListAsync(cancellationToken);
+            var users = await paginationResult.PaginatedQuery.ToListAsync(cancellationToken);
 
             var userDtos = users.Select(u =>
             {
 
-                var userProfilePicture = u.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
+                // var userProfilePicture = u.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
+                UserProfileImageFile? userProfilePicture = null;
 
                 return new GetUserDTO
                 {
@@ -334,3 +339,167 @@ namespace Shoppe.Persistence.Concretes.Services
 
     }
 }
+
+/*
+      public async Task<GetAllRolesDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
+      {
+          _jwtSession.ValidateAdminAccess();
+
+          var roleQuery = _roleManager.Roles.AsNoTracking();
+          var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, roleQuery, cancellationToken);
+
+          // Get a list of all role names in the paginated query
+          var rolesQuery = paginationResult.PaginatedQuery
+                              .Include(r => r.UserRoles)
+                                  .ThenInclude(ur => ur.User);
+
+          var roleDtos = rolesQuery.AsEnumerable().Select(role =>
+          {
+
+              return new GetRoleDTO
+              {
+                  Id = role.Id,
+                  Name = role.Name!,
+                  Description = role.Description!,
+                  CreatedAt = role.CreatedAt,
+                  Users = role.UserRoles.Select(ur =>
+                  {
+                      var userProfilePicture = ur.User.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
+
+                      return new GetUserDTO
+                      {
+                          Id = ur.User.Id,
+                          FirstName = ur.User.FirstName!,
+                          LastName = ur.User.LastName!,
+                          Email = ur.User.Email!,
+                          Phone = ur.User.PhoneNumber!,
+                          UserName = ur.User.UserName!,
+                          IsActive = ur.User.IsActive,
+                          CreatedAt = ur.User.CreatedAt,
+                          DeactivatedAt = ur.User.DeactivatedAt,
+                          ProfilePicture = userProfilePicture != null ? new GetImageFileDTO
+                          {
+                              Id = userProfilePicture.Id,
+                              IsMain = userProfilePicture.IsMain,
+                              FileName = userProfilePicture.FileName,
+                              PathName = userProfilePicture.PathName,
+                              CreatedAt = userProfilePicture.CreatedAt,
+                          } : null
+                      };
+                  }).ToList()
+              };
+          }).ToList();
+
+          return new GetAllRolesDTO
+          {
+              Page = paginationResult.Page,
+              PageSize = paginationResult.PageSize,
+              TotalItems = paginationResult.TotalItems,
+              TotalPages = paginationResult.TotalPages,
+              Roles = roleDtos
+          };
+      }
+
+
+      public async Task<GetRoleDTO> GetAsync(string roleId, CancellationToken cancellationToken)
+      {
+          var role = await _roleManager.Roles
+                              .Include(r => r.UserRoles)
+                                  .ThenInclude(ur => ur.User)
+                              .AsNoTracking()
+                              .FirstOrDefaultAsync(r => r.Id == roleId, cancellationToken);
+
+          if (role == null)
+          {
+              throw new EntityNotFoundException(nameof(role));
+          }
+
+
+
+          return new GetRoleDTO
+          {
+              Id = role.Id,
+              Name = role.Name!,
+              Description = role.Description!,
+              CreatedAt = role.CreatedAt,
+              Users = role.UserRoles.Select(ur =>
+              {
+
+                  var userProfilePicture = ur.User.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
+
+                  return new GetUserDTO
+                  {
+                      Id = ur.User.Id,
+                      FirstName = ur.User.FirstName!,
+                      LastName = ur.User.LastName!,
+                      Email = ur.User.Email!,
+                      Phone = ur.User.PhoneNumber!,
+                      UserName = ur.User.UserName!,
+                      IsActive = ur.User.IsActive,
+                      CreatedAt = ur.User.CreatedAt,
+                      DeactivatedAt = ur.User.DeactivatedAt,
+                      ProfilePicture = userProfilePicture != null ? new GetImageFileDTO
+                      {
+                          Id = userProfilePicture.Id,
+                          IsMain = userProfilePicture.IsMain,
+                          FileName = userProfilePicture.FileName,
+                          PathName = userProfilePicture.PathName,
+                          CreatedAt = userProfilePicture.CreatedAt,
+                      } : null
+                  };
+              }).ToList(),
+
+          };
+      }
+
+public async Task<GetAllUsersDTO> GetUsersAsync(string roleId, int page, int pageSize, CancellationToken cancellationToken)
+        {
+            var role = await _roleManager.Roles.Include(r => r.UserRoles).ThenInclude(ur => ur.User).FirstOrDefaultAsync(r => r.Id == roleId, cancellationToken);
+
+            if (role == null)
+            {
+                throw new EntityNotFoundException(nameof(role));
+            }
+
+            var usersQuery = role.UserRoles.Select(ur => ur.User).AsQueryable();
+
+            var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, usersQuery, cancellationToken);
+
+            var users = await paginationResult.PaginatedQuery.ToListAsync(cancellationToken);
+
+            var userDtos = users.Select(u =>
+            {
+                var userProfilePicture = u.ProfilePictureFiles.FirstOrDefault(p => p.IsMain);
+
+                return new GetUserDTO
+                {
+                    Id = u.Id,
+                    FirstName = u.FirstName!,
+                    LastName = u.LastName!,
+                    Email = u.Email!,
+                    Phone = u.PhoneNumber!,
+                    UserName = u.UserName!,
+                    IsActive = u.IsActive,
+                    CreatedAt = u.CreatedAt,
+                    DeactivatedAt = u.DeactivatedAt,
+                    ProfilePicture = userProfilePicture != null ? new GetImageFileDTO
+                    {
+                        Id = userProfilePicture.Id,
+                        IsMain = userProfilePicture.IsMain,
+                        FileName = userProfilePicture.FileName,
+                        PathName = userProfilePicture.PathName,
+                        CreatedAt = userProfilePicture.CreatedAt,
+                    } : null
+                };
+            }).ToList();
+
+            return new GetAllUsersDTO
+            {
+                Page = paginationResult.Page,
+                PageSize = paginationResult.PageSize,
+                TotalItems = paginationResult.TotalItems,
+                TotalPages = paginationResult.TotalPages,
+                Users = userDtos,
+            };
+        }
+      */

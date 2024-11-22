@@ -29,9 +29,9 @@ namespace Shoppe.Persistence.Configurations
 
 
             builder
-                .HasOne(r => r.ParentReply)
-                .WithMany(r => r.Replies)
-                .HasForeignKey(r => r.ParentReplyId)
+                .HasOne(r => r.Parent)
+                .WithMany(r => r.Children)
+                .HasForeignKey(r => r.ParentId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             /*

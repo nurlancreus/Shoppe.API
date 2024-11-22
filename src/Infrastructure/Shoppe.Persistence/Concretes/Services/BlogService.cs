@@ -6,6 +6,7 @@ using Shoppe.Application.Abstractions.Repositories.BlogRepos;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Application.Abstractions.Repositories.FileRepos;
 using Shoppe.Application.Abstractions.Repositories.ReactionRepos;
+using Shoppe.Application.Abstractions.Repositories.ReplyRepos;
 using Shoppe.Application.Abstractions.Repositories.TagRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Content;
@@ -54,7 +55,8 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IFileWriteRepository _fileWriteRepository;
         private readonly IReactionWriteRepository _reactionWriteRepository;
         private readonly IReactionService _reactionService;
-        public BlogService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, ICategoryReadRepository categoryReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IJwtSession jwtSession, ITagReadRepository tagReadRepository, IContentUpdater contentUpdater, IFileReadRepository fileReadRepository, IFileWriteRepository fileWriteRepository, IReactionService reactionService, IReactionWriteRepository reactionWriteRepository)
+        private readonly IReplyWriteRepository _replyWriteRepository;
+        public BlogService(IBlogReadRepository blogReadRepository, IBlogWriteRepository blogWriteRepository, ICategoryReadRepository categoryReadRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IJwtSession jwtSession, ITagReadRepository tagReadRepository, IContentUpdater contentUpdater, IFileReadRepository fileReadRepository, IFileWriteRepository fileWriteRepository, IReactionService reactionService, IReactionWriteRepository reactionWriteRepository, IReplyWriteRepository replyWriteRepository)
         {
             _blogReadRepository = blogReadRepository;
             _blogWriteRepository = blogWriteRepository;
@@ -69,6 +71,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _fileWriteRepository = fileWriteRepository;
             _reactionService = reactionService;
             _reactionWriteRepository = reactionWriteRepository;
+            _replyWriteRepository = replyWriteRepository;
         }
 
         public async Task ChangeCoverImageAsync(Guid blogId, Guid? newCoverImageId, IFormFile? newCoverImageFile, CancellationToken cancellationToken)
@@ -254,11 +257,29 @@ namespace Shoppe.Persistence.Concretes.Services
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var blog = await _blogReadRepository.Table.Include(b => b.ContentImages).Include(b => b.BlogCoverImageFile).ThenInclude(i => i.Blogs).Include(b => b.Reactions).FirstOrDefaultAsync(b => b.Id == blogId);
+            var blog = await _blogReadRepository.Table
+                .Include(b => b.ContentImages)
+                .Include(b => b.BlogCoverImageFile)
+                    .ThenInclude(i => i.Blogs)
+                .Include(b => b.Replies)
+                .Include(b => b.Reactions).FirstOrDefaultAsync(b => b.Id == blogId);
 
             if (blog == null)
             {
                 throw new EntityNotFoundException(nameof(blog));
+            }
+
+            if (blog.Reactions.Count > 0)
+            {
+                _reactionWriteRepository.DeleteRange(blog.Reactions);
+            }
+
+            if (blog.Replies.Count > 0)
+            {
+                foreach (var reply in blog.Replies)
+                {
+                    _replyWriteRepository.RecursiveDelete(reply);
+                }
             }
 
             bool isDeleted = _blogWriteRepository.Delete(blog);
@@ -266,16 +287,9 @@ namespace Shoppe.Persistence.Concretes.Services
             if (!isDeleted)
             {
                 throw new DeleteNotSucceedException();
-            }
-
-            _reactionWriteRepository.DeleteRange(blog.Reactions);
+            }  
 
             bool isRemoved = _fileWriteRepository.DeleteRange(blog.ContentImages);
-
-            if (isRemoved)
-            {
-                await _storageService.DeleteMultipleAsync(blog.ContentImages);
-            }
 
             if (blog.BlogCoverImageFile.Blogs.Count == 0)
             {
@@ -284,7 +298,10 @@ namespace Shoppe.Persistence.Concretes.Services
             }
 
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            if (isRemoved && await _unitOfWork.SaveChangesAsync(cancellationToken))
+            {
+                await _storageService.DeleteMultipleAsync(blog.ContentImages);
+            }
 
             scope.Complete();
         }

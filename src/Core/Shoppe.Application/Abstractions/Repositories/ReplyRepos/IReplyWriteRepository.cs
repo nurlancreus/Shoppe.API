@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Abstractions.Repositories.ReplyRepos
 {
-    public interface IReplyWriteRepository : IWriteRepository<Reply>
+    public interface IReplyWriteRepository : ISelfReferencedWriteRepository<Reply>
     {
     }
 }

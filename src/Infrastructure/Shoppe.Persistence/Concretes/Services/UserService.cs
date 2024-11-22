@@ -113,7 +113,6 @@ namespace Shoppe.Persistence.Concretes.Services
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var user = await _userManager.Users
-                
                 .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
             if (user == null) throw new EntityNotFoundException(nameof(user));
@@ -178,8 +177,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var user = await _userManager.Users
-               
+            var user = await _userManager.Users  
                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
             if (user == null) throw new EntityNotFoundException(nameof(user));
@@ -205,7 +203,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var paginationResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, userQuery, cancellationToken);
 
-            var userDtos = await paginationResult.PaginatedQuery.Select(user => user.ToGetUserDTO()).ToListAsync(cancellationToken);
+            var users = await paginationResult.PaginatedQuery.ToListAsync(cancellationToken);
 
             return new GetAllUsersDTO
             {
@@ -213,14 +211,13 @@ namespace Shoppe.Persistence.Concretes.Services
                 TotalItems = paginationResult.TotalItems,
                 PageSize = pageSize,
                 Page = page,
-                Users = userDtos,
+                Users = users.Select(user => user.ToGetUserDTO()).ToList(),
             };
         }
 
         public async Task<GetUserDTO> GetAsync(string userId, CancellationToken cancellationToken)
         {
-            var user = await _userManager.Users
-               
+            var user = await _userManager.Users          
                .AsNoTracking()
                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
@@ -241,7 +238,8 @@ namespace Shoppe.Persistence.Concretes.Services
             return user.ProfilePictureFiles.Where(p => !p.IsMain).Select(p => p.ToGetImageFileDTO()).ToList();
         }
 
-        public async Task<List<GetRoleDTO>> GetRolesAsync(string userId, CancellationToken cancellationToken)
+        
+          public async Task<List<GetRoleDTO>> GetRolesAsync(string userId, CancellationToken cancellationToken)
         {
             var user = await _userManager.Users
              .AsNoTracking()
@@ -263,7 +261,8 @@ namespace Shoppe.Persistence.Concretes.Services
                 CreatedAt = role.CreatedAt,
             }).ToList();
         }
-
+         
+      
         public async Task RemovePictureAsync(string userId, string pictureId, CancellationToken cancellationToken)
         {
             ValidateAdminOrUserAccess(userId);
@@ -303,8 +302,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var user = await _userManager.Users
-             
+            var user = await _userManager.Users         
              .FirstOrDefaultAsync(u => u.Id == updateUserDTO.UserId, cancellationToken);
 
             if (user == null) throw new EntityNotFoundException(nameof(user));
@@ -455,3 +453,25 @@ namespace Shoppe.Persistence.Concretes.Services
         }
     }
 }
+
+/*
+   public async Task<List<GetRoleDTO>> GetRolesAsync(string userId, CancellationToken cancellationToken)
+        {
+            var user = await _userManager.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+            if (user == null) throw new EntityNotFoundException(nameof(user));
+
+            return user.UserRoles.Select(ur => new GetRoleDTO
+            {
+                Id = ur.Role.Id,
+                Name = ur.Role.Name!,
+                Description = ur.Role.Description!,
+                CreatedAt = ur.Role.CreatedAt,
+            }).ToList();
+        }
+
+ */

@@ -3,6 +3,7 @@ using Shoppe.Domain.Entities.Base;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Entities.Reactions;
 using Shoppe.Domain.Enums;
+using Shoppe.Domain.Flags;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Entities.Replies
 {
-    public class Reply : BaseEntity
+    public class Reply : BaseEntity, ISelfReferenced<Reply>
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -27,7 +28,7 @@ namespace Shoppe.Domain.Entities.Replies
         }
 
         private ApplicationUser _replier = null!;
-        private ICollection<Reply> _replies = [];
+        private ICollection<Reply> _children = [];
         private ICollection<ReplyReaction> _reactions = [];
         public string? Body { get; set; } = null!;
         public string Type { get; set; }
@@ -42,14 +43,14 @@ namespace Shoppe.Domain.Entities.Replies
             set => _replier = value;
         }
 
-        [ForeignKey(nameof(ParentReply))]
-        public Guid? ParentReplyId { get; set; }
-        public Reply? ParentReply { get; set; }
+        [ForeignKey(nameof(Parent))]
+        public Guid? ParentId { get; set; }
+        public Reply? Parent { get; set; }
 
-        public ICollection<Reply> Replies 
+        public ICollection<Reply> Children 
         {
-            get => _lazyLoader.Load(this, ref _replies) ?? [];
-            set => _replies = value;
+            get => _lazyLoader.Load(this, ref _children) ?? [];
+            set => _children = value;
         }
 
         public ICollection<ReplyReaction> Reactions

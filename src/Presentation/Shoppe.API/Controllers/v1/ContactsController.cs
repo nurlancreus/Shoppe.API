@@ -1,12 +1,14 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Shoppe.Application.Extensions.Helpers;
 using Shoppe.Application.Features.Command.Contact.AnswerContact;
 using Shoppe.Application.Features.Command.Contact.CreateContact;
 using Shoppe.Application.Features.Command.Contact.DeleteContact;
 using Shoppe.Application.Features.Command.Contact.UpdateContact;
 using Shoppe.Application.Features.Query.Contact.GetAllContacts;
 using Shoppe.Application.Features.Query.Contact.GetContactById;
+using Shoppe.Domain.Enums;
 
 namespace Shoppe.API.Controllers.v1
 {
@@ -74,6 +76,15 @@ namespace Shoppe.API.Controllers.v1
             var response = await _sender.Send(request);
 
             return Ok(response);
+        }
+
+        [HttpGet("subjects")]
+        public async Task<IActionResult> GetSubjects()
+        {
+            var subjects = Enum.GetNames<ContactSubject>();
+            var response = subjects.Select(s => new { Value = s, Text = StringHelpers.SplitAndJoinString(s, '_', ' ') });
+
+            return Ok(await Task.FromResult(response));
         }
     }
 }

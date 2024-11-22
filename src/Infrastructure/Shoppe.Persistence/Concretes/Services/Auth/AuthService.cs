@@ -51,7 +51,8 @@ namespace Shoppe.Persistence.Concretes.Services.Auth
                 FirstName = registerRequest.FirstName,
                 LastName = registerRequest.LastName,
                 UserName = registerRequest.UserName,
-                Email = registerRequest.Email
+                Email = registerRequest.Email,
+                IsActive = true,
             };
 
             try

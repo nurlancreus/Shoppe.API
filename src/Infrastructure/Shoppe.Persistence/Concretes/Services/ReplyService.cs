@@ -80,7 +80,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            if (!RecursiveDelete(reply))
+            if (!_replyWriteRepository.RecursiveDelete(reply))
             {
                 _logger.LogWarning("Failed to delete reply with ID {ReplyId}", replyId);
                 throw new DeleteNotSucceedException("Cannot delete the reply");
@@ -92,19 +92,19 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
 
-        private bool RecursiveDelete(Reply parent)
-        {
-            if (parent.Replies != null && parent.Replies.Count != 0)
-            {
-                // Recursively delete children
-                foreach (var child in parent.Replies)
-                {
-                    RecursiveDelete(child);
-                }
-            }
+        //private bool RecursiveDelete(Reply parent)
+        //{
+        //    if (parent.Children != null && parent.Children.Count != 0)
+        //    {
+        //        // Recursively delete children
+        //        foreach (var child in parent.Children)
+        //        {
+        //            RecursiveDelete(child);
+        //        }
+        //    }
 
-            return _replyWriteRepository.Delete(parent) && _reactionWriteRepository.DeleteRange(parent.Reactions);
-        }
+        //    return _replyWriteRepository.Delete(parent) && _reactionWriteRepository.DeleteRange(parent.Reactions);
+        //}
 
         public async Task<GetAllRepliesDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
@@ -149,7 +149,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     .AsNoTracking(),
 
                 ReplyType.Reply => _replyReadRepository.Table.OfType<Reply>()
-                    .Where(r => r.ParentReplyId == entityId)
+                    .Where(r => r.ParentId == entityId)
                     .AsNoTracking(),
                 _ => throw new InvalidOperationException("Invalid reply type"),
             };
@@ -162,7 +162,7 @@ namespace Shoppe.Persistence.Concretes.Services
         public async Task<List<GetReplyDTO>> GetRepliesByParentAsync(Guid parentId, CancellationToken cancellationToken)
         {
             var replies = await _replyReadRepository.Table
-                .Where(r => r.ParentReplyId == parentId)
+                .Where(r => r.ParentId == parentId)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
@@ -215,7 +215,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             var newDepth = Math.Min(ReplyConst.MaxDepthLevel, (byte)(parentReply.Depth + 1));
 
-            return new Reply { ParentReplyId = entityId, Depth = newDepth };
+            return new Reply { ParentId = entityId, Depth = newDepth };
         }
 
         private async Task<Reply> GetAndValidateReplyAsync(Guid replyId, CancellationToken cancellationToken)
