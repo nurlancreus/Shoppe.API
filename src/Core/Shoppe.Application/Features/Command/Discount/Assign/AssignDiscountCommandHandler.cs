@@ -1,7 +1,6 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Shoppe.Application.Abstractions.Services;
-using enums = Shoppe.Domain.Enums;
+using Enums = Shoppe.Domain.Enums;
 
 namespace Shoppe.Application.Features.Command.Discount.AssignDiscount
 {
@@ -17,7 +16,7 @@ namespace Shoppe.Application.Features.Command.Discount.AssignDiscount
         public async Task<AssignDiscountCommandResponse> Handle(AssignDiscountCommandRequest request, CancellationToken cancellationToken)
         {
 
-            if (Enum.TryParse(request.EntityType, true, out enums.EntityType result))
+            if (Enum.TryParse(request.EntityType, true, out Enums.EntityType result))
             {
 
                 await _discountService.AssignDiscountAsync((Guid)request.EntityId!, (Guid)request.DiscountId!, result, cancellationToken);

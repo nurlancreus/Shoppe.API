@@ -10,12 +10,12 @@ namespace Shoppe.Application.Abstractions.Services
 {
     public interface IProductService
     {
-        Task CreateProductAsync(CreateProductDTO createProductDTO, CancellationToken cancellationToken);
-        Task UpdateProductAsync(UpdateProductDTO updateProductDTO, CancellationToken cancellationToken);
-        Task DeleteProductAsync(Guid id, CancellationToken cancellationToken);
-        Task<GetProductDTO> GetProductAsync(Guid id, CancellationToken cancellationToken);
-        Task<GetAllProductsDTO> GetAllProductsAsync(ProductFilterParamsDTO filtersDTO, CancellationToken cancellationToken);
-        Task ChangeMainImageAsync(Guid productId, Guid newMainImageId, CancellationToken cancellationToken);
-        Task RemoveImageAsync(Guid productId, Guid newMainImageId, CancellationToken cancellationToken);
+        Task CreateAsync(CreateProductDTO createProductDTO, CancellationToken cancellationToken = default);
+        Task UpdateAsync(UpdateProductDTO updateProductDTO, CancellationToken cancellationToken = default);
+        Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<GetProductDTO> GetAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<GetAllProductsDTO> GetAllAsync(ProductFilterParamsDTO filtersDTO, CancellationToken cancellationToken = default);
+        Task ChangeMainImageAsync(Guid productId, Guid newMainImageId, CancellationToken cancellationToken = default);
+        Task RemoveImageAsync(Guid productId, Guid newMainImageId, CancellationToken cancellationToken = default);
     }
 }

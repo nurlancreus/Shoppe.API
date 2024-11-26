@@ -22,6 +22,8 @@ using Shoppe.Application.Abstractions.Services.Content;
 using Shoppe.Infrastructure.Concretes.Services.Content;
 using Shoppe.Application.Abstractions.Services.Mail;
 using Shoppe.Infrastructure.Concretes.Services.Mail;
+using Shoppe.Application.Abstractions.Services.Mail.Templates;
+using Shoppe.Application.Abstractions.Services.Calculator;
 
 namespace Shoppe.Infrastructure
 {
@@ -39,6 +41,13 @@ namespace Shoppe.Infrastructure
 
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+            services.AddScoped<IAccountEmailTemplateService, EmailTemplateService>();
+            services.AddScoped<IContactEmailTemplateService, EmailTemplateService>();
+            services.AddScoped<IOrderEmailTemplateService, EmailTemplateService>();
+
+            services.AddScoped<IDiscountCalculatorService, CalculatorService>();
+
+
             #endregion
 
             return services;

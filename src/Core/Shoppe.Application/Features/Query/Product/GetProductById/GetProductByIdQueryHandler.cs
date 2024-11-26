@@ -20,7 +20,7 @@ namespace Shoppe.Application.Features.Query.Product.GetProductById
 
         public async Task<GetProductByIdQueryResponse> Handle(GetProductByIdQueryRequest request, CancellationToken cancellationToken)
         {
-            var product = await _productService.GetProductAsync((Guid)request.Id!, cancellationToken);
+            var product = await _productService.GetAsync((Guid)request.Id!, cancellationToken);
 
             return new GetProductByIdQueryResponse()
             {

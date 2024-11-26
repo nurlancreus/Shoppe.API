@@ -82,7 +82,7 @@ namespace Shoppe.API.Controllers.v1
         public async Task<IActionResult> GetSubjects()
         {
             var subjects = Enum.GetNames<ContactSubject>();
-            var response = subjects.Select(s => new { Value = s, Text = StringHelpers.SplitAndJoinString(s, '_', ' ') });
+            var response = subjects.Select(s => new { Value = s, Label = StringHelpers.SplitAndJoinString(s, '_', ' ') });
 
             return Ok(await Task.FromResult(response));
         }

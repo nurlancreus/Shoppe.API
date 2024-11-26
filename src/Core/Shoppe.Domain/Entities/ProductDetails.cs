@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Entities
 {
-    public class ProductDetails : BaseEntity
+    public class ProductDetails
     {
         public float Weight { get; set; }
         public ICollection<Material> Materials { get; set; } = [];
         public ICollection<Color> Colors { get; set; } = [];
-        public ProductDimension Dimension { get; set; } = null!;
-        public Product Product { get; set; } = null!;
+        public float Height { get; set; }
+        public float Width { get; set; }
     }
 }

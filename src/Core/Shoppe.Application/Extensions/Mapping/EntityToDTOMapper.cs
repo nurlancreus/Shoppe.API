@@ -2,11 +2,13 @@
 using Shoppe.Application.DTOs.Blog;
 using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Contact;
+using Shoppe.Application.DTOs.Discount;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Reply;
 using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.DTOs.Tag;
 using Shoppe.Application.DTOs.User;
+using Shoppe.Application.Extensions.Helpers;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Contacts;
@@ -170,12 +172,27 @@ namespace Shoppe.Application.Extensions.Mapping
             };
         }
 
+        public static GetDiscountDTO ToGetDiscountDTO(this Discount discount, Predicate<Discount> CheckIfIsValid)
+        {
+            return new GetDiscountDTO
+            {
+                Id = discount.Id,
+                Name = discount.Name,
+                Description = discount.Description,
+                DiscountPercentage = discount.DiscountPercentage,
+                IsActive = CheckIfIsValid(discount),
+                StartDate = discount.StartDate,
+                EndDate = discount.EndDate,
+                CreatedAt = discount.CreatedAt,
+            };
+        }
+
         public static GetContactDTO ToGetContactDTO(this Contact contact)
         {
             var contactDTO = new GetContactDTO()
             {
                 Id = contact.Id,
-                Subject = contact.Subject.ToString(),
+                Subject = StringHelpers.SplitAndJoinString(contact.Subject.ToString(), '_', ' '),
                 Message = contact.Message,
                 IsAnswered = contact.IsAnswered,
                 CreatedAt = contact.CreatedAt
@@ -188,7 +205,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 contactDTO.Email = registered.User.Email!;
 
             }
-            else if (contact is UnRegisteredContact unRegistered) 
+            else if (contact is UnRegisteredContact unRegistered)
             {
                 contactDTO.FirstName = unRegistered.FirstName!;
                 contactDTO.LastName = unRegistered.LastName!;

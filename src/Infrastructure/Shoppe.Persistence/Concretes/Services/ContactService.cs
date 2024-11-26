@@ -3,6 +3,7 @@ using Shoppe.Application.Abstractions.Pagination;
 using Shoppe.Application.Abstractions.Repositories.ContactRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Mail;
+using Shoppe.Application.Abstractions.Services.Mail.Templates;
 using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Contact;
@@ -29,9 +30,9 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPaginationService _paginationService;
         private readonly IEmailService _emailService;
-        private readonly IEmailTemplateService _emailTemplateService;
+        private readonly IContactEmailTemplateService _emailTemplateService;
 
-        public ContactService(IContactReadRepository contactReadRepository, IContactWriteRepository contactWriteRepository, IUnitOfWork unitOfWork, IPaginationService paginationService, IJwtSession jwtSession, IEmailService emailService)
+        public ContactService(IContactReadRepository contactReadRepository, IContactWriteRepository contactWriteRepository, IUnitOfWork unitOfWork, IPaginationService paginationService, IJwtSession jwtSession, IEmailService emailService, IContactEmailTemplateService emailTemplateService)
         {
             _contactReadRepository = contactReadRepository;
             _contactWriteRepository = contactWriteRepository;
@@ -39,14 +40,17 @@ namespace Shoppe.Persistence.Concretes.Services
             _paginationService = paginationService;
             _jwtSession = jwtSession;
             _emailService = emailService;
+            _emailTemplateService = emailTemplateService;
         }
 
         public async Task AnswerContactMessageAsync(AnswerContactMessageDTO answerContactMessageDTO, CancellationToken cancellationToken)
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var contact = await _contactReadRepository.Table.Include(c => (c as RegisteredContact)!.User).FirstOrDefaultAsync(c => c.Id == answerContactMessageDTO.ContactId, cancellationToken);
+            _jwtSession.ValidateAdminAccess();
 
+            var contact = await _contactReadRepository.Table.Include(c => (c as RegisteredContact)!.User).FirstOrDefaultAsync(c => c.Id == answerContactMessageDTO.ContactId, cancellationToken);
+            
             if (contact == null)
             {
                 throw new EntityNotFoundException(nameof(contact));
@@ -54,30 +58,29 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (!string.IsNullOrEmpty(answerContactMessageDTO.Message))
             {
-                string emailSubject = $"Regarding Your Question: {contact.Subject}";
 
                 if (contact is RegisteredContact registeredContact && registeredContact.User != null)
                 {
                     var name = $"{registeredContact.User.FirstName} {registeredContact.User.LastName}";
-                    var emailBody = _emailTemplateService.GenerateContactResponseTemplate(name, emailSubject, answerContactMessageDTO.Message);
+                    var emailBody = _emailTemplateService.GenerateContactResponseTemplate(name, contact.Subject, answerContactMessageDTO.Message);
 
                     await _emailService.SendEmailAsync(new RecipientDetailsDTO
                     {
                         Name = $"{registeredContact.User.FirstName} {registeredContact.User.LastName}",
                         Email = registeredContact.User.Email!,
-                    }, emailSubject, emailBody);
+                    }, contact.Subject.ToString(), emailBody);
 
                 }
                 else if (contact is UnRegisteredContact unRegisteredContact)
                 {
                     var name = $"{unRegisteredContact.FirstName} {unRegisteredContact.LastName}";
-                    var emailBody = _emailTemplateService.GenerateContactResponseTemplate(name, emailSubject, answerContactMessageDTO.Message);
+                    var emailBody = _emailTemplateService.GenerateContactResponseTemplate(name, contact.Subject, answerContactMessageDTO.Message);
 
                     await _emailService.SendEmailAsync(new RecipientDetailsDTO
                     {
                         Name = name,
                         Email = unRegisteredContact.Email,
-                    }, emailSubject, emailBody);
+                    }, contact.Subject.ToString(), emailBody);
                 }
 
                 contact.IsAnswered = true;
@@ -92,13 +95,20 @@ namespace Shoppe.Persistence.Concretes.Services
         public async Task CreateAsync(CreateContactDTO createContactDTO, CancellationToken cancellationToken)
         {
             Contact contact = new();
+            string? recipientName = null;
+            string? recipientEmail = null;
 
             if (_jwtSession.IsAuthenticated())
             {
+                var user = _jwtSession.GetUser();
+
                 contact = new RegisteredContact
                 {
-                    UserId = _jwtSession.GetUserId(),
+                    UserId = user.Id,
                 };
+
+                recipientName = $"{user.FirstName} {user.LastName}";
+                recipientEmail = user.Email;
             }
 
             else if (!string.IsNullOrEmpty(createContactDTO.FirstName) && !string.IsNullOrEmpty(createContactDTO.LastName) && !string.IsNullOrEmpty(createContactDTO.Email))
@@ -109,6 +119,10 @@ namespace Shoppe.Persistence.Concretes.Services
                     LastName = createContactDTO.LastName,
                     Email = createContactDTO.Email,
                 };
+
+                recipientName = $"{createContactDTO.FirstName} {createContactDTO.LastName}";
+                recipientEmail = createContactDTO.Email;
+
             }
 
             contact.Subject = createContactDTO.Subject;
@@ -116,10 +130,20 @@ namespace Shoppe.Persistence.Concretes.Services
 
             bool isAdded = await _contactWriteRepository.AddAsync(contact, cancellationToken);
 
-            if (isAdded)
+            if (!isAdded)
             {
                 throw new AddNotSucceedException();
             }
+
+
+            var emailBody = _emailTemplateService.GenerateContactReceivedTemplate(recipientName!, contact.Subject);
+
+            await _emailService.SendEmailAsync(new RecipientDetailsDTO
+            {
+                Name = recipientName!,
+                Email = recipientEmail!,
+            }, contact.Subject.ToString(), emailBody);
+
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -128,6 +152,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
+            _jwtSession.ValidateAdminAccess();
+
             var contact = await _contactReadRepository.GetByIdAsync(id, cancellationToken);
 
             if (contact == null)
@@ -147,6 +173,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task<GetAllContactsDTO> GetAllAsync(int page, int size, CancellationToken cancellationToken)
         {
+            _jwtSession.ValidateAdminAccess();
+
             var query = _contactReadRepository.Table.Include(c => (c as RegisteredContact)!.User).AsNoTracking();
 
             var (totalItems, _pageSize, _page, totalPages, paginatedQuery) = await _paginationService.ConfigurePaginationAsync(page, size, query, cancellationToken);
@@ -165,6 +193,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task<GetContactDTO> GetAsync(Guid id, CancellationToken cancellationToken)
         {
+            _jwtSession.ValidateAdminAccess();
+
             var contact = await _contactReadRepository.Table.Include(c => (c as RegisteredContact)!.User).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
             if (contact == null)

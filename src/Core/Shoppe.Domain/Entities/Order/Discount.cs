@@ -17,8 +17,8 @@ namespace Shoppe.Domain.Entities
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
 
-        public ICollection<DiscountProduct> ProductMappings { get; set; } = [];
-        public ICollection<DiscountCategory> CategoryMappings { get; set; } = [];
+        public ICollection<Product> Products { get; set; } = [];
+        public ICollection<ProductCategory> Categories { get; set; } = [];
 
     }
 

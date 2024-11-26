@@ -21,7 +21,7 @@ namespace Shoppe.Application.Features.Query.Product.GetAllProducts
 
         public async Task<GetAllProductsQueryResponse> Handle(GetAllProductsQueryRequest request, CancellationToken cancellationToken)
         {
-            var result = await _productService.GetAllProductsAsync(request.ToProductFilterParamsDTO(), cancellationToken);
+            var result = await _productService.GetAllAsync(request.ToProductFilterParamsDTO(), cancellationToken);
 
             return new GetAllProductsQueryResponse()
             {

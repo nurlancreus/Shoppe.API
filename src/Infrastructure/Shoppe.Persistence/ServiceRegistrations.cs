@@ -14,7 +14,6 @@ using Shoppe.Application.Abstractions.Repositories.CouponRepos;
 using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
 using Shoppe.Application.Abstractions.Repositories.OrderRepos;
 using Shoppe.Application.Abstractions.Repositories.PaymentRepos;
-using Shoppe.Application.Abstractions.Repositories.ProductDetailsRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductImageFileRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Repositories.ReactionRepos;
@@ -43,7 +42,6 @@ using Shoppe.Persistence.Concretes.Repositories.CouponRepos;
 using Shoppe.Persistence.Concretes.Repositories.DiscountRepos;
 using Shoppe.Persistence.Concretes.Repositories.OrderRepos;
 using Shoppe.Persistence.Concretes.Repositories.PaymentRepos;
-using Shoppe.Persistence.Concretes.Repositories.ProductDetailsRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductImageFileRepos;
 using Shoppe.Persistence.Concretes.Repositories.ProductRepos;
 using Shoppe.Persistence.Concretes.Repositories.ReactionRepos;
@@ -99,9 +97,6 @@ namespace Shoppe.Persistence
 
             services.AddScoped<IProductReadRepository, ProductReadRepository>();
             services.AddScoped<IProductWriteRepository, ProductWriteRepository>();
-
-            services.AddScoped<IProductDetailsReadRepository, ProductDetailsReadRepository>();
-            services.AddScoped<IProductDetailsWriteRepository, ProductDetailsWriteRepository>();
 
             services.AddScoped<IProductImageFileReadRepository, ProductImageFileReadRepository>();
             services.AddScoped<IProductImageFileWriteRepository, ProductImageFileWriteRepository>();
@@ -178,8 +173,6 @@ namespace Shoppe.Persistence
 
             services.AddScoped<IReplyService, ReplyService>();
             services.AddScoped<ISliderService, SliderService>();
-
-            services.AddScoped<IDiscountCalculatorService, CalculatorService>();
 
             services.AddScoped<IApplicationImageFileService, ApplicationFileService>();
             services.AddScoped<IApplicationFileService, ApplicationFileService>();

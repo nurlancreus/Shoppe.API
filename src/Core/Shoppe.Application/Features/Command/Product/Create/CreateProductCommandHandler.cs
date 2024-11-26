@@ -24,7 +24,7 @@ namespace Shoppe.Application.Features.Command.Product.CreateProduct
         {
             var createProductDto = request.ToCreateProductDTO();
 
-            await _productService.CreateProductAsync(createProductDto, cancellationToken);
+            await _productService.CreateAsync(createProductDto, cancellationToken);
 
             return new CreateProductCommandResponse()
             {

@@ -21,7 +21,7 @@ namespace Shoppe.Application.Features.Command.Product.UpdateProduct
 
         public async Task<UpdateProductCommandResponse> Handle(UpdateProductCommandRequest request, CancellationToken cancellationToken)
         {
-            await _productService.UpdateProductAsync(request.ToUpdateProductDTO(), cancellationToken);
+            await _productService.UpdateAsync(request.ToUpdateProductDTO(), cancellationToken);
 
             return new UpdateProductCommandResponse()
             {

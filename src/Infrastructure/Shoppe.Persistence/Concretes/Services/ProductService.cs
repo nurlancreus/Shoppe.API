@@ -2,7 +2,6 @@
 using Shoppe.Application.Abstractions.Pagination;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
-using Shoppe.Application.Abstractions.Repositories.ProductDetailsRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
 using Shoppe.Application.Abstractions.Services;
@@ -41,24 +40,22 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IStorageService _storageService;
         private readonly IPaginationService _paginationService;
         private readonly IDiscountService _discountService;
-        private readonly IProductDetailsReadRepository _productDetailsReadRepository;
         private readonly ICategoryReadRepository _categoryReadRepository;
         private readonly IDiscountReadRepository _discountReadRepository;
-        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, IProductDetailsReadRepository productDetailsReadRepository, ICategoryReadRepository categoryReadRepository, IReviewService reviewService, IDiscountReadRepository discountReadRepository, IDiscountService discountService)
+        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, ICategoryReadRepository categoryReadRepository, IReviewService reviewService, IDiscountReadRepository discountReadRepository, IDiscountService discountService)
         {
             _productReadRepository = productReadRepository;
             _productWriteRepository = productWriteRepository;
             _unitOfWork = unitOfWork;
             _storageService = storageService;
             _paginationService = paginationService;
-            _productDetailsReadRepository = productDetailsReadRepository;
             _categoryReadRepository = categoryReadRepository;
             _reviewService = reviewService;
             _discountReadRepository = discountReadRepository;
             _discountService = discountService;
         }
 
-        public async Task CreateProductAsync(CreateProductDTO createProductDTO, CancellationToken cancellationToken)
+        public async Task CreateAsync(CreateProductDTO createProductDTO, CancellationToken cancellationToken = default)
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -74,12 +71,8 @@ namespace Shoppe.Persistence.Concretes.Services
                         Colors = createProductDTO.Colors.Select(Enum.Parse<Color>).ToList(),
                         Materials = createProductDTO.Materials.Select(Enum.Parse<Material>).ToList(),
                         Weight = createProductDTO.Weight,
-
-                        Dimension = new ProductDimension()
-                        {
-                            Height = createProductDTO.Height,
-                            Width = createProductDTO.Width,
-                        }
+                        Height = createProductDTO.Height,
+                        Width = createProductDTO.Width,
                     }
                 };
 
@@ -105,7 +98,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 {
                     List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ImagesFolder, createProductDTO.ProductImages);
 
-                    int counter = 0;
+                    bool isMain = true;
 
                     foreach (var (path, fileName) in imageResults)
                     {
@@ -114,8 +107,10 @@ namespace Shoppe.Persistence.Concretes.Services
                             FileName = fileName,
                             PathName = path,
                             Storage = _storageService.StorageName,
-                            IsMain = ++counter == 1
+                            IsMain = isMain,
                         });
+
+                        isMain = false;
                     }
                 }
 
@@ -127,7 +122,7 @@ namespace Shoppe.Persistence.Concretes.Services
         }
 
 
-        public async Task DeleteProductAsync(Guid id, CancellationToken cancellationToken)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var product = await _productReadRepository.GetByIdAsync(id, cancellationToken);
 
@@ -146,13 +141,11 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<GetAllProductsDTO> GetAllProductsAsync(ProductFilterParamsDTO filtersDTO, CancellationToken cancellationToken)
+        public async Task<GetAllProductsDTO> GetAllAsync(ProductFilterParamsDTO filtersDTO, CancellationToken cancellationToken = default)
         {
             var productsQuery = _productReadRepository.Table
                 .Include(q => q.Categories)
                 .Include(p => p.Reviews)
-                .Include(q => q.ProductDetails)
-                .ThenInclude(p => p.Dimension)
                 .Include(q => q.ProductImageFiles)
                 .AsNoTrackingWithIdentityResolution()
                 .AsQueryable();
@@ -214,8 +207,8 @@ namespace Shoppe.Persistence.Concretes.Services
                     Price = p.Price,
                     Stock = p.Stock,
                     Weight = p.ProductDetails.Weight,
-                    Height = p.ProductDetails.Dimension.Height,
-                    Width = p.ProductDetails.Dimension.Width,
+                    Height = p.ProductDetails.Height,
+                    Width = p.ProductDetails.Width,
                     Colors = p.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
                     Materials = p.ProductDetails.Materials.Select(m => m.ToString()).ToList(),
                     Categories = p.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
@@ -233,7 +226,7 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task<GetProductDTO> GetProductAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<GetProductDTO> GetAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var product = await _productReadRepository.GetByIdAsync(id, cancellationToken, false);
 
@@ -242,14 +235,10 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(product));
             }
 
-            await _productReadRepository.Table.Entry(product).Reference(p => p.ProductDetails).LoadAsync();
-
             await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync();
 
             await _productReadRepository.Table.Entry(product).Collection(p => p.Reviews).LoadAsync();
             await _productReadRepository.Table.Entry(product).Collection(p => p.Categories).LoadAsync();
-
-            await _productDetailsReadRepository.Table.Entry(product.ProductDetails).Reference(p => p.Dimension).LoadAsync();
 
             return new GetProductDTO()
             {
@@ -260,8 +249,8 @@ namespace Shoppe.Persistence.Concretes.Services
                 Price = product.Price,
                 Stock = product.Stock,
                 Weight = product.ProductDetails.Weight,
-                Height = product.ProductDetails.Dimension.Height,
-                Width = product.ProductDetails.Dimension.Width,
+                Height = product.ProductDetails.Height,
+                Width = product.ProductDetails.Width,
                 Colors = product.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
                 Materials = product.ProductDetails.Materials.Select(m => m.ToString()).ToList(),
                 Categories = product.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
@@ -278,22 +267,20 @@ namespace Shoppe.Persistence.Concretes.Services
             };
         }
 
-        public async Task UpdateProductAsync(UpdateProductDTO updateProductDTO, CancellationToken cancellationToken)
+        public async Task UpdateAsync(UpdateProductDTO updateProductDTO, CancellationToken cancellationToken = default)
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var product = await _productReadRepository.Table.Include(p => p.ProductDetails).ThenInclude(pd => pd.Dimension).Include(p => p.Categories).Include(p => p.DiscountMappings).FirstOrDefaultAsync(p => p.Id == updateProductDTO.Id, cancellationToken);
+                var product = await _productReadRepository.Table
+                    .Include(p => p.ProductDetails)
+                    .Include(p => p.Categories)
+                    .Include(p => p.Discount)
+                    .FirstOrDefaultAsync(p => p.Id == updateProductDTO.Id, cancellationToken);
 
                 if (product == null)
                 {
                     throw new EntityNotFoundException(nameof(product));
                 }
-
-                // Load related entities
-                //await _productReadRepository.Table.Entry(product).Reference(p => p.ProductDetails).LoadAsync(cancellationToken);
-                //await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync(cancellationToken);
-                //await _productReadRepository.Table.Entry(product).Collection(p => p.Categories).LoadAsync(cancellationToken);
-                //await _productDetailsReadRepository.Table.Entry(product.ProductDetails).Reference(p => p.Dimension).LoadAsync(cancellationToken);
 
                 // Update properties
                 if (!string.IsNullOrWhiteSpace(updateProductDTO.Name))
@@ -316,8 +303,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 if (updateProductDTO.Width.HasValue && updateProductDTO.Height.HasValue)
                 {
-                    product.ProductDetails.Dimension.Width = updateProductDTO.Width.Value;
-                    product.ProductDetails.Dimension.Height = updateProductDTO.Height.Value;
+                    product.ProductDetails.Width = updateProductDTO.Width.Value;
+                    product.ProductDetails.Height = updateProductDTO.Height.Value;
                 }
 
                 // Update materials
@@ -380,8 +367,8 @@ namespace Shoppe.Persistence.Concretes.Services
                 {
                     List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ImagesFolder, updateProductDTO.ProductImages);
 
-                    var existingMainImage = product.ProductImageFiles.SingleOrDefault(i => i.IsMain);
-                    int counter = 0;
+                    var existingMainImage = product.ProductImageFiles.FirstOrDefault(i => i.IsMain);
+                    bool isMain = true;
 
                     foreach (var (path, fileName) in imageResults)
                     {
@@ -392,10 +379,12 @@ namespace Shoppe.Persistence.Concretes.Services
                             Storage = _storageService.StorageName,
                         };
 
-                        if (existingMainImage == null && ++counter == 1)
+                        if (existingMainImage == null && isMain)
                         {
                             productImage.IsMain = true;
                         }
+
+                        isMain = false;
 
                         product.ProductImageFiles.Add(productImage);
                     }
@@ -417,7 +406,7 @@ namespace Shoppe.Persistence.Concretes.Services
             }
         }
 
-        public async Task ChangeMainImageAsync(Guid productId, Guid newMainImageId, CancellationToken cancellationToken)
+        public async Task ChangeMainImageAsync(Guid productId, Guid newMainImageId, CancellationToken cancellationToken = default)
         {
 
             var product = await _productReadRepository.Table.Include(p => p.ProductImageFiles).FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
@@ -457,7 +446,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         }
 
-        public async Task RemoveImageAsync(Guid productId, Guid imageId, CancellationToken cancellationToken)
+        public async Task RemoveImageAsync(Guid productId, Guid imageId, CancellationToken cancellationToken = default)
         {
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken);
@@ -467,7 +456,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(product));
             }
 
-            await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync();
+            await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync(cancellationToken);
 
             var imageToDelete = product.ProductImageFiles.FirstOrDefault(i => i.Id == imageId);
 
@@ -485,9 +474,10 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (isRemoved)
             {
-                await _storageService.DeleteAsync(imageToDelete.PathName, imageToDelete.FileName);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                await _storageService.DeleteAsync(imageToDelete.PathName, imageToDelete.FileName);
 
                 transaction.Complete();
             }
@@ -495,11 +485,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         private static float FindAverageRating(ICollection<ProductReview> reviews)
         {
-            var ratingSum = reviews.Sum(r => (int)r.Rating);
 
-            var reviewCount = reviews.Count;
-
-            var rating = reviewCount > 0 ? (float)ratingSum / reviewCount : 0;
+            var rating = reviews.Average(r => (int)r.Rating);
 
             return (float)Math.Round(rating, 2);
         }

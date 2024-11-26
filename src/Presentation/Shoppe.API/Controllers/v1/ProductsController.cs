@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Abstractions.Repositories;
 using Shoppe.Application.Abstractions.UoW;
+using Shoppe.Application.Features.Command.Discount.AssignDiscount;
 using Shoppe.Application.Features.Command.Product.ChangeMainImage;
 using Shoppe.Application.Features.Command.Product.CreateProduct;
 using Shoppe.Application.Features.Command.Product.DeleteProduct;

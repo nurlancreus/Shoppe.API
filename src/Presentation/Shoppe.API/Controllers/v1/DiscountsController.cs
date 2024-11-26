@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Discount.AssignDiscount;
 using Shoppe.Application.Features.Command.Discount.CreateDiscount;
 using Shoppe.Application.Features.Command.Discount.DeleteDiscount;
+using Shoppe.Application.Features.Command.Discount.Toggle;
 using Shoppe.Application.Features.Command.Discount.UpdateDiscount;
 using Shoppe.Application.Features.Query.Discount.Get;
 using Shoppe.Application.Features.Query.Discount.GetAll;
@@ -75,6 +76,16 @@ namespace Shoppe.API.Controllers.v1
                 EntityId = entityId,
                 EntityType = entityType
             };
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpPatch("{id}/toggle")]
+        public async Task<IActionResult> ToggleDiscount(Guid id)
+        {
+            var request = new ToggleDiscountCommandRequest { Id = id };
 
             var response = await _sender.Send(request);
 

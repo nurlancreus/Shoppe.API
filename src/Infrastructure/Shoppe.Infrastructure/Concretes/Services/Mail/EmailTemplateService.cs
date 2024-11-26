@@ -1,16 +1,19 @@
-﻿using Shoppe.Domain.Entities;
+﻿using Shoppe.Application.Abstractions.Services.Mail.Templates;
+using Shoppe.Application.Extensions.Helpers;
+using Shoppe.Domain.Entities;
+using Shoppe.Domain.Enums;
 
 namespace Shoppe.Application.Abstractions.Services.Mail
 {
     public class EmailTemplateService : IEmailTemplateService
     {
-        public string GenerateContactResponseTemplate(string recipientName, string subject, string message)
+        public string GenerateContactResponseTemplate(string recipientName, ContactSubject subject, string message)
         {
             return $@"
                 <html>
                     <body>
                         <p>Dear {recipientName},</p>
-                        <p>Thank you for reaching out regarding <strong>{subject}</strong>. Below is our response:</p>
+                        <p>Thank you for reaching out regarding <strong>{StringHelpers.SplitAndJoinString(subject.ToString(), '_', ' ')}</strong>. Below is our response:</p>
                         <p>{message}</p>
                         <br>
                         <p>Best regards,</p>
@@ -149,6 +152,21 @@ namespace Shoppe.Application.Abstractions.Services.Mail
                         </table>
                         <p><strong>Total: ${totalAmount}</strong></p>
                         <p>Invoice Date: {invoiceDate:MMMM dd, yyyy}</p>
+                        <br>
+                        <p>Best regards,</p>
+                        <p>Shoppe Team</p>
+                    </body>
+                </html>";
+        }
+
+        public string GenerateContactReceivedTemplate(string recipientName, ContactSubject subject)
+        {
+            return $@"
+                <html>
+                    <body>
+                        <p>Dear {recipientName},</p>
+                        <p>Thank you for reaching out regarding <strong>{StringHelpers.SplitAndJoinString(subject.ToString(), '_', ' ')}</strong></p>
+                        <p>We receive your message, please wait for our response</p>
                         <br>
                         <p>Best regards,</p>
                         <p>Shoppe Team</p>
