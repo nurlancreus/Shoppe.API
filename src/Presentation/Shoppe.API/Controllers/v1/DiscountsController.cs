@@ -23,7 +23,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateDiscountCommandRequest request)
+        public async Task<IActionResult> Create([FromForm] CreateDiscountCommandRequest request)
         {
             var response = await _sender.Send(request);
 
@@ -49,7 +49,7 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateDiscountCommandRequest request)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromForm] UpdateDiscountCommandRequest request)
         {
             request.Id = id;
             var response = await _sender.Send(request);
@@ -81,6 +81,7 @@ namespace Shoppe.API.Controllers.v1
 
             return Ok(response);
         }
+
 
         [HttpPatch("{id}/toggle")]
         public async Task<IActionResult> ToggleDiscount(Guid id)

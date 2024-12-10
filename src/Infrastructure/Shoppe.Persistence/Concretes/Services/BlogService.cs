@@ -156,11 +156,9 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 if (image.Blogs.Count == 0)
                 {
-                    if (_fileWriteRepository.Delete(image))
+                    if (_fileWriteRepository.Delete(image) && await _unitOfWork.SaveChangesAsync(cancellationToken))
                         await _storageService.DeleteAsync(image.PathName, image.FileName);
                 }
-
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 scope.Complete();
             }
@@ -192,9 +190,11 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (createBlogDTO.Categories.Count > 0)
             {
-                foreach (var categoryName in createBlogDTO.Categories)
+                var categories = await _categoryReadRepository.GetAllWhereAsync(c => createBlogDTO.Categories.Contains(c.Name));
+
+
+                foreach (var category in categories)
                 {
-                    var category = await _categoryReadRepository.GetAsync(c => c.Name == categoryName, cancellationToken);
 
                     if (category is BlogCategory blogCategory)
                     {
@@ -205,9 +205,10 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (createBlogDTO.Tags.Count > 0)
             {
-                foreach (var tagName in createBlogDTO.Tags)
+                var tags = await _tagReadRepository.GetAllWhereAsync(t => createBlogDTO.Tags.Contains(t.Name));
+
+                foreach (var tag in tags)
                 {
-                    var tag = await _tagReadRepository.GetAsync(c => c.Name == tagName, cancellationToken);
 
                     if (tag is BlogTag blogTag)
                     {
@@ -262,7 +263,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 .Include(b => b.BlogCoverImageFile)
                     .ThenInclude(i => i.Blogs)
                 .Include(b => b.Replies)
-                .Include(b => b.Reactions).FirstOrDefaultAsync(b => b.Id == blogId);
+                .Include(b => b.Reactions).FirstOrDefaultAsync(b => b.Id == blogId, cancellationToken);
 
             if (blog == null)
             {
@@ -287,7 +288,7 @@ namespace Shoppe.Persistence.Concretes.Services
             if (!isDeleted)
             {
                 throw new DeleteNotSucceedException();
-            }  
+            }
 
             bool isRemoved = _fileWriteRepository.DeleteRange(blog.ContentImages);
 
@@ -404,9 +405,10 @@ namespace Shoppe.Persistence.Concretes.Services
                 }
 
                 // Add new categories
-                foreach (var categoryName in updateBlogDTO.Categories)
+                var categories = await _categoryReadRepository.GetAllWhereAsync(c => updateBlogDTO.Categories.Contains(c.Name));
+
+                foreach (var category in categories)
                 {
-                    var category = await _categoryReadRepository.GetAsync(c => c.Name == categoryName, cancellationToken);
                     if (category is BlogCategory BlogCategory && !blog.Categories.Contains(category))
                     {
                         blog.Categories.Add(BlogCategory);
@@ -426,9 +428,10 @@ namespace Shoppe.Persistence.Concretes.Services
                 }
 
                 // Add new categories
-                foreach (var tagName in updateBlogDTO.Tags)
+                var tags = await _tagReadRepository.GetAllWhereAsync(t => updateBlogDTO.Tags.Contains(t.Name));
+
+                foreach (var tag in tags)
                 {
-                    var tag = await _tagReadRepository.GetAsync(c => c.Name == tagName, cancellationToken);
 
                     if (tag is BlogTag blogTag && !blog.Tags.Contains(tag))
                     {
@@ -470,7 +473,7 @@ namespace Shoppe.Persistence.Concretes.Services
             if (blogId != null)
             {
                 var blog = await _blogReadRepository.Table
-                .AsNoTrackingWithIdentityResolution()
+                .AsNoTracking()
                 .FirstOrDefaultAsync(b => b.Id == blogId, cancellationToken);
 
                 if (blog == null)

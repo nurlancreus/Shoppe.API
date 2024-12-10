@@ -106,7 +106,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 Width = request.Width,
                 Height = request.Height,
                 Weight = request.Weight,
-                DiscountId = (Guid)request.DiscountId!,
+                DiscountId = request.DiscountId,
             };
         }
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Abstractions.Repositories;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.Features.Command.Discount.AssignDiscount;
+using Shoppe.Application.Features.Command.Discount.AssignEntities;
 using Shoppe.Application.Features.Command.Product.ChangeMainImage;
 using Shoppe.Application.Features.Command.Product.CreateProduct;
 using Shoppe.Application.Features.Command.Product.DeleteProduct;
@@ -85,6 +86,16 @@ namespace Shoppe.API.Controllers.v1
         public async Task<IActionResult> GetReviews(Guid productId)
         {
             var request = new GetReviewsByEntityRequest { EntityId = productId, ReviewType = ReviewType.Product };
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpPatch("assign-discount/{discountId}")]
+        public async Task<IActionResult> AssignDiscountToProducts (Guid discountId, [FromBody] AssignDiscountToEntitiesCommandRequest request)
+        {
+            request.Id = discountId;
 
             var response = await _sender.Send(request);
 

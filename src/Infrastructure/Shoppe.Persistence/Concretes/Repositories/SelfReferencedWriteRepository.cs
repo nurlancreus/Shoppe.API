@@ -23,7 +23,7 @@ namespace Shoppe.Persistence.Concretes.Repositories
             // Delete children recursively
             if (parent.Children != null && parent.Children.Count > 0)
             {
-                foreach (var child in parent.Children.ToList())
+                foreach (var child in parent.Children)
                 {
                     RecursiveDelete(child);
                 }

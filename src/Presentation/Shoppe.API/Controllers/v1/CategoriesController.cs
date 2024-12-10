@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Category.CreateCategory;
 using Shoppe.Application.Features.Command.Category.DeleteCategory;
 using Shoppe.Application.Features.Command.Category.UpdateCategory;
+using Shoppe.Application.Features.Command.Discount.AssignEntities;
 using Shoppe.Application.Features.Query.Category.GetAllCategories;
 using Shoppe.Application.Features.Query.Category.GetCategoryById;
 
@@ -62,6 +63,16 @@ namespace Shoppe.API.Controllers.v1
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var request = new DeleteCategoryCommandRequest { Id = id };
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpPatch("assign-discount/{discountId}")]
+        public async Task<IActionResult> AssignDiscountToCategories(Guid discountId, [FromBody] AssignDiscountToEntitiesCommandRequest request)
+        {
+            request.Id = discountId;
 
             var response = await _sender.Send(request);
 

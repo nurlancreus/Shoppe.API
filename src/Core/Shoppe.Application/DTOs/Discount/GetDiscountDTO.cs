@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Shoppe.Application.DTOs.Category;
+using Shoppe.Application.DTOs.Product;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +15,8 @@ namespace Shoppe.Application.DTOs.Discount
         public string Description { get; set; } = string.Empty;
         public decimal DiscountPercentage { get; set; }
         public bool IsActive { get; set; }
+        public List<GetProductDTO> Products { get; set; } = [];
+        public List<GetCategoryDTO> Categories { get; set; } = [];
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public DateTime CreatedAt { get; set; }

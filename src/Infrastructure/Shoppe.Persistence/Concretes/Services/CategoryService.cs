@@ -98,11 +98,11 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (type == CategoryType.Product)
             {
-                query = _categoryReadRepository.Table.OfType<ProductCategory>().AsNoTrackingWithIdentityResolution();
+                query = _categoryReadRepository.Table.OfType<ProductCategory>().AsNoTracking();
             }
             else if (type == CategoryType.Blog)
             {
-                query = _categoryReadRepository.Table.OfType<BlogCategory>().AsNoTrackingWithIdentityResolution();
+                query = _categoryReadRepository.Table.OfType<BlogCategory>().AsNoTracking();
             }
 
             else

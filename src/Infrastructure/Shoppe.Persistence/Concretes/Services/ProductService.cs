@@ -5,6 +5,7 @@ using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
 using Shoppe.Application.Abstractions.Services;
+using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.Constants;
@@ -42,7 +43,8 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IDiscountService _discountService;
         private readonly ICategoryReadRepository _categoryReadRepository;
         private readonly IDiscountReadRepository _discountReadRepository;
-        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, ICategoryReadRepository categoryReadRepository, IReviewService reviewService, IDiscountReadRepository discountReadRepository, IDiscountService discountService)
+        private readonly IJwtSession _jwtSession;
+        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, ICategoryReadRepository categoryReadRepository, IReviewService reviewService, IDiscountReadRepository discountReadRepository, IDiscountService discountService, IJwtSession jwtSession)
         {
             _productReadRepository = productReadRepository;
             _productWriteRepository = productWriteRepository;
@@ -53,78 +55,84 @@ namespace Shoppe.Persistence.Concretes.Services
             _reviewService = reviewService;
             _discountReadRepository = discountReadRepository;
             _discountService = discountService;
+            _jwtSession = jwtSession;
         }
 
         public async Task CreateAsync(CreateProductDTO createProductDTO, CancellationToken cancellationToken = default)
         {
-            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            _jwtSession.ValidateAdminAccess();
+
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            var product = new Product()
             {
-                var product = new Product()
+                Name = createProductDTO.Name,
+                Info = createProductDTO.Info,
+                Description = createProductDTO.Description,
+                Price = createProductDTO.Price,
+                Stock = createProductDTO.Stock,
+                ProductDetails = new ProductDetails()
                 {
-                    Name = createProductDTO.Name,
-                    Info = createProductDTO.Info,
-                    Description = createProductDTO.Description,
-                    Price = createProductDTO.Price,
-                    Stock = createProductDTO.Stock,
-                    ProductDetails = new ProductDetails()
-                    {
-                        Colors = createProductDTO.Colors.Select(Enum.Parse<Color>).ToList(),
-                        Materials = createProductDTO.Materials.Select(Enum.Parse<Material>).ToList(),
-                        Weight = createProductDTO.Weight,
-                        Height = createProductDTO.Height,
-                        Width = createProductDTO.Width,
-                    }
-                };
-
-                if(createProductDTO.DiscountId is Guid discountId)
-                {
-                    await _discountService.AssignDiscountAsync(product, discountId, cancellationToken);
+                    Colors = createProductDTO.Colors.Select(Enum.Parse<Color>).ToList(),
+                    Materials = createProductDTO.Materials.Select(Enum.Parse<Material>).ToList(),
+                    Weight = createProductDTO.Weight,
+                    Height = createProductDTO.Height,
+                    Width = createProductDTO.Width,
                 }
+            };
 
-                if (createProductDTO.Categories.Count > 0)
-                {
-                    foreach (var categoryName in createProductDTO.Categories)
-                    {
-                        var category = await _categoryReadRepository.GetAsync(c => c.Name == categoryName, cancellationToken);
-
-                        if (category != null && category is ProductCategory productCategory)
-                        {
-                            product.Categories.Add(productCategory);
-                        }
-                    }
-                }
-
-                if (createProductDTO.ProductImages.Count > 0)
-                {
-                    List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ImagesFolder, createProductDTO.ProductImages);
-
-                    bool isMain = true;
-
-                    foreach (var (path, fileName) in imageResults)
-                    {
-                        product.ProductImageFiles.Add(new ProductImageFile()
-                        {
-                            FileName = fileName,
-                            PathName = path,
-                            Storage = _storageService.StorageName,
-                            IsMain = isMain,
-                        });
-
-                        isMain = false;
-                    }
-                }
-
-                await _productWriteRepository.AddAsync(product, cancellationToken);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                transaction.Complete(); // Commit the transaction if everything is successful
+            if (createProductDTO.DiscountId is Guid discountId)
+            {
+                await _discountService.AssignDiscountAsync(product, discountId, cancellationToken);
             }
+
+            if (createProductDTO.Categories.Count > 0)
+            {
+                var categories = await _categoryReadRepository.GetAllWhereAsync((c) => createProductDTO.Categories.Contains(c.Name));
+
+                foreach (var category in categories)
+                {
+                    if (category is ProductCategory cat)
+                    {
+
+                        product.Categories.Add(cat);
+                    }
+
+                }
+            }
+
+            if (createProductDTO.ProductImages.Count > 0)
+            {
+                List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ImagesFolder, createProductDTO.ProductImages);
+
+                bool isMain = true;
+
+                foreach (var (path, fileName) in imageResults)
+                {
+                    product.ProductImageFiles.Add(new ProductImageFile()
+                    {
+                        FileName = fileName,
+                        PathName = path,
+                        Storage = _storageService.StorageName,
+                        IsMain = isMain,
+                    });
+
+                    isMain = false;
+                }
+            }
+
+            await _productWriteRepository.AddAsync(product, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
         }
 
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var product = await _productReadRepository.GetByIdAsync(id, cancellationToken);
+            _jwtSession.ValidateAdminAccess();
+
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            var product = await _productReadRepository.Table.Include(p => p.ProductImageFiles).FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
             if (product == null)
             {
@@ -138,7 +146,13 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new DeleteNotSucceedException(nameof(product));
             }
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            if (await _unitOfWork.SaveChangesAsync(cancellationToken))
+            {
+                await _storageService.DeleteMultipleAsync(product.ProductImageFiles);
+
+                scope.Complete();
+            }
+
         }
 
         public async Task<GetAllProductsDTO> GetAllAsync(ProductFilterParamsDTO filtersDTO, CancellationToken cancellationToken = default)
@@ -269,145 +283,140 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task UpdateAsync(UpdateProductDTO updateProductDTO, CancellationToken cancellationToken = default)
         {
-            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            _jwtSession.ValidateAdminAccess();
+
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            var product = await _productReadRepository.Table
+                .Include(p => p.Categories)
+                .Include(p => p.Discount)
+                .Include(p => p.ProductImageFiles)
+                .FirstOrDefaultAsync(p => p.Id == updateProductDTO.Id, cancellationToken);
+
+            if (product == null)
             {
-                var product = await _productReadRepository.Table
-                    .Include(p => p.ProductDetails)
-                    .Include(p => p.Categories)
-                    .Include(p => p.Discount)
-                    .FirstOrDefaultAsync(p => p.Id == updateProductDTO.Id, cancellationToken);
-
-                if (product == null)
-                {
-                    throw new EntityNotFoundException(nameof(product));
-                }
-
-                // Update properties
-                if (!string.IsNullOrWhiteSpace(updateProductDTO.Name))
-                    product.Name = updateProductDTO.Name;
-
-                if (updateProductDTO.Stock.HasValue)
-                    product.Stock = updateProductDTO.Stock.Value;
-
-                if (updateProductDTO.Price.HasValue)
-                    product.Price = updateProductDTO.Price.Value;
-
-                if (!string.IsNullOrWhiteSpace(updateProductDTO.Info))
-                    product.Info = updateProductDTO.Info;
-
-                if (!string.IsNullOrWhiteSpace(updateProductDTO.Description))
-                    product.Description = updateProductDTO.Description;
-
-                if (updateProductDTO.Weight.HasValue)
-                    product.ProductDetails.Weight = updateProductDTO.Weight.Value;
-
-                if (updateProductDTO.Width.HasValue && updateProductDTO.Height.HasValue)
-                {
-                    product.ProductDetails.Width = updateProductDTO.Width.Value;
-                    product.ProductDetails.Height = updateProductDTO.Height.Value;
-                }
-
-                // Update materials
-                if (updateProductDTO.Materials.Count > 0)
-                {
-                    product.ProductDetails.Materials.Clear(); // Clear existing materials
-                    foreach (var material in updateProductDTO.Materials)
-                    {
-                        if (EnumHelpers.TryParseEnum(material, out Material parsedMaterial))
-                        {
-                            product.ProductDetails.Materials.Add(parsedMaterial);
-                        }
-                    }
-                }
-
-                // Update colors
-                if (updateProductDTO.Colors.Count > 0)
-                {
-                    product.ProductDetails.Colors.Clear(); // Clear existing colors
-                    foreach (var color in updateProductDTO.Colors)
-                    {
-                        if (EnumHelpers.TryParseEnum(color, out Color parsedColor))
-                        {
-                            product.ProductDetails.Colors.Add(parsedColor);
-                        }
-                    }
-                }
-
-                // Update categories
-                if (updateProductDTO.Categories.Count > 0)
-                {
-                    // Remove categories not in the updated list
-                    var categoriesToRemove = product.Categories
-                        .Where(existingCategory => !updateProductDTO.Categories.Contains(existingCategory.Name))
-                        .ToList();
-
-                    foreach (var category in categoriesToRemove)
-                    {
-                        product.Categories.Remove(category);
-                    }
-
-                    // Add new categories
-                    foreach (var name in updateProductDTO.Categories)
-                    {
-                        var category = await _categoryReadRepository.GetAsync(c => c.Name == name, cancellationToken);
-                        if (category is ProductCategory productCategory && !product.Categories.Contains(category))
-                        {
-                            product.Categories.Add(productCategory);
-                        }
-                    }
-                }
-
-                if(updateProductDTO.DiscountId is Guid discountId)
-                {
-                    await _discountService.AssignDiscountAsync(product, discountId, cancellationToken, update: true);
-                }
-
-                // Handle product images
-                if (updateProductDTO.ProductImages.Count > 0)
-                {
-                    List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ImagesFolder, updateProductDTO.ProductImages);
-
-                    var existingMainImage = product.ProductImageFiles.FirstOrDefault(i => i.IsMain);
-                    bool isMain = true;
-
-                    foreach (var (path, fileName) in imageResults)
-                    {
-                        var productImage = new ProductImageFile()
-                        {
-                            FileName = fileName,
-                            PathName = path,
-                            Storage = _storageService.StorageName,
-                        };
-
-                        if (existingMainImage == null && isMain)
-                        {
-                            productImage.IsMain = true;
-                        }
-
-                        isMain = false;
-
-                        product.ProductImageFiles.Add(productImage);
-                    }
-                }
-
-                // Update the product in the repository
-                bool isUpdated = _productWriteRepository.Update(product);
-
-                if (!isUpdated)
-                {
-                    throw new UpdateNotSucceedException(nameof(product));
-                }
-
-                // Commit changes to the database
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                // Complete the transaction
-                transaction.Complete();
+                throw new EntityNotFoundException(nameof(product));
             }
+
+            // Update properties
+            if (!string.IsNullOrWhiteSpace(updateProductDTO.Name))
+                product.Name = updateProductDTO.Name;
+
+            if (updateProductDTO.Stock.HasValue)
+                product.Stock = updateProductDTO.Stock.Value;
+
+            if (updateProductDTO.Price.HasValue)
+                product.Price = updateProductDTO.Price.Value;
+
+            if (!string.IsNullOrWhiteSpace(updateProductDTO.Info))
+                product.Info = updateProductDTO.Info;
+
+            if (!string.IsNullOrWhiteSpace(updateProductDTO.Description))
+                product.Description = updateProductDTO.Description;
+
+            if (updateProductDTO.Weight.HasValue)
+                product.ProductDetails.Weight = updateProductDTO.Weight.Value;
+
+            if (updateProductDTO.Width.HasValue && updateProductDTO.Height.HasValue)
+            {
+                product.ProductDetails.Width = updateProductDTO.Width.Value;
+                product.ProductDetails.Height = updateProductDTO.Height.Value;
+            }
+
+            // Update materials
+            if (updateProductDTO.Materials.Count > 0)
+            {
+                product.ProductDetails.Materials.Clear(); // Clear existing materials
+                foreach (var material in updateProductDTO.Materials)
+                {
+                    if (EnumHelpers.TryParseEnum(material, out Material parsedMaterial))
+                    {
+                        product.ProductDetails.Materials.Add(parsedMaterial);
+                    }
+                }
+            }
+
+            // Update colors
+            if (updateProductDTO.Colors.Count > 0)
+            {
+                product.ProductDetails.Colors.Clear(); // Clear existing colors
+                foreach (var color in updateProductDTO.Colors)
+                {
+                    if (EnumHelpers.TryParseEnum(color, out Color parsedColor))
+                    {
+                        product.ProductDetails.Colors.Add(parsedColor);
+                    }
+                }
+            }
+
+            // Update categories
+            if (updateProductDTO.Categories.Count > 0)
+            {
+                // Remove categories not in the updated list
+                var categoriesToRemove = product.Categories
+                    .Where(existingCategory => !updateProductDTO.Categories.Contains(existingCategory.Name)).ToList();
+
+                foreach (var category in categoriesToRemove)
+                {
+                    product.Categories.Remove(category);
+                }
+
+                // Add new categories
+                var categories = await _categoryReadRepository.GetAllWhereAsync((c) => updateProductDTO.Categories.Contains(c.Name));
+
+                foreach (var category in categories)
+                {
+                    if (category is ProductCategory productCategory && !product.Categories.Contains(category))
+                    {
+                        product.Categories.Add(productCategory);
+                    }
+                }
+
+            }
+
+            if (updateProductDTO.DiscountId is Guid discountId)
+            {
+                await _discountService.AssignDiscountAsync(product, discountId, cancellationToken, update: true);
+            }
+
+            if (updateProductDTO.ProductImages != null && updateProductDTO.ProductImages.Count > 0)
+            {
+                List<(string path, string fileName)> imageResults = await _storageService.UploadMultipleAsync(ProductConst.ImagesFolder, updateProductDTO.ProductImages);
+
+                var existingMainImage = product.ProductImageFiles.FirstOrDefault(i => i.IsMain);
+                bool isMain = true;
+
+                foreach (var (path, fileName) in imageResults)
+                {
+                    var productImage = new ProductImageFile()
+                    {
+                        FileName = fileName,
+                        PathName = path,
+                        Storage = _storageService.StorageName,
+                    };
+
+                    if (existingMainImage == null && isMain)
+                    {
+                        productImage.IsMain = true;
+                    }
+
+                    isMain = false;
+
+                    product.ProductImageFiles.Add(productImage);
+                }
+            }
+
+            if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
+            {
+                throw new UpdateNotSucceedException(nameof(product));
+            }
+
+            // Complete the transaction
+            scope.Complete();
         }
 
         public async Task ChangeMainImageAsync(Guid productId, Guid newMainImageId, CancellationToken cancellationToken = default)
         {
+            _jwtSession.ValidateAdminAccess();
 
             var product = await _productReadRepository.Table.Include(p => p.ProductImageFiles).FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
 
@@ -448,7 +457,9 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task RemoveImageAsync(Guid productId, Guid imageId, CancellationToken cancellationToken = default)
         {
-            using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            _jwtSession.ValidateAdminAccess();
+
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken);
 
             if (product == null)
@@ -479,12 +490,13 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 await _storageService.DeleteAsync(imageToDelete.PathName, imageToDelete.FileName);
 
-                transaction.Complete();
+                scope.Complete();
             }
         }
 
         private static float FindAverageRating(ICollection<ProductReview> reviews)
         {
+            if (reviews.Count == 0) return 0;
 
             var rating = reviews.Average(r => (int)r.Rating);
 

@@ -5,6 +5,7 @@ using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Services;
+using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Discount;
 using Shoppe.Application.Extensions.Mapping;
@@ -25,6 +26,7 @@ namespace Shoppe.Persistence.Concretes.Services
     {
         private readonly IDiscountReadRepository _discountReadRepository;
         private readonly IDiscountWriteRepository _discountWriteRepository;
+        private readonly IJwtSession _jwtSession;
         private readonly IProductReadRepository _productReadRepository;
         private readonly ICategoryReadRepository _categoryReadRepository;
         private readonly IPaginationService _paginationService;
@@ -36,7 +38,8 @@ namespace Shoppe.Persistence.Concretes.Services
             IProductReadRepository productReadRepository,
             ICategoryReadRepository categoryReadRepository,
             IUnitOfWork unitOfWork,
-            IPaginationService paginationService)
+            IPaginationService paginationService,
+            IJwtSession jwtSession)
         {
             _discountReadRepository = discountReadRepository;
             _discountWriteRepository = discountWriteRepository;
@@ -44,10 +47,13 @@ namespace Shoppe.Persistence.Concretes.Services
             _categoryReadRepository = categoryReadRepository;
             _unitOfWork = unitOfWork;
             _paginationService = paginationService;
+            _jwtSession = jwtSession;
         }
 
         public async Task CreateAsync(CreateDiscountDTO createDiscountDTO, CancellationToken cancellationToken = default)
         {
+            _jwtSession.ValidateAdminAccess();
+
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             if (string.IsNullOrEmpty(createDiscountDTO.Name))
@@ -64,6 +70,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 Name = createDiscountDTO.Name,
                 DiscountPercentage = createDiscountDTO.DiscountPercentage,
                 StartDate = createDiscountDTO.StartDate,
+                Description = createDiscountDTO.Description,
                 EndDate = createDiscountDTO.EndDate,
                 IsActive = true,
             };
@@ -77,6 +84,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task AssignDiscountAsync(Guid entityId, Guid discountId, EntityType entityType, CancellationToken cancellationToken = default, bool update = false)
         {
+            _jwtSession.ValidateAdminAccess();
+
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var discount = await _discountReadRepository.GetByIdAsync(discountId, cancellationToken);
@@ -147,6 +156,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task AssignDiscountAsync(IDiscountable entity, Guid discountId, CancellationToken cancellationToken = default, bool update = false)
         {
+            _jwtSession.ValidateAdminAccess();
+
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var discount = await _discountReadRepository.GetByIdAsync(discountId, cancellationToken);
@@ -211,6 +222,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
+            _jwtSession.ValidateAdminAccess();
+
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var discount = await _discountReadRepository.GetByIdAsync(id, cancellationToken);
@@ -228,15 +241,17 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task<GetAllDiscountsDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {
+
             var discountsQuery = await _discountReadRepository.GetAllAsync(false);
 
             var paginatedResult = await _paginationService.ConfigurePaginationAsync(page, pageSize, discountsQuery, cancellationToken);
 
 
-            var discounts = await paginatedResult.PaginatedQuery
+            var discounts = paginatedResult.PaginatedQuery
                 .Include(d => d.Categories)
                 .Include(d => d.Products)
-                .Select(d => d.ToGetDiscountDTO(CheckIfIsValid)).ToListAsync(cancellationToken);
+                .AsEnumerable()
+                .Select(d => d.ToGetDiscountDTO()).ToList();
 
             return new GetAllDiscountsDTO
             {
@@ -250,15 +265,18 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task<GetDiscountDTO> GetAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var discount = await _discountReadRepository.GetByIdAsync(id, cancellationToken);
+            var discount = await _discountReadRepository.Table.Include(d => d.Products).Include(d => d.Categories).FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+
             if (discount == null)
                 throw new EntityNotFoundException(nameof(discount));
 
-            return discount.ToGetDiscountDTO(CheckIfIsValid);
+            return discount.ToGetDiscountDTO();
         }
 
         public async Task UpdateAsync(UpdateDiscountDTO updateDiscountDTO, CancellationToken cancellationToken = default)
         {
+            _jwtSession.ValidateAdminAccess();
+
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var discount = await _discountReadRepository.GetByIdAsync(updateDiscountDTO.Id, cancellationToken);
@@ -273,7 +291,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (updateDiscountDTO.Description is string description && description != discount.Description)
             {
-                discount.Name = description;
+                discount.Description = description;
             }
 
             if (updateDiscountDTO.DiscountPercentage is decimal percentage && percentage != discount.DiscountPercentage)
@@ -308,12 +326,14 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task ToggleDiscountAsync(Guid discountId, CancellationToken cancellationToken = default)
         {
+            _jwtSession.ValidateAdminAccess();
+
             var discount = await _discountReadRepository.GetByIdAsync(discountId, cancellationToken);
 
             if (discount == null)
                 throw new EntityNotFoundException(nameof(discount));
 
-            if (!CheckIfIsValid(discount) && !discount.IsActive) throw new UpdateNotSucceedException("Discount is not valid anymore. If you want to activate it, you should update end date first.");
+            if (!CheckIfIsValid(discount) && !discount.IsActive) throw new UpdateNotSucceedException("Discount is not valid. If you want to activate it, you should update end date first.");
 
             else if (!CheckIfIsValid(discount) && discount.IsActive)
             {
@@ -328,6 +348,86 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 throw new UpdateNotSucceedException();
             }
+        }
+
+        public async Task AssignDiscountToEntitiesAsync(Guid id, List<Guid>? productIds, List<Guid>? categoryIds, CancellationToken cancellationToken = default)
+        {
+            _jwtSession.ValidateAdminAccess();
+
+            if (productIds != null)
+            {
+                using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+                var discount = await _discountReadRepository.Table.Include(d => d.Products).FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+
+                if (discount == null)
+                {
+                    throw new EntityNotFoundException(nameof(discount));
+                }
+
+                if (!CheckIfIsValid(discount) || !discount.IsActive) throw new UpdateNotSucceedException("Discount is not valid.");
+
+
+                var newProductIds = productIds.Except(discount.Products.Select(p => p.Id));
+                var productsToRemove = discount.Products.Where(p => !productIds.Contains(p.Id)).ToList();
+
+                var newProducts = _productReadRepository.Table.Include(p => p.Discount).Where(p => newProductIds.Contains(p.Id));
+
+                foreach (var product in productsToRemove)
+                {
+                    discount.Products.Remove(product);
+                }
+
+                foreach (var product in newProducts)
+                {
+                    discount.Products.Add(product);
+                }
+
+                if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
+                {
+                    throw new UpdateNotSucceedException();
+                }
+
+                scope.Complete();
+            }
+            else if (categoryIds != null)
+            {
+
+                using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+                var discount = await _discountReadRepository.Table.Include(d => d.Categories).FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+
+                if (discount == null)
+                {
+                    throw new EntityNotFoundException(nameof(discount));
+                }
+
+                if (!CheckIfIsValid(discount) || !discount.IsActive) throw new UpdateNotSucceedException("Discount is not valid.");
+
+
+                var newCategoryIds = categoryIds.Except(discount.Categories.Select(p => p.Id));
+                var categoriesToRemove = discount.Categories.Where(p => !categoryIds.Contains(p.Id)).ToList();
+
+                var newCategories = _categoryReadRepository.Table.OfType<ProductCategory>().Include(c => c.Discount).Where(c => newCategoryIds.Contains(c.Id));
+
+                foreach (var category in categoriesToRemove)
+                {
+                    discount.Categories.Remove(category);
+                }
+
+                foreach (var category in newCategories)
+                {
+                    discount.Categories.Add(category);
+                }
+
+                if (!await _unitOfWork.SaveChangesAsync(cancellationToken))
+                {
+                    throw new UpdateNotSucceedException();
+                }
+
+                scope.Complete();
+            }
+            else throw new InvalidOperationException("Discount cannot be applied");
         }
 
         public static bool CheckIfIsValid(Discount? discount)

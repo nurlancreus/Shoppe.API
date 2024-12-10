@@ -39,10 +39,6 @@ public class UpdateDiscountCommandRequestValidator : AbstractValidator<UpdateDis
             .InclusiveBetween(0, 100).WithMessage("Discount percentage must be between 0% and 100%.")
             .When(x => x.DiscountPercentage.HasValue);
 
-        RuleFor(x => x.StartDate)
-            .GreaterThanOrEqualTo(DateTime.UtcNow).WithMessage("Start date cannot be in the past.")
-            .When(x => x.StartDate.HasValue);
-
         RuleFor(x => x.EndDate)
             .GreaterThan(x => x.StartDate).WithMessage("End date must be after the start date.")
             .When(x => x.EndDate.HasValue && x.StartDate.HasValue);

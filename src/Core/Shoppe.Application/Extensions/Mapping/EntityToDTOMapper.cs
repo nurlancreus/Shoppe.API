@@ -4,6 +4,7 @@ using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Contact;
 using Shoppe.Application.DTOs.Discount;
 using Shoppe.Application.DTOs.Files;
+using Shoppe.Application.DTOs.Product;
 using Shoppe.Application.DTOs.Reply;
 using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.DTOs.Tag;
@@ -172,7 +173,7 @@ namespace Shoppe.Application.Extensions.Mapping
             };
         }
 
-        public static GetDiscountDTO ToGetDiscountDTO(this Discount discount, Predicate<Discount> CheckIfIsValid)
+        public static GetDiscountDTO ToGetDiscountDTO(this Discount discount)
         {
             return new GetDiscountDTO
             {
@@ -180,7 +181,17 @@ namespace Shoppe.Application.Extensions.Mapping
                 Name = discount.Name,
                 Description = discount.Description,
                 DiscountPercentage = discount.DiscountPercentage,
-                IsActive = CheckIfIsValid(discount),
+                IsActive = discount.IsActive,
+                Products = discount.Products.Select(p => new GetProductDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                }).ToList(),
+                Categories = discount.Categories.Select(c => new GetCategoryDTO
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                }).ToList(),
                 StartDate = discount.StartDate,
                 EndDate = discount.EndDate,
                 CreatedAt = discount.CreatedAt,
