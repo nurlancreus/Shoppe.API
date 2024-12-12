@@ -7,6 +7,7 @@ using Shoppe.Application.Abstractions.Repositories.BasketRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Calculator;
+using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Basket;
 using Shoppe.Application.DTOs.User;
@@ -20,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Shoppe.Persistence.Concretes.Services
 {
@@ -33,9 +35,10 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IBasketItemWriteRepository _basketItemWriteRepository;
         private readonly IProductReadRepository _productReadRepository;
         private readonly IDiscountCalculatorService _discountCalculatorService;
+        private readonly IJwtSession _jwtSession;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BasketService(IHttpContextAccessor httpContextAccessor, IBasketReadRepository basketReadRepository, IBasketWriteRepository basketWriteRepository, IBasketItemReadRepository basketItemReadRepository, IBasketItemWriteRepository basketItemWriteRepository, IProductReadRepository productReadRepository, IUnitOfWork unitOfWork, IDiscountCalculatorService discountCalculatorService, UserManager<ApplicationUser> userManager)
+        public BasketService(IHttpContextAccessor httpContextAccessor, IBasketReadRepository basketReadRepository, IBasketWriteRepository basketWriteRepository, IBasketItemReadRepository basketItemReadRepository, IBasketItemWriteRepository basketItemWriteRepository, IProductReadRepository productReadRepository, IUnitOfWork unitOfWork, IDiscountCalculatorService discountCalculatorService, UserManager<ApplicationUser> userManager, IJwtSession jwtSession)
         {
             _httpContextAccessor = httpContextAccessor;
             _basketReadRepository = basketReadRepository;
@@ -46,6 +49,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _unitOfWork = unitOfWork;
             _discountCalculatorService = discountCalculatorService;
             _userManager = userManager;
+            _jwtSession = jwtSession;
         }
 
         public async Task<GetBasketDTO?> GetMyCurrentBasketAsync(CancellationToken cancellationToken)
@@ -65,16 +69,21 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 Id = basket.Id,
                 CreatedAt = basket.CreatedAt,
-                BasketItems = basket.Items.Select(bi => new GetBasketItemDTO
+                BasketItems = basket.Items.Select(bi =>
                 {
-                    Id = bi.Id.ToString(),
-                    ProductName = bi.Product.Name,
-                    Price = bi.Product.Price,
-                    Quantity = bi.Quantity,
-                    CreatedAt = bi.CreatedAt,
-                    DiscountedPrice = _discountCalculatorService.CalculateDiscountedPrice(bi.Product) ?? 0,
-                    TotalPrice = bi.Quantity * bi.Product.Price,
-                    TotalDiscountedPrice = bi.Quantity * (_discountCalculatorService.CalculateDiscountedPrice(bi.Product) ?? 0)
+                    var (discountedPrice, generalDiscountPercentage) = _discountCalculatorService.CalculateDiscountedPrice(bi.Product);
+
+                    return new GetBasketItemDTO
+                    {
+                        Id = bi.Id.ToString(),
+                        ProductName = bi.Product.Name,
+                        Price = bi.Product.Price,
+                        Quantity = bi.Quantity,
+                        CreatedAt = bi.CreatedAt,
+                        DiscountedPrice = discountedPrice,
+                        TotalPrice = bi.Quantity * bi.Product.Price,
+                        TotalDiscountedPrice = discountedPrice != null ? bi.Quantity * (discountedPrice) : null
+                    };
                 }).ToList(),
                 User = new GetUserDTO
                 {
@@ -86,25 +95,28 @@ namespace Shoppe.Persistence.Concretes.Services
                     CreatedAt = basket.User.CreatedAt,
                 },
                 TotalAmount = basket.Items.Sum(bi => bi.Quantity * bi.Product.Price),
-                TotalDiscountedAmount = basket.Items.Sum(bi => bi.Quantity * (_discountCalculatorService.CalculateDiscountedPrice(bi.Product) ?? 0))
+                TotalDiscountedAmount = basket.Items.Sum(bi =>
+                {
+                    var (discountedPrice, generalDiscountPercentage) = _discountCalculatorService.CalculateDiscountedPrice(bi.Product);
+
+                    return discountedPrice != null ? bi.Quantity * discountedPrice : null;
+
+                })
             };
         }
 
         private async Task<Basket> GetMyBasketAsync(CancellationToken cancellationToken)
         {
-            var username = _httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-
-            if (string.IsNullOrEmpty(username))
-                throw new InvalidOperationException("No username found in the HTTP context.");
+            var userName = _jwtSession.GetUserName();
 
             var user = await _userManager.Users
                 .Include(u => u.Baskets)
                 .ThenInclude(b => b.Order)
-                .FirstOrDefaultAsync(u => u.UserName == username, cancellationToken)
-                ?? throw new InvalidOperationException("User not found.");
+                .FirstOrDefaultAsync(u => u.UserName == userName, cancellationToken)
+                ?? throw new EntityNotFoundException("User not found.");
 
             var targetBasket = user.Baskets
-                .FirstOrDefault(basket => basket.Order == null || basket.Order.OrderStatus != OrderStatus.Completed);
+                .SingleOrDefault(basket => basket.Order == null || basket.Order.OrderStatus != OrderStatus.Completed);
 
             if (targetBasket == null)
             {
@@ -136,7 +148,12 @@ namespace Shoppe.Persistence.Concretes.Services
                 .AsNoTrackingWithIdentityResolution()
                 .FirstOrDefaultAsync(b => b.Id == myBasket.Id, cancellationToken);
 
-            var existingItemInBasket = basket!.Items.FirstOrDefault(bi => bi.ProductId == product.Id);
+            if (basket == null)
+            {
+                throw new EntityNotFoundException(nameof(basket));
+            }
+
+            var existingItemInBasket = basket.Items.FirstOrDefault(bi => bi.ProductId == product.Id);
 
             if (existingItemInBasket == null)
             {
@@ -155,7 +172,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 existingItemInBasket.Quantity += quantity ?? 1;
             }
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
         public async Task RemoveBasket(Guid basketId, CancellationToken cancellationToken)
@@ -169,7 +186,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             _basketWriteRepository.Delete(basket);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
         public async Task RemoveBasketItemAsync(Guid basketItemId, CancellationToken cancellationToken)
@@ -181,18 +198,26 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(basketItem));
             }
 
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             _basketItemWriteRepository.Delete(basketItem);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
         }
 
         public async Task RemoveCurrentBasket(CancellationToken cancellationToken)
         {
             var myBasket = await GetMyBasketAsync(cancellationToken);
 
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             _basketWriteRepository.Delete(myBasket);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
         }
 
         public async Task UpdateItemQuantityAsync(Guid basketItemId, int quantity, CancellationToken cancellationToken)
@@ -206,6 +231,8 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(basketItem));
             }
 
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             basketItem.Quantity = Math.Clamp(quantity, 0, basketItem.Product.Stock);
 
             if (basketItem.Quantity == 0)
@@ -214,6 +241,8 @@ namespace Shoppe.Persistence.Concretes.Services
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
         }
 
 
@@ -222,10 +251,13 @@ namespace Shoppe.Persistence.Concretes.Services
             var basketItem = await _basketItemReadRepository.Table
                            .Include(bi => bi.Product)
                            .FirstOrDefaultAsync(bi => bi.Id == basketItemId, cancellationToken);
+
             if (basketItem == null)
             {
                 throw new EntityNotFoundException(nameof(basketItem));
             }
+
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             if (increment)
             {
@@ -248,6 +280,8 @@ namespace Shoppe.Persistence.Concretes.Services
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
         }
     }
 }

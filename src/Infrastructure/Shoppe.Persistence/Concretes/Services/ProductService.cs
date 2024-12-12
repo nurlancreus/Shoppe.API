@@ -5,6 +5,7 @@ using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Repositories.ReviewRepos;
 using Shoppe.Application.Abstractions.Services;
+using Shoppe.Application.Abstractions.Services.Calculator;
 using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.Abstractions.UoW;
@@ -43,8 +44,9 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IDiscountService _discountService;
         private readonly ICategoryReadRepository _categoryReadRepository;
         private readonly IDiscountReadRepository _discountReadRepository;
+        private readonly ICalculatorService _calculatorService;
         private readonly IJwtSession _jwtSession;
-        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, ICategoryReadRepository categoryReadRepository, IReviewService reviewService, IDiscountReadRepository discountReadRepository, IDiscountService discountService, IJwtSession jwtSession)
+        public ProductService(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IUnitOfWork unitOfWork, IStorageService storageService, IPaginationService paginationService, ICategoryReadRepository categoryReadRepository, IReviewService reviewService, IDiscountReadRepository discountReadRepository, IDiscountService discountService, IJwtSession jwtSession, ICalculatorService calculatorService)
         {
             _productReadRepository = productReadRepository;
             _productWriteRepository = productWriteRepository;
@@ -56,6 +58,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _discountReadRepository = discountReadRepository;
             _discountService = discountService;
             _jwtSession = jwtSession;
+            _calculatorService = calculatorService;
         }
 
         public async Task CreateAsync(CreateProductDTO createProductDTO, CancellationToken cancellationToken = default)
@@ -159,10 +162,17 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             var productsQuery = _productReadRepository.Table
                 .Include(q => q.Categories)
+                    .ThenInclude(q => q.Discount)
                 .Include(p => p.Reviews)
-                .Include(q => q.ProductImageFiles)
+                .Include(q => q.Discount)
                 .AsNoTrackingWithIdentityResolution()
                 .AsQueryable();
+
+            if(filtersDTO.Discounted != null)
+            {
+                if(filtersDTO.Discounted == true) productsQuery = productsQuery.Where(p => p.Discount != null);
+                else if (filtersDTO.Discounted == false) productsQuery = productsQuery.Where(p => p.Discount == null);
+            }
 
             if (!string.IsNullOrEmpty(filtersDTO.CategoryName))
             {
@@ -204,7 +214,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             (int totalItems, int pageSize, int page, int totalPages, IQueryable<Product> paginatedQuery) = await _paginationService.ConfigurePaginationAsync(filtersDTO.Page, filtersDTO.PageSize, productsQuery, cancellationToken);
 
-            var products = await paginatedQuery.ToListAsync(cancellationToken);
+            var products = await paginatedQuery.Include(p => p.ProductImageFiles).ToListAsync(cancellationToken);
 
             return new GetAllProductsDTO()
             {
@@ -212,73 +222,25 @@ namespace Shoppe.Persistence.Concretes.Services
                 PageSize = pageSize,
                 TotalItems = totalItems,
                 TotalPages = totalPages,
-                Products = products.Select(p => new GetProductDTO()
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Info = p.Info,
-                    Description = p.Description,
-                    Price = p.Price,
-                    Stock = p.Stock,
-                    Weight = p.ProductDetails.Weight,
-                    Height = p.ProductDetails.Height,
-                    Width = p.ProductDetails.Width,
-                    Colors = p.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
-                    Materials = p.ProductDetails.Materials.Select(m => m.ToString()).ToList(),
-                    Categories = p.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
-                    ProductImages = p.ProductImageFiles.Select(i => new GetProductImageFileDTO()
-                    {
-                        Id = i.Id,
-                        FileName = i.FileName,
-                        PathName = i.PathName,
-                        IsMain = i.IsMain,
-                    }).ToList(),
-
-                    Rating = FindAverageRating(p.Reviews),
-                    CreatedAt = p.CreatedAt
-                }).ToList(),
+                Products = products.Select(p => p.ToGetProductDTO(_calculatorService)).ToList(),
             };
         }
 
         public async Task<GetProductDTO> GetAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var product = await _productReadRepository.GetByIdAsync(id, cancellationToken, false);
+            var product = await _productReadRepository.Table.Include(p => p.Categories).ThenInclude(c => c.Discount).FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
             if (product == null)
             {
                 throw new EntityNotFoundException(nameof(product));
             }
 
-            await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync();
+            await _productReadRepository.Table.Entry(product).Reference(p => p.Discount).LoadAsync(cancellationToken);
+            await _productReadRepository.Table.Entry(product).Collection(p => p.ProductImageFiles).LoadAsync(cancellationToken);
 
-            await _productReadRepository.Table.Entry(product).Collection(p => p.Reviews).LoadAsync();
-            await _productReadRepository.Table.Entry(product).Collection(p => p.Categories).LoadAsync();
+            await _productReadRepository.Table.Entry(product).Collection(p => p.Reviews).LoadAsync(cancellationToken);
 
-            return new GetProductDTO()
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Info = product.Info,
-                Description = product.Description,
-                Price = product.Price,
-                Stock = product.Stock,
-                Weight = product.ProductDetails.Weight,
-                Height = product.ProductDetails.Height,
-                Width = product.ProductDetails.Width,
-                Colors = product.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
-                Materials = product.ProductDetails.Materials.Select(m => m.ToString()).ToList(),
-                Categories = product.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
-                ProductImages = product.ProductImageFiles.Select(i => new GetProductImageFileDTO()
-                {
-                    Id = i.Id,
-                    FileName = i.FileName,
-                    PathName = i.PathName,
-                    IsMain = i.IsMain,
-                }).ToList(),
-
-                Rating = FindAverageRating(product.Reviews),
-                CreatedAt = product.CreatedAt
-            };
+            return product.ToGetProductDTO(_calculatorService);
         }
 
         public async Task UpdateAsync(UpdateProductDTO updateProductDTO, CancellationToken cancellationToken = default)
@@ -493,16 +455,5 @@ namespace Shoppe.Persistence.Concretes.Services
                 scope.Complete();
             }
         }
-
-        private static float FindAverageRating(ICollection<ProductReview> reviews)
-        {
-            if (reviews.Count == 0) return 0;
-
-            var rating = reviews.Average(r => (int)r.Rating);
-
-            return (float)Math.Round(rating, 2);
-        }
-
-
     }
 }

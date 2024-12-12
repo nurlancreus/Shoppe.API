@@ -16,6 +16,9 @@ namespace Shoppe.Application.DTOs.Product
         public string Info { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public double Price { get; set; }
+        public Guid? DiscountId { get; set; }
+        public decimal? DiscountPercentage { get; set; }
+        public double? DiscountedPrice { get; set; }
         public int Stock { get; set; }
         public float Weight { get; set; }
         public float Height { get; set; }

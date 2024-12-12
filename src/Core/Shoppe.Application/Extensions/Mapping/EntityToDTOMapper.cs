@@ -1,4 +1,5 @@
 ﻿using Shoppe.Application.Abstractions.Services;
+using Shoppe.Application.Abstractions.Services.Calculator;
 using Shoppe.Application.DTOs.Blog;
 using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Contact;
@@ -33,6 +34,7 @@ namespace Shoppe.Application.Extensions.Mapping
             return new GetCategoryDTO
             {
                 Id = category.Id,
+                DiscountId = ((category as ProductCategory)?.Discount?.IsActive ?? false) ? (category as ProductCategory)?.DiscountId : null,
                 Name = category.Name,
                 Description = category.Description,
                 Type = category.Type,
@@ -80,6 +82,39 @@ namespace Shoppe.Application.Extensions.Mapping
                 Tags = blog.Tags.Select(t => t.ToGetTagDTO()).ToList(),
                 Reactions = reactionService.GetBlogReactions(blog),
                 CreatedAt = blog.CreatedAt
+            };
+        }
+
+        public static GetProductDTO ToGetProductDTO(this Product product, ICalculatorService calculatorService)
+        {
+            var (discountedPrice, generalDiscountPercentage) = calculatorService.CalculateDiscountedPrice(product);
+
+            return new GetProductDTO()
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Info = product.Info,
+                Description = product.Description,
+                Price = product.Price,
+                Stock = product.Stock,
+                DiscountId = (product.Discount?.IsActive ?? false) ? product.DiscountId : null,
+                Weight = product.ProductDetails.Weight,
+                Height = product.ProductDetails.Height,
+                Width = product.ProductDetails.Width,
+                Colors = product.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
+                Materials = product.ProductDetails.Materials.Select(m => m.ToString()).ToList(),
+                Categories = product.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
+                ProductImages = product.ProductImageFiles.Select(i => new GetProductImageFileDTO()
+                {
+                    Id = i.Id,
+                    FileName = i.FileName,
+                    PathName = i.PathName,
+                    IsMain = i.IsMain,
+                }).ToList(),
+                DiscountPercentage = generalDiscountPercentage,
+                DiscountedPrice = discountedPrice,
+                Rating = calculatorService.CalculateAvgRating(product.Reviews.Cast<Review>().ToList()),
+                CreatedAt = product.CreatedAt
             };
         }
 

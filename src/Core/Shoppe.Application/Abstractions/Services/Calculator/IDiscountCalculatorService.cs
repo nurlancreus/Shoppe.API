@@ -1,4 +1,5 @@
 ﻿using Shoppe.Domain.Entities;
+using Shoppe.Domain.Flags;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Shoppe.Application.Abstractions.Services.Calculator
 {
     public interface IDiscountCalculatorService
     {
-        double? CalculateDiscountedPrice(Product product);
-        double? CalculateDiscountedPrice(double originalPrice, decimal? discountPercentage);
+        (double? DiscountedPrice, decimal? GeneralDiscountPercentage) CalculateDiscountedPrice(Product product);
+        decimal? CalculateEffectiveDiscount(ICollection<IDiscountable> discountables);
     }
 }

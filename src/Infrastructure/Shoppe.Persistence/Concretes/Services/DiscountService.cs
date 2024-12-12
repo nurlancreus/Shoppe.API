@@ -371,7 +371,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 var newProductIds = productIds.Except(discount.Products.Select(p => p.Id));
                 var productsToRemove = discount.Products.Where(p => !productIds.Contains(p.Id)).ToList();
 
-                var newProducts = _productReadRepository.Table.Include(p => p.Discount).Where(p => newProductIds.Contains(p.Id));
+                var newProducts = _productReadRepository.Table.Include(p => p.Discount).Where(p => (p.Discount == null || p.Discount.IsActive == false) && newProductIds.Contains(p.Id));
 
                 foreach (var product in productsToRemove)
                 {
@@ -380,6 +380,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 foreach (var product in newProducts)
                 {
+                    if (product.Discount?.IsActive == false) product.Discount = null;
+
                     discount.Products.Add(product);
                 }
 
@@ -406,9 +408,9 @@ namespace Shoppe.Persistence.Concretes.Services
 
 
                 var newCategoryIds = categoryIds.Except(discount.Categories.Select(p => p.Id));
-                var categoriesToRemove = discount.Categories.Where(p => !categoryIds.Contains(p.Id)).ToList();
+                var categoriesToRemove = discount.Categories.Where(c => !categoryIds.Contains(c.Id)).ToList();
 
-                var newCategories = _categoryReadRepository.Table.OfType<ProductCategory>().Include(c => c.Discount).Where(c => newCategoryIds.Contains(c.Id));
+                var newCategories = _categoryReadRepository.Table.OfType<ProductCategory>().Include(c => c.Discount).Where(c => (c.Discount == null || c.Discount.IsActive == false) && newCategoryIds.Contains(c.Id));
 
                 foreach (var category in categoriesToRemove)
                 {
@@ -417,6 +419,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
                 foreach (var category in newCategories)
                 {
+                    if (category.Discount?.IsActive == false) category.Discount = null;
+
                     discount.Categories.Add(category);
                 }
 

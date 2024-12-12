@@ -45,8 +45,9 @@ namespace Shoppe.Infrastructure
             services.AddScoped<IContactEmailTemplateService, EmailTemplateService>();
             services.AddScoped<IOrderEmailTemplateService, EmailTemplateService>();
 
+            services.AddScoped<ICalculatorService, CalculatorService>();
             services.AddScoped<IDiscountCalculatorService, CalculatorService>();
-
+            services.AddScoped<IRatingCalculatorService, CalculatorService>();
 
             #endregion
 

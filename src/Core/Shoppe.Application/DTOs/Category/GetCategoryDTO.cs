@@ -11,6 +11,7 @@ namespace Shoppe.Application.DTOs.Category
     public record GetCategoryDTO
     {
         public Guid Id { get; set; }
+        public Guid? DiscountId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string Type { get; set; } = string.Empty;

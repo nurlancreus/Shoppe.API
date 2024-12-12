@@ -16,6 +16,7 @@ namespace Shoppe.Application.DTOs.Product
         public double? MinPrice { get; set; }
         public double? MaxPrice { get; set; }
         public bool? InStock { get; set; }
+        public bool? Discounted {  get; set; }
         public List<SortOption> SortOptions { get; set; } = [];
         public int Page { get; init; }
         public int PageSize { get; init; }

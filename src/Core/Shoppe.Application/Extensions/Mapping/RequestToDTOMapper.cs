@@ -73,6 +73,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 InStock = request.InStock,
                 MaxPrice = request.MaxPrice,
                 MinPrice = request.MinPrice,
+                Discounted = request.Discounted,
                 SortOptions = ParsingHelpers.ParseSortByQuery(request.SortBy),
             };
         }

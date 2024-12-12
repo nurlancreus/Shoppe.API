@@ -98,7 +98,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (type == CategoryType.Product)
             {
-                query = _categoryReadRepository.Table.OfType<ProductCategory>().AsNoTracking();
+                query = _categoryReadRepository.Table.OfType<ProductCategory>().Include(c => c.Discount).AsNoTracking();
             }
             else if (type == CategoryType.Blog)
             {

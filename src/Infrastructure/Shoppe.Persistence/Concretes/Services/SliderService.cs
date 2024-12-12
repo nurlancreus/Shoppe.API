@@ -63,7 +63,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task CreateSliderAsync(CreateSliderDTO createSliderDTO, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -112,7 +112,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task DeleteSlideAsync(Guid slideId, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
+
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var slide = await _slideReadRepository.Table.Include(s => s.Slider).ThenInclude(s => s.Slides)
@@ -130,6 +131,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 {
 
                     await _storageService.DeleteAsync(slide.SlideImageFile.PathName, slide.SlideImageFile.FileName);
+
                     scope.Complete();
                 }
             }
@@ -137,7 +139,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task DeleteSliderAsync(Guid sliderId, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
+
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var slider = await _sliderReadRepository.Table.Include(s => s.Slides)
@@ -194,7 +197,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task UpdateSlideAsync(UpdateSlideDTO updateSlideDTO, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
+
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var slide = await _slideReadRepository.Table.Include(s => s.SlideImageFile)
@@ -250,7 +254,8 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task UpdateSliderAsync(UpdateSliderDTO updateSliderDTO, CancellationToken cancellationToken)
         {
-            ValidateAdminAccess();
+            _jwtSession.ValidateAdminAccess();
+
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var slider = await _sliderReadRepository.Table.Include(s => s.Slides).ThenInclude(s => s.SlideImageFile)
@@ -424,12 +429,6 @@ namespace Shoppe.Persistence.Concretes.Services
                 scope.Complete();
             }
 
-        }
-
-        private void ValidateAdminAccess()
-        {
-            if (!_jwtSession.IsAdmin())
-                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
         }
 
         private GetSliderDTO MapSliderToDTO(Slider slider)

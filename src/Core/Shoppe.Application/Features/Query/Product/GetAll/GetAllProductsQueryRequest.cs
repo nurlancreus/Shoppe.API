@@ -16,5 +16,6 @@ namespace Shoppe.Application.Features.Query.Product.GetAllProducts
         public double? MaxPrice { get; set; }
         public bool? InStock { get; set; }
         public string? SortBy { get; set; }
+        public bool? Discounted { get; set; }
     }
 }

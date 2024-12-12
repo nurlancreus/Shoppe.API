@@ -34,7 +34,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("CategoriesId");
 
-                    b.ToTable("BlogBlogCategory");
+                    b.ToTable("BlogBlogCategory", (string)null);
                 });
 
             modelBuilder.Entity("BlogBlogTag", b =>
@@ -49,7 +49,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("BlogBlogTag");
+                    b.ToTable("BlogBlogTag", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -177,7 +177,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("ProductsId");
 
-                    b.ToTable("ProductProductCategory");
+                    b.ToTable("ProductProductCategory", (string)null);
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.About", b =>
@@ -223,7 +223,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("About");
+                    b.ToTable("About", (string)null);
 
                     b.HasData(
                         new
@@ -273,7 +273,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
 
                     b.HasDiscriminator<string>("AddressType").HasValue("Address");
 
@@ -305,7 +305,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Baskets");
+                    b.ToTable("Baskets", (string)null);
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.BasketItem", b =>
@@ -337,7 +337,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("BasketItems", t =>
+                    b.ToTable("BasketItems", null, t =>
                         {
                             t.HasCheckConstraint("CK_BasketItem_Quantity", "Quantity >= 0");
                         });
@@ -376,7 +376,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("BlogCoverId");
 
-                    b.ToTable("Blogs");
+                    b.ToTable("Blogs", (string)null);
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Categories.Category", b =>
@@ -405,7 +405,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasDiscriminator<string>("Type").HasValue("Category");
 
@@ -445,7 +445,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contacts");
+                    b.ToTable("Contacts", (string)null);
 
                     b.HasDiscriminator<string>("Type").HasValue("Contact");
 
@@ -488,7 +488,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Coupons");
+                    b.ToTable("Coupons", (string)null);
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Discount", b =>
@@ -525,7 +525,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Discounts", t =>
+                    b.ToTable("Discounts", null, t =>
                         {
                             t.HasCheckConstraint("CK_Discount_DiscountPercentage", "[DiscountPercentage] > 0 AND [DiscountPercentage] <= 100");
                         });
@@ -558,7 +558,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApplicationFiles");
+                    b.ToTable("ApplicationFiles", (string)null);
 
                     b.HasDiscriminator().HasValue("ApplicationFile");
 
@@ -769,7 +769,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("ShippingAddressId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Payment", b =>
@@ -793,7 +793,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Product", b =>
@@ -833,7 +833,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("DiscountId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Reactions.Reaction", b =>
@@ -861,7 +861,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reactions");
+                    b.ToTable("Reactions", (string)null);
 
                     b.HasDiscriminator<string>("EntityType").HasValue("Reaction");
 
@@ -904,7 +904,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("ReplierId");
 
-                    b.ToTable("Replies", t =>
+                    b.ToTable("Replies", null, t =>
                         {
                             t.HasCheckConstraint("CK_Reply_Depth", "[Depth] >= 0 AND [Depth] <= 3");
                         });
@@ -945,7 +945,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("ReviewerId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
 
                     b.HasDiscriminator<string>("Type").HasValue("Review");
 
@@ -990,7 +990,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("SliderId");
 
-                    b.ToTable("Slides", t =>
+                    b.ToTable("Slides", null, t =>
                         {
                             t.HasCheckConstraint("CK_Slide_Order", "[Order] >= 0 AND [Order] <= 255");
                         });
@@ -1015,7 +1015,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sliders");
+                    b.ToTable("Sliders", (string)null);
 
                     b.HasDiscriminator<string>("Type").HasValue("Slider");
 
@@ -1049,7 +1049,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasIndex("AboutId");
 
-                    b.ToTable("SocialMediaLinks");
+                    b.ToTable("SocialMediaLinks", (string)null);
 
                     b.HasData(
                         new
@@ -1112,7 +1112,7 @@ namespace Shoppe.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
 
                     b.HasDiscriminator<string>("Type").HasValue("Tag");
 
@@ -1676,7 +1676,7 @@ namespace Shoppe.Persistence.Migrations
                         .HasForeignKey("DiscountId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.OwnsOne("Shoppe.Domain.Entities.ProductDetails", "ProductDetails", b1 =>
+                    b.OwnsOne("Shoppe.Domain.Entities.Product.ProductDetails#Shoppe.Domain.Entities.ProductDetails", "ProductDetails", b1 =>
                         {
                             b1.Property<Guid>("ProductId")
                                 .HasColumnType("uniqueidentifier");

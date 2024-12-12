@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Abstractions.Services.Calculator
 {
-    public interface ICalculatorService : IDiscountCalculatorService
+    public interface ICalculatorService : IDiscountCalculatorService, IRatingCalculatorService
     {
+
     }
 }
