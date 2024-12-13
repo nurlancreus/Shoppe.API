@@ -30,7 +30,7 @@ public class UpdateItemQuantityCommandRequestValidator : AbstractValidator<Updat
 
     private async Task<bool> HaveSufficientStock(UpdateItemQuantityCommandRequest request, CancellationToken cancellationToken)
     {
-        var basketItem = await _basketItemReadRepository.GetByIdAsync((Guid)request.BasketItemId, cancellationToken);
+        var basketItem = await _basketItemReadRepository.GetByIdAsync((Guid)request.BasketItemId!, cancellationToken);
 
         if (basketItem == null)
         {

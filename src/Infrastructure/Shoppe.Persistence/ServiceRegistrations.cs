@@ -161,6 +161,8 @@ namespace Shoppe.Persistence
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<IDiscountService, DiscountService>();
 
+            services.AddScoped<IBasketService, BasketService>();
+
             services.AddScoped<IInternalAuthService, AuthService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();

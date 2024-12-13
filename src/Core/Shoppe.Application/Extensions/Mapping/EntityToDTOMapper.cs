@@ -1,5 +1,6 @@
 ﻿using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Calculator;
+using Shoppe.Application.DTOs.Basket;
 using Shoppe.Application.DTOs.Blog;
 using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Contact;
@@ -85,6 +86,54 @@ namespace Shoppe.Application.Extensions.Mapping
             };
         }
 
+        public static GetBasketDTO ToGetBasketDTO(this Basket basket, IDiscountCalculatorService discountCalculatorService)
+        {
+            return new GetBasketDTO()
+            {
+                Id = basket.Id,
+                CreatedAt = basket.CreatedAt,
+                Items = basket.Items.Select(bi => bi.ToGetBasketItemDTO(discountCalculatorService)
+                ).ToList(),
+                User = new GetUserDTO
+                {
+                    Id = basket.User.Id,
+                    FirstName = basket.User.FirstName!,
+                    LastName = basket.User.LastName!,
+                    Email = basket.User.Email!,
+                    UserName = basket.User.UserName!,
+                    CreatedAt = basket.User.CreatedAt,
+                },
+                TotalAmount = basket.Items.Sum(bi => bi.Quantity * bi.Product.Price),
+                TotalDiscountedAmount = basket.Items.Sum(bi =>
+                {
+                    var (discountedPrice, generalDiscountPercentage) = discountCalculatorService.CalculateDiscountedPrice(bi.Product);
+
+                    return discountedPrice != null ? bi.Quantity * discountedPrice : null;
+
+                })
+            };
+        }
+
+        public static GetBasketItemDTO ToGetBasketItemDTO(this BasketItem basketItem, IDiscountCalculatorService discountCalculatorService)
+        {
+            var (discountedPrice, generalDiscountPercentage) = discountCalculatorService.CalculateDiscountedPrice(basketItem.Product);
+
+
+            return new GetBasketItemDTO
+            {
+                Id = basketItem.Id.ToString(),
+                ProductName = basketItem.Product.Name,
+                Price = basketItem.Product.Price,
+                Quantity = basketItem.Quantity,
+                Colors = basketItem.Product.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
+                Image = basketItem.Product.ProductImageFiles.Where(i => i.IsMain).Select(i => i.ToGetImageFileDTO()).FirstOrDefault()!,
+                DiscountedPrice = discountedPrice,
+                TotalPrice = basketItem.Quantity * basketItem.Product.Price,
+                TotalDiscountedPrice = discountedPrice != null ? basketItem.Quantity * (discountedPrice) : null,
+                CreatedAt = basketItem.CreatedAt,
+            };
+        }
+
         public static GetProductDTO ToGetProductDTO(this Product product, ICalculatorService calculatorService)
         {
             var (discountedPrice, generalDiscountPercentage) = calculatorService.CalculateDiscountedPrice(product);
@@ -104,13 +153,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 Colors = product.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
                 Materials = product.ProductDetails.Materials.Select(m => m.ToString()).ToList(),
                 Categories = product.Categories.Select(c => c.ToGetCategoryDTO()).ToList(),
-                ProductImages = product.ProductImageFiles.Select(i => new GetProductImageFileDTO()
-                {
-                    Id = i.Id,
-                    FileName = i.FileName,
-                    PathName = i.PathName,
-                    IsMain = i.IsMain,
-                }).ToList(),
+                ProductImages = product.ProductImageFiles.Select(i => i.ToGetImageFileDTO()).ToList(),
                 DiscountPercentage = generalDiscountPercentage,
                 DiscountedPrice = discountedPrice,
                 Rating = calculatorService.CalculateAvgRating(product.Reviews.Cast<Review>().ToList()),

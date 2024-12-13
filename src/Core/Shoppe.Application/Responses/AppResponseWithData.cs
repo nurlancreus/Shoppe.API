@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Responses
 {
-    public class AppResponseWithData<T> : AppResponse where T : class
+    public class AppResponseWithData<T> : AppResponse where T : class?
     {
         public T Data { get; set; } = null!;
     }

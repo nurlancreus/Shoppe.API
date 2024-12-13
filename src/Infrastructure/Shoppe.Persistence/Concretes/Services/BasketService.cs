@@ -12,6 +12,7 @@ using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Basket;
 using Shoppe.Application.DTOs.User;
 using Shoppe.Application.Extensions.Helpers;
+using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Enums;
@@ -27,7 +28,6 @@ namespace Shoppe.Persistence.Concretes.Services
 {
     public class BasketService : IBasketService
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IBasketReadRepository _basketReadRepository;
         private readonly IBasketWriteRepository _basketWriteRepository;
@@ -38,9 +38,8 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IJwtSession _jwtSession;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BasketService(IHttpContextAccessor httpContextAccessor, IBasketReadRepository basketReadRepository, IBasketWriteRepository basketWriteRepository, IBasketItemReadRepository basketItemReadRepository, IBasketItemWriteRepository basketItemWriteRepository, IProductReadRepository productReadRepository, IUnitOfWork unitOfWork, IDiscountCalculatorService discountCalculatorService, UserManager<ApplicationUser> userManager, IJwtSession jwtSession)
+        public BasketService(IBasketReadRepository basketReadRepository, IBasketWriteRepository basketWriteRepository, IBasketItemReadRepository basketItemReadRepository, IBasketItemWriteRepository basketItemWriteRepository, IProductReadRepository productReadRepository, IUnitOfWork unitOfWork, IDiscountCalculatorService discountCalculatorService, UserManager<ApplicationUser> userManager, IJwtSession jwtSession)
         {
-            _httpContextAccessor = httpContextAccessor;
             _basketReadRepository = basketReadRepository;
             _basketWriteRepository = basketWriteRepository;
             _basketItemReadRepository = basketItemReadRepository;
@@ -52,60 +51,24 @@ namespace Shoppe.Persistence.Concretes.Services
             _jwtSession = jwtSession;
         }
 
-        public async Task<GetBasketDTO?> GetMyCurrentBasketAsync(CancellationToken cancellationToken)
+        public async Task<GetBasketDTO?> GetMyCurrentBasketAsync(CancellationToken cancellationToken = default)
         {
             var myBasket = await GetMyBasketAsync(cancellationToken);
 
             var basket = await _basketReadRepository.Table
                 .Include(b => b.Items)
                     .ThenInclude(bi => bi.Product)
+                    .ThenInclude(p => p.ProductImageFiles)
                 .Include(b => b.User)
                 .AsNoTrackingWithIdentityResolution()
                 .FirstOrDefaultAsync(b => b.Id == myBasket.Id, cancellationToken);
 
             if (basket == null) return null;
 
-            return new GetBasketDTO()
-            {
-                Id = basket.Id,
-                CreatedAt = basket.CreatedAt,
-                BasketItems = basket.Items.Select(bi =>
-                {
-                    var (discountedPrice, generalDiscountPercentage) = _discountCalculatorService.CalculateDiscountedPrice(bi.Product);
-
-                    return new GetBasketItemDTO
-                    {
-                        Id = bi.Id.ToString(),
-                        ProductName = bi.Product.Name,
-                        Price = bi.Product.Price,
-                        Quantity = bi.Quantity,
-                        CreatedAt = bi.CreatedAt,
-                        DiscountedPrice = discountedPrice,
-                        TotalPrice = bi.Quantity * bi.Product.Price,
-                        TotalDiscountedPrice = discountedPrice != null ? bi.Quantity * (discountedPrice) : null
-                    };
-                }).ToList(),
-                User = new GetUserDTO
-                {
-                    Id = basket.User.Id,
-                    FirstName = basket.User.FirstName!,
-                    LastName = basket.User.LastName!,
-                    Email = basket.User.Email!,
-                    UserName = basket.User.UserName!,
-                    CreatedAt = basket.User.CreatedAt,
-                },
-                TotalAmount = basket.Items.Sum(bi => bi.Quantity * bi.Product.Price),
-                TotalDiscountedAmount = basket.Items.Sum(bi =>
-                {
-                    var (discountedPrice, generalDiscountPercentage) = _discountCalculatorService.CalculateDiscountedPrice(bi.Product);
-
-                    return discountedPrice != null ? bi.Quantity * discountedPrice : null;
-
-                })
-            };
+            return basket.ToGetBasketDTO(_discountCalculatorService);
         }
 
-        private async Task<Basket> GetMyBasketAsync(CancellationToken cancellationToken)
+        private async Task<Basket> GetMyBasketAsync(CancellationToken cancellationToken = default)
         {
             var userName = _jwtSession.GetUserName();
 
@@ -130,8 +93,7 @@ namespace Shoppe.Persistence.Concretes.Services
         }
 
 
-
-        public async Task AddItemToBasketAsync(Guid productId, int? quantity, CancellationToken cancellationToken)
+        public async Task AddItemToBasketAsync(Guid productId, int? quantity, CancellationToken cancellationToken = default)
         {
             var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken);
 
@@ -175,39 +137,60 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task RemoveBasket(Guid basketId, CancellationToken cancellationToken)
+        public async Task RemoveBasketAsync(Guid basketId, CancellationToken cancellationToken = default)
         {
-            var basket = await _basketReadRepository.GetByIdAsync(basketId, cancellationToken);
+            var basket = await _basketReadRepository.Table.Include(b => b.User).FirstOrDefaultAsync(b => b.Id == basketId, cancellationToken);
 
             if (basket == null)
             {
                 throw new EntityNotFoundException(nameof(basket));
             }
 
-            _basketWriteRepository.Delete(basket);
+            var userId = _jwtSession.GetUserId();
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-
-        public async Task RemoveBasketItemAsync(Guid basketItemId, CancellationToken cancellationToken)
-        {
-            var basketItem = await _basketItemReadRepository.GetByIdAsync(basketItemId, cancellationToken);
-
-            if (basketItem == null)
-            {
-                throw new EntityNotFoundException(nameof(basketItem));
-            }
+            if (userId != basket.User.Id) throw new DeleteNotSucceedException("Basket is not belongs to the user");
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            _basketItemWriteRepository.Delete(basketItem);
+            _basketWriteRepository.Delete(basket);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             scope.Complete();
         }
 
-        public async Task RemoveCurrentBasket(CancellationToken cancellationToken)
+        public async Task RemoveBasketItemAsync(Guid basketItemId, CancellationToken cancellationToken = default)
+        {
+            var myBasket = await GetMyBasketAsync(cancellationToken);
+
+            var basket = await _basketReadRepository.Table
+                               .Include(b => b.Items)
+                               .FirstOrDefaultAsync(b => b.Id == myBasket.Id, cancellationToken);
+
+            if (basket == null) throw new EntityNotFoundException(nameof(basket));
+
+            if (basket.Items.Count > 0)
+            {
+                var basketItem = basket.Items.FirstOrDefault(bi => bi.Id == basketItemId);
+
+                if (basketItem == null)
+                {
+                    throw new EntityNotFoundException(nameof(basketItem));
+                }
+
+                using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+                basket.Items.Remove(basketItem);
+
+                _basketItemWriteRepository.Delete(basketItem);
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                scope.Complete();
+            }
+        }
+
+        public async Task RemoveCurrentBasketAsync(CancellationToken cancellationToken = default)
         {
             var myBasket = await GetMyBasketAsync(cancellationToken);
 
@@ -220,68 +203,113 @@ namespace Shoppe.Persistence.Concretes.Services
             scope.Complete();
         }
 
-        public async Task UpdateItemQuantityAsync(Guid basketItemId, int quantity, CancellationToken cancellationToken)
+        public async Task UpdateItemQuantityAsync(Guid basketItemId, int quantity, CancellationToken cancellationToken = default)
         {
-            var basketItem = await _basketItemReadRepository.Table
-                .Include(bi => bi.Product)
-                .FirstOrDefaultAsync(bi => bi.Id == basketItemId, cancellationToken);
+            var myBasket = await GetMyBasketAsync(cancellationToken);
 
-            if (basketItem == null)
+            var basket = await _basketReadRepository.Table
+                               .Include(b => b.Items)
+                                    .ThenInclude(bi => bi.Product)
+                               .FirstOrDefaultAsync(b => b.Id == myBasket.Id, cancellationToken);
+
+            if (basket == null) throw new EntityNotFoundException(nameof(basket));
+
+            if (basket.Items.Count > 0)
             {
-                throw new EntityNotFoundException(nameof(basketItem));
+                var basketItem = basket.Items.FirstOrDefault(bi => bi.Id == basketItemId);
+
+                if (basketItem == null)
+                {
+                    throw new EntityNotFoundException(nameof(basketItem));
+                }
+
+                using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+                basketItem.Quantity = Math.Clamp(quantity, 0, basketItem.Product.Stock);
+
+                if (basketItem.Quantity == 0)
+                {
+                    basket.Items.Remove(basketItem);
+
+                    _basketItemWriteRepository.Delete(basketItem);
+                }
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                scope.Complete();
             }
-
-            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
-            basketItem.Quantity = Math.Clamp(quantity, 0, basketItem.Product.Stock);
-
-            if (basketItem.Quantity == 0)
-            {
-                _basketItemWriteRepository.Delete(basketItem);
-            }
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            scope.Complete();
         }
 
 
-        public async Task UpdateItemQuantityAsync(Guid basketItemId, bool increment, CancellationToken cancellationToken)
+        public async Task UpdateItemQuantityAsync(Guid basketItemId, bool increment, CancellationToken cancellationToken = default)
         {
-            var basketItem = await _basketItemReadRepository.Table
-                           .Include(bi => bi.Product)
-                           .FirstOrDefaultAsync(bi => bi.Id == basketItemId, cancellationToken);
+            var myBasket = await GetMyBasketAsync(cancellationToken);
 
-            if (basketItem == null)
+            var basket = await _basketReadRepository.Table
+                               .Include(b => b.Items)
+                                    .ThenInclude(bi => bi.Product)
+                               .FirstOrDefaultAsync(b => b.Id == myBasket.Id, cancellationToken);
+
+            if (basket == null) throw new EntityNotFoundException(nameof(basket));
+
+            if (basket.Items.Count > 0)
             {
-                throw new EntityNotFoundException(nameof(basketItem));
-            }
+                var basketItem = basket.Items.FirstOrDefault(bi => bi.Id == basketItemId);
 
-            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
-            if (increment)
-            {
-                if (basketItem.Quantity < basketItem.Product.Stock)
+                if (basketItem == null)
                 {
-                    basketItem.Quantity++;
+                    throw new EntityNotFoundException(nameof(basketItem));
                 }
-            }
-            else
-            {
-                if (basketItem.Quantity > 0)
-                {
-                    basketItem.Quantity--;
 
-                    if (basketItem.Quantity == 0)
+                using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+                if (increment)
+                {
+                    if (basketItem.Quantity < basketItem.Product.Stock)
                     {
-                        _basketItemWriteRepository.Delete(basketItem);
+                        basketItem.Quantity++;
                     }
                 }
+                else
+                {
+                    if (basketItem.Quantity > 0)
+                    {
+                        basketItem.Quantity--;
+
+                        if (basketItem.Quantity == 0)
+                        {
+                            basket.Items.Remove(basketItem);
+
+                            _basketItemWriteRepository.Delete(basketItem);
+                        }
+                    }
+                }
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                scope.Complete();
             }
+        }
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        public async Task ClearBasketAsync(CancellationToken cancellationToken = default)
+        {
+            var myBasket = await GetMyBasketAsync(cancellationToken);
 
-            scope.Complete();
+            var basket = await _basketReadRepository.Table
+                               .Include(b => b.Items)
+                               .FirstOrDefaultAsync(b => b.Id == myBasket.Id, cancellationToken);
+
+            if (basket == null) throw new EntityNotFoundException(nameof(basket));
+
+            if (basket.Items.Count > 0)
+            {
+                using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+                _basketItemWriteRepository.DeleteRange(basket.Items);
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                scope.Complete();
+            }
         }
     }
 }
