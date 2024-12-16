@@ -6,6 +6,7 @@ using Shoppe.Application.Features.Command.Basket.ClearBasket;
 using Shoppe.Application.Features.Command.Basket.DeleteActiveBasket;
 using Shoppe.Application.Features.Command.Basket.DeleteBasket;
 using Shoppe.Application.Features.Command.Basket.DeleteBasketItem;
+using Shoppe.Application.Features.Command.Basket.SyncBasket;
 using Shoppe.Application.Features.Command.Basket.UpdateItemQuantity;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
 using Shoppe.Application.Features.Query.Basket.GetBasket;
@@ -22,7 +23,16 @@ namespace Shoppe.API.Controllers.v1
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetActiveBasket(GetBasketQueryRequest request)
+        public async Task<IActionResult> GetActiveBasket()
+        {
+            var request = new GetBasketQueryRequest();
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> SyncBasket([FromBody] SyncBasketCommandRequest request)
         {
             var response = await _sender.Send(request);
 

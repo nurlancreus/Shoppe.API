@@ -17,5 +17,6 @@ namespace Shoppe.Application.Abstractions.Services
         Task RemoveBasketItemAsync(Guid basketItemId, CancellationToken cancellationToken = default);
         Task RemoveBasketAsync(Guid basketId, CancellationToken cancellationToken = default);
         Task RemoveCurrentBasketAsync(CancellationToken cancellationToken = default);
+        Task<bool> SyncBasketAsync(IEnumerable<GuestBasketDTO> guestBasket, CancellationToken cancellationToken = default);
     }
 }

@@ -15,6 +15,7 @@ namespace Shoppe.Application.Abstractions.Services
         Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
         Task<GetProductDTO> GetAsync(Guid id, CancellationToken cancellationToken = default);
         Task<GetAllProductsDTO> GetAllAsync(ProductFilterParamsDTO filtersDTO, CancellationToken cancellationToken = default);
+        Task<List<GetProductDTO>> GetProductsById(IEnumerable<Guid> productsIds, CancellationToken cancellationToken = default);
         Task ChangeMainImageAsync(Guid productId, Guid newMainImageId, CancellationToken cancellationToken = default);
         Task RemoveImageAsync(Guid productId, Guid newMainImageId, CancellationToken cancellationToken = default);
     }

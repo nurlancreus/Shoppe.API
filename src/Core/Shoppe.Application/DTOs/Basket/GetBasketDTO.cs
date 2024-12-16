@@ -13,7 +13,7 @@ namespace Shoppe.Application.DTOs.Basket
         public GetUserDTO User { get; set; } = null!;
         public List<GetBasketItemDTO> Items { get; set; } = [];
         public double TotalAmount { get; set; } = 0;
-        public double? TotalDiscountedAmount { get; set; }
+        public double TotalDiscountedAmount { get; set; } = 0;
         public DateTime CreatedAt { get; set; }
     }
 }

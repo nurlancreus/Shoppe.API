@@ -12,6 +12,7 @@ using Shoppe.Application.Features.Command.Product.RemoveImage;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
 using Shoppe.Application.Features.Command.Review.CreateReview;
 using Shoppe.Application.Features.Query.Product.GetAllProducts;
+using Shoppe.Application.Features.Query.Product.GetByIds;
 using Shoppe.Application.Features.Query.Product.GetProductById;
 using Shoppe.Application.Features.Query.Review.GetReviewByEntity;
 using Shoppe.Domain.Entities;
@@ -52,6 +53,19 @@ namespace Shoppe.API.Controllers.v1
             var request = new GetProductByIdQueryRequest()
             {
                 Id = id
+            };
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpGet("ids")]
+        public async Task<IActionResult> GetByIds([FromQuery] string productIds)
+        {
+            var request = new GetProductsByIdQueryRequest
+            {
+                ProductsIds = productIds
             };
 
             var response = await _sender.Send(request);

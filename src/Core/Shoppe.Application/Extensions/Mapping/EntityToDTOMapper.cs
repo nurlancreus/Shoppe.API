@@ -108,7 +108,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 {
                     var (discountedPrice, generalDiscountPercentage) = discountCalculatorService.CalculateDiscountedPrice(bi.Product);
 
-                    return discountedPrice != null ? bi.Quantity * discountedPrice : null;
+                    return bi.Quantity * (discountedPrice is double discountedP ? discountedP : bi.Product.Price);
 
                 })
             };
@@ -125,6 +125,7 @@ namespace Shoppe.Application.Extensions.Mapping
                 ProductName = basketItem.Product.Name,
                 Price = basketItem.Product.Price,
                 Quantity = basketItem.Quantity,
+                ProductStock = basketItem.Product.Stock,
                 Colors = basketItem.Product.ProductDetails.Colors.Select(c => c.ToString()).ToList(),
                 Image = basketItem.Product.ProductImageFiles.Where(i => i.IsMain).Select(i => i.ToGetImageFileDTO()).FirstOrDefault()!,
                 DiscountedPrice = discountedPrice,

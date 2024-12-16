@@ -59,6 +59,13 @@ namespace Shoppe.Persistence.Concretes.Services
                 .Include(b => b.Items)
                     .ThenInclude(bi => bi.Product)
                     .ThenInclude(p => p.ProductImageFiles)
+                 .Include(b => b.Items)
+                    .ThenInclude(bi => bi.Product)
+                    .ThenInclude(p => p.Discount)
+                 .Include(b => b.Items)
+                    .ThenInclude(bi => bi.Product)
+                    .ThenInclude(p => p.Categories)
+                    .ThenInclude(c => c.Discount)
                 .Include(b => b.User)
                 .AsNoTrackingWithIdentityResolution()
                 .FirstOrDefaultAsync(b => b.Id == myBasket.Id, cancellationToken);
@@ -310,6 +317,51 @@ namespace Shoppe.Persistence.Concretes.Services
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 scope.Complete();
             }
+        }
+
+        public async Task<bool> SyncBasketAsync(IEnumerable<GuestBasketDTO> guestBasket, CancellationToken cancellationToken = default)
+        {
+            if (!guestBasket.Any()) return false;
+
+            var myBasket = await GetMyBasketAsync(cancellationToken);
+
+            var basket = await _basketReadRepository.Table
+                               .Include(b => b.Items)
+                               .FirstOrDefaultAsync(b => b.Id == myBasket.Id, cancellationToken);
+
+            if (basket == null) throw new EntityNotFoundException(nameof(basket));
+
+            var products = _productReadRepository.Table.Where(p => guestBasket.Select(i => i.ProductId).Contains(p.Id)).AsEnumerable().Select(p => new { p.Id, p.Stock, Quantity = guestBasket.FirstOrDefault(i => i.ProductId == p.Id)!.Quantity });
+
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            foreach (var product in products)
+            {
+                var existingItem = basket.Items.FirstOrDefault(i => i.ProductId == product.Id);
+
+
+                var quantity = Math.Min((existingItem?.Quantity ?? 0) + product.Quantity, product.Stock);
+
+                if (existingItem != null)
+                {
+                    existingItem.Quantity = quantity;
+                }
+                else
+                {
+
+                    basket.Items.Add(new BasketItem
+                    {
+                        ProductId = product.Id,
+                        Quantity = quantity,
+                    });
+                }
+            }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
+
+            return true;
         }
     }
 }

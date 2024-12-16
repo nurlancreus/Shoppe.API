@@ -15,6 +15,7 @@ namespace Shoppe.Application.DTOs.Basket
         public double Price { get; set; }
         public List<string> Colors { get; set; } = [];
         public double? DiscountedPrice { get; set; }
+        public int ProductStock { get; set; }
         public int Quantity { get; set; }
         public double TotalPrice { get; set; }
         public double? TotalDiscountedPrice { get; set; }

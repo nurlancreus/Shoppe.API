@@ -168,9 +168,9 @@ namespace Shoppe.Persistence.Concretes.Services
                 .AsNoTrackingWithIdentityResolution()
                 .AsQueryable();
 
-            if(filtersDTO.Discounted != null)
+            if (filtersDTO.Discounted != null)
             {
-                if(filtersDTO.Discounted == true) productsQuery = productsQuery.Where(p => p.Discount != null);
+                if (filtersDTO.Discounted == true) productsQuery = productsQuery.Where(p => p.Discount != null);
                 else if (filtersDTO.Discounted == false) productsQuery = productsQuery.Where(p => p.Discount == null);
             }
 
@@ -224,6 +224,19 @@ namespace Shoppe.Persistence.Concretes.Services
                 TotalPages = totalPages,
                 Products = products.Select(p => p.ToGetProductDTO(_calculatorService)).ToList(),
             };
+        }
+
+        public async Task<List<GetProductDTO>> GetProductsById(IEnumerable<Guid> productsIds, CancellationToken cancellationToken = default)
+        {
+            var products = await _productReadRepository.Table
+                                    .Include(p => p.ProductImageFiles)
+                                    .Include(p => p.Discount)
+                                    .Include(p => p.Categories)
+                                        .ThenInclude(c => c.Discount)
+                                    .Where(p => productsIds.Contains(p.Id))
+                                    .ToListAsync(cancellationToken);
+
+            return products.Select(p => p.ToGetProductDTO(_calculatorService)).ToList();
         }
 
         public async Task<GetProductDTO> GetAsync(Guid id, CancellationToken cancellationToken = default)
