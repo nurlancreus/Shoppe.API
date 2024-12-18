@@ -1,5 +1,5 @@
 ﻿using Shoppe.Application.Abstractions.Services.Mail.Templates;
-using Shoppe.Application.Extensions.Helpers;
+using Shoppe.Application.Helpers;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Enums;
 

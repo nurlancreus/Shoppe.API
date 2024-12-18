@@ -48,6 +48,7 @@ namespace Shoppe.Infrastructure
             services.AddScoped<ICalculatorService, CalculatorService>();
             services.AddScoped<IDiscountCalculatorService, CalculatorService>();
             services.AddScoped<IRatingCalculatorService, CalculatorService>();
+            services.AddScoped<IShippingCalculatorService, CalculatorService>();
 
             #endregion
 

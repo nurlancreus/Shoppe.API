@@ -11,7 +11,7 @@ using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Basket;
 using Shoppe.Application.DTOs.User;
-using Shoppe.Application.Extensions.Helpers;
+using Shoppe.Application.Helpers;
 using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Identity;

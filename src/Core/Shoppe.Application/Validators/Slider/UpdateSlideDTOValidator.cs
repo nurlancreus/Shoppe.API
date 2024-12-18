@@ -2,7 +2,6 @@
 using Shoppe.Application.DTOs.Slide;
 using Shoppe.Application.Helpers;
 using Shoppe.Application.Constants;
-using Shoppe.Application.Extensions.Helpers;
 
 public class UpdateSlideDTOValidator : AbstractValidator<UpdateSlideDTO>
 {

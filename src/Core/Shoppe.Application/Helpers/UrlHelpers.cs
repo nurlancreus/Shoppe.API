@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Application.Extensions.Helpers
+namespace Shoppe.Application.Helpers
 {
     public static class UrlHelpers
     {

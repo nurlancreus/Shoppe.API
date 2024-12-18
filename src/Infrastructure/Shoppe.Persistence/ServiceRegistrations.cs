@@ -68,6 +68,8 @@ using Shoppe.Persistence.Concretes.Repositories.FileRepos;
 using Shoppe.Application.Abstractions.Services.Files.Images;
 using Shoppe.Persistence.Concretes.Services.Files;
 using Shoppe.Application.Abstractions.Services.Files;
+using Shoppe.Application.Abstractions.Repositories.LocationRepos;
+using Shoppe.Persistence.Concretes.Repositories.LocationRepos;
 
 
 namespace Shoppe.Persistence
@@ -112,6 +114,9 @@ namespace Shoppe.Persistence
 
             services.AddScoped<IReactionReadRepository, ReactionReadRepository>();
             services.AddScoped<IReactionWriteRepository, ReactionWriteRepository>();
+
+            services.AddScoped<ICountryReadRepository, CountryReadRepository>();
+            services.AddScoped<ICityReadRepository, CityReadRepository>();
 
             services.AddScoped<ITagReadRepository, TagReadRepository>();
             services.AddScoped<ITagWriteRepository, TagWriteRepository>();
@@ -162,6 +167,8 @@ namespace Shoppe.Persistence
             services.AddScoped<IDiscountService, DiscountService>();
 
             services.AddScoped<IBasketService, BasketService>();
+
+            services.AddScoped<ILocationService, LocationService>();
 
             services.AddScoped<IInternalAuthService, AuthService>();
             services.AddScoped<IAuthService, AuthService>();

@@ -16,44 +16,6 @@ namespace Shoppe.Persistence.Configurations
         {
             builder.Property(l => l.SocialPlatform)
             .HasConversion<string>();
-
-            var aboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb");  // Use the same AboutId from the About entity seed
-
-            builder.HasData
-            (
-                new SocialMediaLink
-                {
-                    Id = Guid.NewGuid(),
-                    SocialPlatform = SocialPlatform.Facebook,
-                    URL = "https://facebook.com/shoppe",
-                    AboutId = aboutId,
-                    CreatedAt = DateTime.UtcNow,
-                },
-                new SocialMediaLink
-                {
-                    Id = Guid.NewGuid(),
-                    SocialPlatform = SocialPlatform.X,
-                    URL = "https://x.com/shoppe",
-                    AboutId = aboutId,
-                    CreatedAt= DateTime.UtcNow,
-                },
-                new SocialMediaLink
-                {
-                    Id = Guid.NewGuid(),
-                    SocialPlatform = SocialPlatform.Instagram,
-                    URL = "https://instagram.com/shoppe",
-                    AboutId = aboutId,
-                    CreatedAt = DateTime.UtcNow,
-                },
-                new SocialMediaLink
-                {
-                    Id = Guid.NewGuid(),
-                    SocialPlatform = SocialPlatform.Youtube,
-                    URL = "https://youtube.com/shoppe",
-                    AboutId = aboutId,
-                    CreatedAt = DateTime.UtcNow,
-                }
-            );
         }
     }
 }

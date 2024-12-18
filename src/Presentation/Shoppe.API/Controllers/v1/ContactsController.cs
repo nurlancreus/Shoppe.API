@@ -1,13 +1,13 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Shoppe.Application.Extensions.Helpers;
 using Shoppe.Application.Features.Command.Contact.AnswerContact;
 using Shoppe.Application.Features.Command.Contact.CreateContact;
 using Shoppe.Application.Features.Command.Contact.DeleteContact;
 using Shoppe.Application.Features.Command.Contact.UpdateContact;
 using Shoppe.Application.Features.Query.Contact.GetAllContacts;
 using Shoppe.Application.Features.Query.Contact.GetContactById;
+using Shoppe.Application.Helpers;
 using Shoppe.Domain.Enums;
 
 namespace Shoppe.API.Controllers.v1

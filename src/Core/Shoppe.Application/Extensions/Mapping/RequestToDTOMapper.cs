@@ -5,7 +5,7 @@ using Shoppe.Application.DTOs.Discount;
 using Shoppe.Application.DTOs.Product;
 using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.DTOs.User;
-using Shoppe.Application.Extensions.Helpers;
+using Shoppe.Application.Helpers;
 using Shoppe.Application.Features.Command.Auth.Login;
 using Shoppe.Application.Features.Command.Auth.Register;
 using Shoppe.Application.Features.Command.Category.CreateCategory;

@@ -36,18 +36,6 @@ namespace Shoppe.Persistence.Configurations
                 .HasMaxLength(AboutConst.MaxPhoneLength)
                 .HasAnnotation("RegexPattern", @"^\+?\d{1,3}?[-.●]?\(?\d{1,4}?\)?[-.●]?\d{1,4}[-.●]?\d{1,9}$");  // Phone format validation
 
-            var aboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb");
-
-            builder.HasData(new About
-            {
-                Id = aboutId,
-                Name = "Shoppe",
-                Description = "Who we are and why we do what we do!",
-                Email = "contact@shoppe.com",
-                Phone = "123-456-7890",
-                CreatedAt = DateTime.UtcNow
-            });
-
             builder
                 .HasMany(a => a.SocialMediaLinks)
                 .WithOne()

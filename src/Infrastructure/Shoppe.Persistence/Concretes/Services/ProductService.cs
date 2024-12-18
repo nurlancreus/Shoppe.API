@@ -14,7 +14,7 @@ using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Product;
 using Shoppe.Application.DTOs.Reply;
 using Shoppe.Application.DTOs.Review;
-using Shoppe.Application.Extensions.Helpers;
+using Shoppe.Application.Helpers;
 using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Application.Helpers;
 using Shoppe.Domain.Entities;

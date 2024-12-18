@@ -12,7 +12,6 @@ using Shoppe.Application.Helpers;
 using Shoppe.Application.Constants;
 using Shoppe.Application.Abstractions.Repositories.AboutRepos;
 using Microsoft.EntityFrameworkCore;
-using Shoppe.Application.Extensions.Helpers;
 
 public class UpdateAboutCommandValidator : AbstractValidator<UpdateAboutCommandRequest>
 {

@@ -8,9 +8,9 @@ namespace Shoppe.Application.Options.Storage.AWS
 {
     public class AWSOptions
     {
-        public string AccessKey { get; set; } = null!;
-        public string SecretAccessKey { get; set; } = null!;
-        public string Region { get; set; } = null!;
+        public string AccessKey { get; set; } = string.Empty;
+        public string SecretAccessKey { get; set; } = string.Empty;
+        public string Region { get; set; } = string.Empty;
         public S3Options AWSS3 { get; set; } = null!;
     }
 }

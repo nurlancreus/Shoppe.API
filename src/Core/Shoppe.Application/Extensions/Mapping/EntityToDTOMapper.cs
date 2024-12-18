@@ -11,7 +11,7 @@ using Shoppe.Application.DTOs.Reply;
 using Shoppe.Application.DTOs.Review;
 using Shoppe.Application.DTOs.Tag;
 using Shoppe.Application.DTOs.User;
-using Shoppe.Application.Extensions.Helpers;
+using Shoppe.Application.Helpers;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Contacts;

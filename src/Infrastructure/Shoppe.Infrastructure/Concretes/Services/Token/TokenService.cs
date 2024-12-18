@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shoppe.Application.Abstractions.Services.Token;
 using Shoppe.Application.DTOs.Token;
+using Shoppe.Application.Options.Token;
 using Shoppe.Domain.Entities.Identity;
 using System;
 using System.Collections.Generic;
@@ -14,35 +15,33 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
+using Options = Shoppe.Application.Options.Token;
+
 namespace Shoppe.Infrastructure.Concretes.Services.Token
 {
     public class TokenService : ITokenService
     {
-        private readonly Shoppe.Application.Options.Token.TokenOptions _tokenOptions;
+        private readonly Options.TokenOptions _tokenOptions;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
 
-        public TokenService(IOptions<Shoppe.Application.Options.Token.TokenOptions> tokenSettings, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public TokenService(IOptions<Options.TokenOptions> tokenOptions, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
-            _tokenOptions = tokenSettings.Value;
+            _tokenOptions = tokenOptions.Value;
             _userManager = userManager;
             _configuration = configuration;
         }
 
         public async Task<TokenDTO> CreateAccessTokenAsync(ApplicationUser appUser)
         {
-            var time = Convert.ToDouble(_configuration["Token:Access:AccessTokenLifeTimeInMinutes"]);
+            var lifeTime = _tokenOptions.Access.AccessTokenLifeTimeInMinutes;
 
             TokenDTO token = new()
             {
-                //ExpiresAt = DateTime.UtcNow.AddMinutes(_tokenOptions.Access.AccessTokenLifeTimeInMinutes),
-
-
-                ExpiresAt = DateTime.UtcNow.AddMinutes(time),
+                ExpiresAt = DateTime.UtcNow.AddMinutes(lifeTime),
             };
 
-            // Get the symmetric security key.
-            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(_configuration["Token:Access:SecurityKey"]));
+            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(_tokenOptions.Access.SecurityKey));
 
             // Create the encrypted credentials.
             SigningCredentials signingCredentials = new(securityKey, SecurityAlgorithms.HmacSha256);
@@ -69,10 +68,8 @@ namespace Shoppe.Infrastructure.Concretes.Services.Token
 
             // Set the token's configurations.
             JwtSecurityToken securityToken = new(
-                //audience: _tokenOptions.Access.Audience,
-                //issuer: _tokenOptions.Access.Issuer,
-                audience: _configuration["Token:Access:Audience"],
-                issuer: _configuration["Token:Access:Issuer"],
+                audience: _tokenOptions.Access.Audience,
+                issuer: _tokenOptions.Access.Issuer,
                 expires: token.ExpiresAt,
                 notBefore: DateTime.UtcNow,
                 signingCredentials: signingCredentials,
@@ -107,12 +104,12 @@ namespace Shoppe.Infrastructure.Concretes.Services.Token
             var tokenValidationParameters = new TokenValidationParameters()
             {
                 ValidateAudience = true,
-                ValidAudience = _configuration["Token:Access:Audience"],
+                ValidAudience = _configuration[_tokenOptions.Access.Audience],
                 ValidateIssuer = true,
-                ValidIssuer = _configuration["Token:Access:Issuer"],
+                ValidIssuer = _configuration[_tokenOptions.Access.Issuer],
 
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Token:Access:SecurityKey"])),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOptions.Access.SecurityKey)),
 
                 ValidateLifetime = false //should be false
             };

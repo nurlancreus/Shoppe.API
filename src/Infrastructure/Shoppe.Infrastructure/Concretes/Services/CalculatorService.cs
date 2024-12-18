@@ -57,5 +57,11 @@ namespace Shoppe.Infrastructure.Concretes.Services
 
             return (1 - (1 - categoryDiscount.Value) * (1 - productDiscount.Value / 100)) * 100;
         }
+
+        public decimal CalculateShippingCost(decimal distance, decimal baseCost = IShippingCalculatorService.baseShippingCost)
+        {
+
+            return baseCost + (distance * IShippingCalculatorService.costPerKm);
+        }
     }
 }

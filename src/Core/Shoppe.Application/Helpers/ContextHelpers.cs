@@ -9,7 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Application.Extensions.Helpers
+namespace Shoppe.Application.Helpers
 {
     public static class ContextHelpers
     {
@@ -61,7 +61,7 @@ namespace Shoppe.Application.Extensions.Helpers
         {
             var httpContext = httpContextAccessor.HttpContext;
 
-            if ((httpContext?.User == null) || (!httpContext.User.Identity?.IsAuthenticated ?? false))
+            if (httpContext?.User == null || (!httpContext.User.Identity?.IsAuthenticated ?? false))
             {
                 return false;
             }

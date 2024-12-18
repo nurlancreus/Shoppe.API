@@ -7,12 +7,14 @@ using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Contacts;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Identity;
+using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Reactions;
 using Shoppe.Domain.Entities.Replies;
 using Shoppe.Domain.Entities.Reviews;
 using Shoppe.Domain.Entities.Sliders;
 using Shoppe.Domain.Entities.Tags;
 using Shoppe.Persistence.Configurations;
+using Shoppe.Persistence.Seeding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,37 +36,11 @@ namespace Shoppe.Persistence.Context
         {
             builder.ApplyConfigurationsFromAssembly(Assembly.GetAssembly(typeof(ProductConfiguration))!);
 
-            const string adminRoleId = "admin-role-id"; // Use a constant GUID for reproducibility
-            builder.Entity<ApplicationRole>().HasData(
-                new ApplicationRole { Id = adminRoleId, Name = "SuperAdmin", NormalizedName = "SUPERADMIN" }
-            );
-
-            // Seed the admin user
-            const string adminUserId = "admin-user-id"; // Use a constant GUID for reproducibility
-            var passwordHasher = new PasswordHasher<ApplicationUser>();
-            var adminUser = new ApplicationUser
-            {
-                Id = adminUserId,
-                FirstName = "Nurlan",
-                LastName = "Shukurov",
-                UserName = "nurlancreus",
-                NormalizedUserName = "NURLANCREUS",
-                Email = "nurlancreus@example.com",
-                NormalizedEmail = "NURLANCREUS@EXAMPLE.COM",
-            };
-
-            adminUser.PasswordHash = passwordHasher.HashPassword(adminUser, "qwerty1234");
-
-            builder.Entity<ApplicationUser>().HasData(adminUser);
-
-            // Seed user role mapping
-            builder.Entity<IdentityUserRole<string>>().HasData(
-                new IdentityUserRole<string>
-                {
-                    UserId = adminUserId,
-                    RoleId = adminRoleId
-                }
-            );
+            ApplicationDbContextSeed.SeedIdentity(builder);
+            ApplicationDbContextSeed.SeedAbout(builder);
+            ApplicationDbContextSeed.SeedCategories(builder);
+            ApplicationDbContextSeed.SeedTags(builder);
+            ApplicationDbContextSeed.SeedCountries(builder);
 
             base.OnModelCreating(builder);
         }
@@ -86,6 +62,8 @@ namespace Shoppe.Persistence.Context
         public DbSet<Coupon> Coupons { get; set; }
         public DbSet<Payment> Payments { get; set; }
 
+        public DbSet<Country> Countries { get; set; }
+        public DbSet<City> Cities { get; set; }
 
         public DbSet<Review> Reviews { get; set; }
         public DbSet<ProductReview> ProductReviews { get; set; }

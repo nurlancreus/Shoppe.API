@@ -8,7 +8,7 @@ namespace Shoppe.Application.Options.Token
 {
     public class RefreshOptions
     {
+        public const string Refresh = "Refresh";
         public int RefreshTokenLifeTimeInMinutes { get; set; }
-
     }
 }

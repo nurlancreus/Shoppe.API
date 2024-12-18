@@ -2,7 +2,6 @@
 using Shoppe.Application.DTOs.Slide;
 using Shoppe.Application.Helpers;
 using Shoppe.Application.Constants;
-using Shoppe.Application.Extensions.Helpers;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Shoppe.Application.Features.Command.Slider.AddSlide;
 
