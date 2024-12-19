@@ -33,9 +33,9 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task<List<GetCountryDTO>> GetCountriesAsync(CancellationToken cancellationToken = default)
         {
-            var cities = await _countryReadRepository.Table.Select(c => new GetCountryDTO { Id = c.Id, Name = c.Name, Code = c.Code }).ToListAsync(cancellationToken);
+          
 
-            return cities;
+            return [];
         }
     }
 }
