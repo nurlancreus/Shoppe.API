@@ -1,5 +1,6 @@
 ﻿using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Calculator;
+using Shoppe.Application.DTOs.Address;
 using Shoppe.Application.DTOs.Basket;
 using Shoppe.Application.DTOs.Blog;
 using Shoppe.Application.DTOs.Category;
@@ -132,6 +133,36 @@ namespace Shoppe.Application.Extensions.Mapping
                 TotalPrice = basketItem.Quantity * basketItem.Product.Price,
                 TotalDiscountedPrice = discountedPrice != null ? basketItem.Quantity * (discountedPrice) : null,
                 CreatedAt = basketItem.CreatedAt,
+            };
+        }
+
+        public static GetAddressDTO ToGetBillingAddressDTO(this BillingAddress address)
+        {
+            return new GetAddressDTO
+            {
+                FirstName = address.FirstName,
+                LastName = address.LastName,
+                Email = address.Email,
+                Phone = address.Phone,
+                Country = address.Country,
+                City = address.City,
+                PostalCode = address.PostalCode,
+                StreetAddress = address.StreetAddress
+            };
+        }
+
+        public static GetAddressDTO ToGetShippingAddressDTO(this ShippingAddress address)
+        {
+            return new GetAddressDTO
+            {
+                FirstName = address.FirstName,
+                LastName = address.LastName,
+                Email = address.Email,
+                Phone = address.Phone,
+                Country = address.Country,
+                City = address.City,
+                PostalCode = address.PostalCode,
+                StreetAddress = address.StreetAddress
             };
         }
 

@@ -26,6 +26,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shoppe.Application.DTOs.Address;
+using Shoppe.Application.Features.Command.Address.Billing.Create;
+using Shoppe.Application.Features.Command.Address.Shipping.Create;
+using Shoppe.Application.Features.Command.Address.Billing.Update;
+using Shoppe.Application.Features.Command.Address.Shipping.Update;
 
 namespace Shoppe.Application.Extensions.Mapping
 {
@@ -214,6 +219,66 @@ namespace Shoppe.Application.Extensions.Mapping
                 CurrentPassword = request.CurrentPassword,
                 NewPassword = request.NewPassword,
                 ConfirmNewPassword = request.ConfirmNewPassword
+            };
+        }
+
+        public static CreateBillingAddressDTO ToCreateBillingAddressDTO(this CreateBillingAddressCommandRequest request)
+        {
+            return new CreateBillingAddressDTO
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Phone = request.Phone,
+                Country = request.Country,
+                City = request.City,
+                PostalCode = request.PostalCode,
+                StreetAddress = request.StreetAddress
+            };
+        }
+
+        public static CreateShippingAddressDTO ToCreateShippingAddressDTO(this CreateShippingAddressCommandRequest request)
+        {
+            return new CreateShippingAddressDTO
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Phone = request.Phone,
+                Country = request.Country,
+                City = request.City,
+                PostalCode = request.PostalCode,
+                StreetAddress = request.StreetAddress
+            };
+        }
+
+        public static UpdateBillingAddressDTO ToUpdateBillingAddressDTO(this UpdateBillingAddressCommandRequest request)
+        {
+            return new UpdateBillingAddressDTO
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Phone = request.Phone,
+                Country = request.Country,
+                City = request.City,
+                PostalCode = request.PostalCode,
+                StreetAddress = request.StreetAddress
+            };
+        }
+
+        public static UpdateShippingAddressDTO ToUpdateShippingAddressDTO(this UpdateShippingAddressCommandRequest request)
+        {
+            return new UpdateShippingAddressDTO
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Phone = request.Phone,
+                Country = request.Country,
+                City = request.City,
+                PostalCode = request.PostalCode,
+                StreetAddress = request.StreetAddress
             };
         }
     }

@@ -13,7 +13,7 @@ namespace Shoppe.Application.Abstractions.Services.Session
         string GetUserName();
         string GetUserEmail();
         List<string> GetRoles();
-        bool IsAuthenticated();
+        bool IsAuthenticated(bool throwException = false);
         bool IsAdmin();
         bool IsSuperAdmin();
         ApplicationUser GetUser();

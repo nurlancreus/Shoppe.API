@@ -123,10 +123,8 @@ namespace Shoppe.Infrastructure.Concretes.Services.Session
             return false;
         }
 
-        public bool IsAuthenticated()
-        {
-            return _httpContext?.User?.Identity?.IsAuthenticated ?? false;
-        }
+        public bool IsAuthenticated(bool throwException = false)
+        => !throwException ? _httpContext?.User?.Identity?.IsAuthenticated ?? false : throw new UnauthorizedAccessException("User is not authenticated.");
 
         public bool IsSuperAdmin()
         {
@@ -175,6 +173,6 @@ namespace Shoppe.Infrastructure.Concretes.Services.Session
                 throw new UnauthorizedAccessException("You do not have permission to perform this action.");
         }
 
-        
+
     }
 }

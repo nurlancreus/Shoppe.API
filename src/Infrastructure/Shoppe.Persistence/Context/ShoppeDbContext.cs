@@ -36,11 +36,10 @@ namespace Shoppe.Persistence.Context
         {
             builder.ApplyConfigurationsFromAssembly(Assembly.GetAssembly(typeof(ProductConfiguration))!);
 
-            ApplicationDbContextSeed.SeedIdentity(builder);
-            ApplicationDbContextSeed.SeedAbout(builder);
-            ApplicationDbContextSeed.SeedCategories(builder);
-            ApplicationDbContextSeed.SeedTags(builder);
-            ApplicationDbContextSeed.SeedCountries(builder);
+            //ApplicationDbContextSeed.SeedIdentity(builder);
+            //ApplicationDbContextSeed.SeedAbout(builder);
+            //ApplicationDbContextSeed.SeedCategories(builder);
+            //ApplicationDbContextSeed.SeedTags(builder);
 
             base.OnModelCreating(builder);
         }
@@ -61,9 +60,6 @@ namespace Shoppe.Persistence.Context
         public DbSet<BasketItem> BasketItems { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
         public DbSet<Payment> Payments { get; set; }
-
-        public DbSet<Country> Countries { get; set; }
-        public DbSet<City> Cities { get; set; }
 
         public DbSet<Review> Reviews { get; set; }
         public DbSet<ProductReview> ProductReviews { get; set; }

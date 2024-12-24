@@ -70,6 +70,7 @@ using Shoppe.Persistence.Concretes.Services.Files;
 using Shoppe.Application.Abstractions.Services.Files;
 using Shoppe.Application.Abstractions.Repositories.LocationRepos;
 using Shoppe.Persistence.Concretes.Repositories.LocationRepos;
+using Shoppe.Application.Abstractions.Services.Address;
 
 
 namespace Shoppe.Persistence
@@ -167,6 +168,10 @@ namespace Shoppe.Persistence
             services.AddScoped<IDiscountService, DiscountService>();
 
             services.AddScoped<IBasketService, BasketService>();
+
+            services.AddScoped<IBillingAddressService, AddressService>();
+            services.AddScoped<IShippingAddressService, AddressService>();
+            services.AddScoped<IAddressService, AddressService>();
 
             services.AddScoped<ILocationService, LocationService>();
 

@@ -136,38 +136,5 @@ namespace Shoppe.Persistence.Seeding
                 }
             );
         }
-        public static void SeedCountries (ModelBuilder builder)
-        {
-            // Define countries
-            var azerbaijan = new Country { Id = Guid.NewGuid(), Name = "Azerbaijan", Code = "AZ" };
-            var russia = new Country { Id = Guid.NewGuid(), Name = "Russia", Code = "RU" };
-            var georgia = new Country { Id = Guid.NewGuid(), Name = "Georgia", Code = "GE" };
-            var turkey = new Country { Id = Guid.NewGuid(), Name = "Turkey", Code = "TR" };
-            var iran = new Country { Id = Guid.NewGuid(), Name = "Iran", Code = "IR" };
-
-            builder.Entity<Country>().HasData(azerbaijan, russia, georgia, turkey, iran);
-
-            // Seed cities for each country
-            var cities = new List<City>
-        {
-                new City { Id = Guid.NewGuid(), Name = "Baku", CountryId = azerbaijan.Id },
-                new City { Id = Guid.NewGuid(), Name = "Moscow", CountryId = russia.Id  },
-                new City { Id = Guid.NewGuid(), Name = "Tbilisi", CountryId = georgia.Id },
-                new City { Id = Guid.NewGuid(), Name = "Istanbul", CountryId = turkey.Id },
-                new City { Id = Guid.NewGuid(), Name = "Tehran", CountryId = iran.Id },
-                new City { Id = Guid.NewGuid(), Name = "Ganja", CountryId = azerbaijan.Id },
-                new City { Id = Guid.NewGuid(), Name = "Sumgayit", CountryId = azerbaijan.Id },
-                new City { Id = Guid.NewGuid(), Name = "Saint Petersburg", CountryId = russia.Id },
-                new City { Id = Guid.NewGuid(), Name = "Novosibirsk", CountryId = russia.Id },
-                new City { Id = Guid.NewGuid(), Name = "Batumi", CountryId = georgia.Id },
-                new City { Id = Guid.NewGuid(), Name = "Kutaisi", CountryId = georgia.Id },
-                new City { Id = Guid.NewGuid(), Name = "Ankara", CountryId = turkey.Id },
-                new City { Id = Guid.NewGuid(), Name = "Izmir", CountryId = turkey.Id },
-                new City { Id = Guid.NewGuid(), Name = "Mashhad", CountryId = iran.Id },
-                new City { Id = Guid.NewGuid(), Name = "Isfahan", CountryId = iran.Id }
-        };
-
-            builder.Entity<City>().HasData(cities);
-        }
     }
 }

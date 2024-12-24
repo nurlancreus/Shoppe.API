@@ -24,6 +24,8 @@ using Shoppe.Application.Abstractions.Services.Mail;
 using Shoppe.Infrastructure.Concretes.Services.Mail;
 using Shoppe.Application.Abstractions.Services.Mail.Templates;
 using Shoppe.Application.Abstractions.Services.Calculator;
+using Shoppe.Application.Abstractions.Services.Validation;
+using Shoppe.Infrastructure.Concretes.Services.Validation;
 
 namespace Shoppe.Infrastructure
 {
@@ -49,6 +51,8 @@ namespace Shoppe.Infrastructure
             services.AddScoped<IDiscountCalculatorService, CalculatorService>();
             services.AddScoped<IRatingCalculatorService, CalculatorService>();
             services.AddScoped<IShippingCalculatorService, CalculatorService>();
+
+            services.AddScoped<IAddressValidationService, AddressValidationService>();
 
             #endregion
 
