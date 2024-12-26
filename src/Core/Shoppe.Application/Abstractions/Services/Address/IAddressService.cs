@@ -8,5 +8,7 @@ namespace Shoppe.Application.Abstractions.Services.Address
 {
     public interface IAddressService : IBillingAddressService, IShippingAddressService
     {
+        Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+        Task ClearAsync(CancellationToken cancellationToken = default);
     }
 }

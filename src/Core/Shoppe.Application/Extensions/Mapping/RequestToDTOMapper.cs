@@ -31,6 +31,9 @@ using Shoppe.Application.Features.Command.Address.Billing.Create;
 using Shoppe.Application.Features.Command.Address.Shipping.Create;
 using Shoppe.Application.Features.Command.Address.Billing.Update;
 using Shoppe.Application.Features.Command.Address.Shipping.Update;
+using Shoppe.Application.DTOs.Coupon;
+using Shoppe.Application.Features.Command.Coupon.Create;
+using Shoppe.Application.Features.Command.Coupon.Update;
 
 namespace Shoppe.Application.Extensions.Mapping
 {
@@ -201,6 +204,33 @@ namespace Shoppe.Application.Extensions.Mapping
                 EndDate = request.EndDate,
                 StartDate = request.StartDate,
                 IsActive = request.IsActive
+            };
+        }
+
+        public static CreateCouponDTO ToCreateCouponDTO(this CreateCouponCommandRequest request)
+        {
+            return new CreateCouponDTO
+            {
+                Code = request.Code,
+                DiscountPercentage = request.DiscountPercentage,
+                MinimumOrderAmount = request.MinimumOrderAmount,
+                MaxUsage = request.MaxUsage,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+            };
+        }
+
+        public static UpdateCouponDTO ToUpdateCouponDTO(this UpdateCouponCommandRequest request)
+        {
+            return new UpdateCouponDTO
+            {
+                Id = (Guid)request.Id!,
+                Code = request.Code,
+                DiscountPercentage = request.DiscountPercentage,
+                MinimumOrderAmount = request.MinimumOrderAmount,
+                MaxUsage = request.MaxUsage,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
             };
         }
 

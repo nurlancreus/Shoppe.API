@@ -9,8 +9,8 @@ namespace Shoppe.Application.Features.Command.Auth.Login
 {
     public class LoginCommandRequest : IRequest<LoginCommandResponse>
     {
-        public string Email { get; set; } = null!;
-        public string Password { get; set; } = null!;
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
         public bool RememberMe { get; set; }
     }
 }

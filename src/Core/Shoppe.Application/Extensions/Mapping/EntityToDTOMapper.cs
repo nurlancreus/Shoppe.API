@@ -5,6 +5,7 @@ using Shoppe.Application.DTOs.Basket;
 using Shoppe.Application.DTOs.Blog;
 using Shoppe.Application.DTOs.Category;
 using Shoppe.Application.DTOs.Contact;
+using Shoppe.Application.DTOs.Coupon;
 using Shoppe.Application.DTOs.Discount;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Product;
@@ -305,6 +306,23 @@ namespace Shoppe.Application.Extensions.Mapping
                 StartDate = discount.StartDate,
                 EndDate = discount.EndDate,
                 CreatedAt = discount.CreatedAt,
+            };
+        }
+
+        public static GetCouponDTO ToGetCouponDTO(this Coupon coupon)
+        {
+            return new GetCouponDTO
+            {
+                Id = coupon.Id,
+                Code = coupon.Code,
+                DiscountPercentage = coupon.DiscountPercentage,
+                UsageCount = coupon.UsageCount,
+                MaxUsage = coupon.MaxUsage,
+                MinimumOrderAmount = coupon.MinimumOrderAmount,
+                IsActive = coupon.IsActive,
+                StartDate = coupon.StartDate,
+                EndDate = coupon.EndDate,
+                CreatedAt = coupon.CreatedAt
             };
         }
 

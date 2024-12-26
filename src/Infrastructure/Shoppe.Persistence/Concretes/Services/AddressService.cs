@@ -51,12 +51,12 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new InvalidOperationException("An identical billing address already exists.");
 
 
-            if (!IAddressValidationService.AllowedCountries.TryGetValue(createBillingAddressDTO.Country, out var value))
+            if (!IAddressValidationService.ValidateCountry(createBillingAddressDTO.Country))
             {
                 throw new InvalidOperationException("We can only ship to Azerbaijan or its neighboring countries.");
             }
 
-            bool isPostalCodeValid = IAddressValidationService.ValidatePostalCode(createBillingAddressDTO.PostalCode, countryCode: value.CountryCode);
+            bool isPostalCodeValid = IAddressValidationService.ValidatePostalCode(createBillingAddressDTO.PostalCode, createBillingAddressDTO.Country);
 
             if (!isPostalCodeValid)
             {
@@ -90,12 +90,12 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             var userId = _jwtSession.GetUserId();
 
-            if (!IAddressValidationService.AllowedCountries.TryGetValue(createShippingAddressDTO.Country, out var value))
+            if (!IAddressValidationService.ValidateCountry(createShippingAddressDTO.Country))
             {
                 throw new InvalidOperationException("We can only ship to Azerbaijan or its neighboring countries.");
             }
 
-            bool isPostalCodeValid = IAddressValidationService.ValidatePostalCode(createShippingAddressDTO.PostalCode, countryCode: value.CountryCode);
+            bool isPostalCodeValid = IAddressValidationService.ValidatePostalCode(createShippingAddressDTO.PostalCode, createShippingAddressDTO.Country);
 
             if (!isPostalCodeValid)
             {
@@ -123,6 +123,96 @@ namespace Shoppe.Persistence.Concretes.Services
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            var address = await _addressReadRepository.Table.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+
+            if (address == null)
+            {
+                throw new EntityNotFoundException(nameof(address));
+            }
+
+            if (_jwtSession.ValidateAdminAccess(false) || _jwtSession.ValidateAuthAccess(address.UserId))
+            {
+                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+            }
+
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            bool isDeleted = true;
+
+            if (address is BillingAddress billingAddress)
+            {
+
+                isDeleted = _addressWriteRepository.Delete(billingAddress);
+
+                if (!isDeleted)
+                {
+                    throw new DeleteNotSucceedException("Billing Address can not be deleted");
+                }
+            }
+            else if (address is ShippingAddress shippingAddress)
+            {
+                isDeleted = _addressWriteRepository.Delete(shippingAddress);
+
+                if (!isDeleted)
+                {
+                    throw new DeleteNotSucceedException("Shipping Address can not be deleted");
+                }
+            }
+            else
+            {
+                throw new DeleteNotSucceedException("Address can not be deleted. Invalid Data");
+            }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
+        }
+
+        public async Task ClearAsync(CancellationToken cancellationToken = default)
+        {
+            var userId = _jwtSession.GetUserId();
+
+            var address = await _addressReadRepository.Table.FirstOrDefaultAsync(a => a.UserId == userId, cancellationToken);
+
+            if (address == null)
+            {
+                throw new EntityNotFoundException(nameof(address));
+            }
+
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            bool isDeleted = true;
+
+            if (address is BillingAddress billingAddress)
+            {
+
+                isDeleted = _addressWriteRepository.Delete(billingAddress);
+
+                if (!isDeleted)
+                {
+                    throw new DeleteNotSucceedException("Billing Address can not be deleted");
+                }
+            }
+            else if (address is ShippingAddress shippingAddress)
+            {
+                isDeleted = _addressWriteRepository.Delete(shippingAddress);
+
+                if (!isDeleted)
+                {
+                    throw new DeleteNotSucceedException("Shipping Address can not be deleted");
+                }
+            }
+            else
+            {
+                throw new DeleteNotSucceedException("Address can not be deleted. Invalid Data");
+            }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
         }
 
         public async Task UpdateBillingAsync(UpdateBillingAddressDTO updateBillingAddressDTO, CancellationToken cancellationToken = default)
@@ -189,12 +279,12 @@ namespace Shoppe.Persistence.Concretes.Services
             {
                 if (!string.IsNullOrEmpty(updateAddressDTO.Country))
                 {
-                    if (!IAddressValidationService.AllowedCountries.TryGetValue(updateAddressDTO.Country, out var value))
+                    if (!IAddressValidationService.ValidateCountry(updateAddressDTO.Country))
                     {
                         throw new InvalidOperationException("We can only ship to Azerbaijan or its neighboring countries.");
                     }
 
-                    var isPostalCodeValid = IAddressValidationService.ValidatePostalCode(updateAddressDTO.PostalCode, countryCode: value.CountryCode);
+                    var isPostalCodeValid = IAddressValidationService.ValidatePostalCode(updateAddressDTO.PostalCode, updateAddressDTO.Country);
 
                     if (!isPostalCodeValid)
                     {

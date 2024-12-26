@@ -1,12 +1,8 @@
 ﻿using Shoppe.Application.Abstractions.Services.Calculator;
+using Shoppe.Application.Abstractions.Services.Validation;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Reviews;
 using Shoppe.Domain.Flags;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shoppe.Infrastructure.Concretes.Services
 {
@@ -26,11 +22,11 @@ namespace Shoppe.Infrastructure.Concretes.Services
 
             decimal? effectiveDiscount = CalculateEffectiveDiscount(product.Categories.Cast<IDiscountable>().ToList());
 
-            if ((product.Discount == null || !product.Discount.IsActive) && effectiveDiscount == null) return (null, null);
+            if ((product.Discount == null || !product.Discount.IsActive || !IDiscountValidationService.CheckIfIsValid(product.Discount)) && effectiveDiscount == null) return (null, null);
 
             var priceAfterCategoryDiscount = effectiveDiscount != null ? product.Price * (double)(1 - effectiveDiscount) : product.Price;
 
-            var finalPrice = product.Discount != null && product.Discount.IsActive ? Math.Round(priceAfterCategoryDiscount * (double)(1 - product.Discount.DiscountPercentage / 100), 2) : priceAfterCategoryDiscount;
+            var finalPrice = product.Discount != null && product.Discount.IsActive && IDiscountValidationService.CheckIfIsValid(product.Discount) ? Math.Round(priceAfterCategoryDiscount * (double)(1 - product.Discount.DiscountPercentage / 100), 2) : priceAfterCategoryDiscount;
 
             return (finalPrice, CalculateGeneralDiscountPercentage(effectiveDiscount, product.Discount?.DiscountPercentage));
         }
@@ -43,7 +39,7 @@ namespace Shoppe.Infrastructure.Concretes.Services
             {
                 foreach (var discountable in discountables)
                 {
-                    if (discountable.Discount != null && discountable.Discount.IsActive) discounts.Add(discountable.Discount.DiscountPercentage / 100);
+                    if (discountable.Discount != null && discountable.Discount.IsActive && IDiscountValidationService.CheckIfIsValid(discountable.Discount)) discounts.Add(discountable.Discount.DiscountPercentage / 100);
                 }
             }
 
@@ -63,5 +59,53 @@ namespace Shoppe.Infrastructure.Concretes.Services
 
             return baseCost + (distance * IShippingCalculatorService.costPerKm);
         }
+
+        public double? CalculateCouponAppliedPrice(Basket basket)
+        {
+            if (basket == null || basket.Items == null)
+                throw new ArgumentNullException(nameof(basket), "Basket or its items cannot be null.");
+
+            var totalOrderAmount = basket.Items.Sum(i =>
+            {
+                var (DiscountedPrice, _) = CalculateDiscountedPrice(i.Product);
+
+                return (DiscountedPrice ?? i.Product.Price) * i.Quantity;
+            });
+
+            if (basket.Coupon == null || !basket.Coupon.IsActive) return null;
+
+            bool isValid = ICouponValidationService.CheckIfIsValid(basket.Coupon, totalOrderAmount);
+
+            if (isValid)
+                return totalOrderAmount * (double)(1 - (basket.Coupon.DiscountPercentage / 100));
+
+            return null;
+
+        }
+
+        public double? CalculateCouponAppliedPrice(Order order)
+        {
+            if (order?.Basket == null)
+                throw new ArgumentNullException(nameof(order), "Order or its basket cannot be null.");
+
+            var basketTotal = CalculateCouponAppliedPrice(order.Basket);
+
+            basketTotal ??= order.Basket.Items.Sum(i =>
+                {
+                    var (DiscountedPrice, _) = CalculateDiscountedPrice(i.Product);
+                    return (DiscountedPrice ?? i.Product.Price) * i.Quantity;
+                });
+
+            if (order.Coupon == null || !order.Coupon.IsActive)
+                return basketTotal;
+
+            bool isOrderCouponValid = ICouponValidationService.CheckIfIsValid(order.Coupon, basketTotal.Value);
+
+            if (!isOrderCouponValid)
+                return basketTotal;
+
+            return basketTotal * (double)(1 - (order.Coupon.DiscountPercentage / 100));
+        }
+
     }
 }

@@ -138,26 +138,42 @@ namespace Shoppe.Infrastructure.Concretes.Services.Session
             return false;
         }
 
-        public void ValidateSuperAdminAccess()
+        public bool ValidateSuperAdminAccess(bool throwException = true)
         {
             if (!IsSuperAdmin())
-                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+            {
+
+                return !throwException ? false : throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+            }
+
+            return true;
         }
 
-        public void ValidateAdminAccess()
+        public bool ValidateAdminAccess(bool throwException = true)
         {
             if (!IsAdmin())
-                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+            {
+
+                return !throwException ? false : throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+            }
+
+            return true;
         }
 
-        public void ValidateAuthAccess(string id)
+        public bool ValidateAuthAccess(string id, bool throwException = true)
         {
             if (GetUserId() != id)
-                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+            {
+
+                return !throwException ? false : throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+            }
+
+            return true;
         }
 
-        public void ValidateRoleAccess(IEnumerable<string> roles)
+        public bool ValidateRoleAccess(IEnumerable<string> roles, bool throwException = true)
         {
+
             bool roleExist = false;
 
             foreach (var role in roles)
@@ -170,7 +186,9 @@ namespace Shoppe.Infrastructure.Concretes.Services.Session
             }
 
             if (!roleExist)
-                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+                return !throwException ? false : throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+
+            return true;
         }
 
 

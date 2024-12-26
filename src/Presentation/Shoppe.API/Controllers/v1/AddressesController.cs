@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Address.Billing.Create;
 using Shoppe.Application.Features.Command.Address.Billing.Update;
+using Shoppe.Application.Features.Command.Address.Common.Clear;
+using Shoppe.Application.Features.Command.Address.Common.Delete;
 using Shoppe.Application.Features.Command.Address.Shipping.Create;
 using Shoppe.Application.Features.Command.Address.Shipping.Update;
 using Shoppe.Application.Features.Query.Address.Shipping.Get;
@@ -65,6 +67,26 @@ namespace Shoppe.API.Controllers.v1
         [HttpPatch("shipping")]
         public async Task<IActionResult> UpdateShipping(UpdateShippingAddressCommandRequest request)
         {
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            var request = new DeleteAddressCommandRequest { Id = id };
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Clear()
+        {
+            var request = new ClearAddressCommandRequest();
+
             var response = await _sender.Send(request);
 
             return Ok(response);

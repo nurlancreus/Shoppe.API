@@ -84,7 +84,7 @@ namespace Shoppe.API.Controllers.v1
 
 
         [HttpPatch("{id}/toggle")]
-        public async Task<IActionResult> ToggleDiscount(Guid id)
+        public async Task<IActionResult> Toggle(Guid id)
         {
             var request = new ToggleDiscountCommandRequest { Id = id };
 

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Shoppe.Application.Features.Command.Auth.Register;
 using Shoppe.Domain.Entities.Identity;
 
@@ -29,6 +30,14 @@ namespace Shoppe.Application.Validators.Auth
                     await IsUniqueEmail(email))
                 .WithMessage("Email is already registered.");
 
+            RuleFor(register => register.Phone)
+                .NotEmpty()
+                .Matches(@"^\+?\d{10,15}$")
+                .WithMessage("Invalid phone number.")
+                .MustAsync(async (phone, cancellationToken) =>
+                    await IsUniquePhone(phone))
+                .WithMessage("Phone is already registered.");
+
             // Validate UserName (Check if username already exists in UserManager)
             RuleFor(register => register.UserName)
                 .NotEmpty().WithMessage("Username is required.")
@@ -52,6 +61,13 @@ namespace Shoppe.Application.Validators.Auth
         {
             var user = await _userManager.FindByEmailAsync(email);
             return user == null; // If user is null, email is unique
+        }
+
+        // Check if the phone already exists
+        private async Task<bool> IsUniquePhone(string phone)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phone);
+            return user == null; // If user is null, phone is unique
         }
 
         // Check if the username already exists

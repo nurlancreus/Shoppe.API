@@ -17,9 +17,9 @@ namespace Shoppe.Application.Abstractions.Services.Session
         bool IsAdmin();
         bool IsSuperAdmin();
         ApplicationUser GetUser();
-        void ValidateAdminAccess();
-        void ValidateSuperAdminAccess();
-        void ValidateAuthAccess(string id);
-        void ValidateRoleAccess(IEnumerable<string> roles);
+        bool ValidateAdminAccess(bool throwException = true);
+        bool ValidateSuperAdminAccess(bool throwException = true);
+        bool ValidateAuthAccess(string id, bool throwException = true);
+        bool ValidateRoleAccess(IEnumerable<string> roles, bool throwException = true);
      }
 }

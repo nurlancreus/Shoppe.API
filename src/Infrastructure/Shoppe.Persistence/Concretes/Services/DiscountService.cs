@@ -6,6 +6,7 @@ using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Session;
+using Shoppe.Application.Abstractions.Services.Validation;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Discount;
 using Shoppe.Application.Extensions.Mapping;
@@ -92,7 +93,7 @@ namespace Shoppe.Persistence.Concretes.Services
             if (discount == null)
                 throw new EntityNotFoundException(nameof(discount));
 
-            if (!CheckIfIsValid(discount))
+            if (!IDiscountValidationService.CheckIfIsValid(discount))
                 throw new InvalidOperationException("Discount is not valid for the current date");
 
             switch (entityType)
@@ -107,7 +108,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
                         if (activeDiscount != null)
                         {
-                            if (!CheckIfIsValid(activeDiscount))
+                            if (!IDiscountValidationService.CheckIfIsValid(activeDiscount))
                             {
                                 activeDiscount.IsActive = false;
                             }
@@ -131,7 +132,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
                         if (activeDiscount != null)
                         {
-                            if (!CheckIfIsValid(activeDiscount))
+                            if (!IDiscountValidationService.CheckIfIsValid(activeDiscount))
                             {
                                 activeDiscount.IsActive = false;
                             }
@@ -165,7 +166,7 @@ namespace Shoppe.Persistence.Concretes.Services
             if (discount == null)
                 throw new EntityNotFoundException(nameof(discount));
 
-            if (!CheckIfIsValid(discount))
+            if (!IDiscountValidationService.CheckIfIsValid(discount))
                 throw new InvalidOperationException("Discount is not valid for the current date");
 
             if (entity is Product product)
@@ -175,7 +176,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 if (activeDiscount != null)
                 {
 
-                    if (!CheckIfIsValid(activeDiscount))
+                    if (!IDiscountValidationService.CheckIfIsValid(activeDiscount))
                     {
                         activeDiscount.IsActive = false;
                     }
@@ -196,7 +197,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 if (activeDiscount != null)
                 {
 
-                    if (!CheckIfIsValid(activeDiscount))
+                    if (!IDiscountValidationService.CheckIfIsValid(activeDiscount))
                     {
                         activeDiscount.IsActive = false;
                     }
@@ -333,9 +334,9 @@ namespace Shoppe.Persistence.Concretes.Services
             if (discount == null)
                 throw new EntityNotFoundException(nameof(discount));
 
-            if (!CheckIfIsValid(discount) && !discount.IsActive) throw new UpdateNotSucceedException("Discount is not valid. If you want to activate it, you should update end date first.");
+            if (!IDiscountValidationService.CheckIfIsValid(discount) && !discount.IsActive) throw new UpdateNotSucceedException("Discount is not valid. If you want to activate it, you should update end date first.");
 
-            else if (!CheckIfIsValid(discount) && discount.IsActive)
+            else if (!IDiscountValidationService.CheckIfIsValid(discount) && discount.IsActive)
             {
                 discount.IsActive = false;
             }
@@ -365,7 +366,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     throw new EntityNotFoundException(nameof(discount));
                 }
 
-                if (!CheckIfIsValid(discount) || !discount.IsActive) throw new UpdateNotSucceedException("Discount is not valid.");
+                if (!IDiscountValidationService.CheckIfIsValid(discount) || !discount.IsActive) throw new UpdateNotSucceedException("Discount is not valid.");
 
 
                 var newProductIds = productIds.Except(discount.Products.Select(p => p.Id));
@@ -404,7 +405,7 @@ namespace Shoppe.Persistence.Concretes.Services
                     throw new EntityNotFoundException(nameof(discount));
                 }
 
-                if (!CheckIfIsValid(discount) || !discount.IsActive) throw new UpdateNotSucceedException("Discount is not valid.");
+                if (!IDiscountValidationService.CheckIfIsValid(discount) || !discount.IsActive) throw new UpdateNotSucceedException("Discount is not valid.");
 
 
                 var newCategoryIds = categoryIds.Except(discount.Categories.Select(p => p.Id));
@@ -434,14 +435,6 @@ namespace Shoppe.Persistence.Concretes.Services
             else throw new InvalidOperationException("Discount cannot be applied");
         }
 
-        public static bool CheckIfIsValid(Discount? discount)
-        {
-            ArgumentNullException.ThrowIfNull(discount);
-
-            return
-                   discount.StartDate < discount.EndDate &&
-                   DateTime.UtcNow >= discount.StartDate &&
-                   DateTime.UtcNow < discount.EndDate;
-        }
+        
     }
 }
