@@ -8,8 +8,10 @@ using Shoppe.Application.Features.Command.Basket.DeleteBasket;
 using Shoppe.Application.Features.Command.Basket.DeleteBasketItem;
 using Shoppe.Application.Features.Command.Basket.SyncBasket;
 using Shoppe.Application.Features.Command.Basket.UpdateItemQuantity;
+using Shoppe.Application.Features.Command.Coupon.Apply;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
 using Shoppe.Application.Features.Query.Basket.GetBasket;
+using Shoppe.Domain.Enums;
 
 namespace Shoppe.API.Controllers.v1
 {
@@ -87,6 +89,20 @@ namespace Shoppe.API.Controllers.v1
         public async Task<IActionResult> UpdateBasketItem([FromRoute] Guid id, [FromBody] UpdateItemQuantityCommandRequest request)
         {
             request.BasketItemId = id;
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpPatch("apply-coupon")]
+        public async Task<IActionResult> ApplyCoupon([FromQuery] string couponCode)
+        {
+            var request = new ApplyCouponCommandRequest
+            {
+                CouponTarget = CouponTarget.Basket,
+                CouponCode = couponCode
+            };
 
             var response = await _sender.Send(request);
 

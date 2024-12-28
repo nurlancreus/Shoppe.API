@@ -10,6 +10,8 @@ namespace Shoppe.Domain.Entities
 {
     public class ShippingAddress : Address
     {
-       
+        [ForeignKey(nameof(Account))]
+        public string UserId { get; set; } = string.Empty;
+        public ApplicationUser Account { get; set; } = null!;
     }
 }

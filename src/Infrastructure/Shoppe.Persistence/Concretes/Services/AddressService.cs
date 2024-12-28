@@ -133,19 +133,21 @@ namespace Shoppe.Persistence.Concretes.Services
                 throw new EntityNotFoundException(nameof(address));
             }
 
-            if (_jwtSession.ValidateAdminAccess(false) || _jwtSession.ValidateAuthAccess(address.UserId))
-            {
-                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
-            }
-
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
+            bool isUserAuth = false;  
             bool isDeleted = true;
 
             if (address is BillingAddress billingAddress)
             {
+                isUserAuth = _jwtSession.ValidateAuthAccess(billingAddress.UserId, false);
 
                 isDeleted = _addressWriteRepository.Delete(billingAddress);
+
+                if (_jwtSession.ValidateAdminAccess(false) || !isUserAuth)
+                {
+                    throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+                }
 
                 if (!isDeleted)
                 {
@@ -154,50 +156,13 @@ namespace Shoppe.Persistence.Concretes.Services
             }
             else if (address is ShippingAddress shippingAddress)
             {
-                isDeleted = _addressWriteRepository.Delete(shippingAddress);
+                isUserAuth = _jwtSession.ValidateAuthAccess(shippingAddress.UserId, false);
 
-                if (!isDeleted)
+                if (_jwtSession.ValidateAdminAccess(false) || !isUserAuth)
                 {
-                    throw new DeleteNotSucceedException("Shipping Address can not be deleted");
+                    throw new UnauthorizedAccessException("You do not have permission to perform this action.");
                 }
-            }
-            else
-            {
-                throw new DeleteNotSucceedException("Address can not be deleted. Invalid Data");
-            }
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            scope.Complete();
-        }
-
-        public async Task ClearAsync(CancellationToken cancellationToken = default)
-        {
-            var userId = _jwtSession.GetUserId();
-
-            var address = await _addressReadRepository.Table.FirstOrDefaultAsync(a => a.UserId == userId, cancellationToken);
-
-            if (address == null)
-            {
-                throw new EntityNotFoundException(nameof(address));
-            }
-
-            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
-            bool isDeleted = true;
-
-            if (address is BillingAddress billingAddress)
-            {
-
-                isDeleted = _addressWriteRepository.Delete(billingAddress);
-
-                if (!isDeleted)
-                {
-                    throw new DeleteNotSucceedException("Billing Address can not be deleted");
-                }
-            }
-            else if (address is ShippingAddress shippingAddress)
-            {
                 isDeleted = _addressWriteRepository.Delete(shippingAddress);
 
                 if (!isDeleted)
@@ -219,7 +184,7 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             var userId = _jwtSession.GetUserId();
 
-            var address = await _addressReadRepository.Table
+            var address = await _addressReadRepository.Table.OfType<BillingAddress>()
                 .FirstOrDefaultAsync(a => a.UserId == userId, cancellationToken);
 
             if (address is not BillingAddress billingAddress)
@@ -235,7 +200,7 @@ namespace Shoppe.Persistence.Concretes.Services
                    a.City == updateBillingAddressDTO.City &&
                    a.Country == updateBillingAddressDTO.Country &&
                    a.PostalCode == updateBillingAddressDTO.PostalCode &&
-                   a.UserId != userId, cancellationToken);
+                   ((BillingAddress)a).UserId != userId, cancellationToken);
 
             if (existingAddress)
             {
@@ -255,7 +220,7 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             var userId = _jwtSession.GetUserId();
 
-            var address = await _addressReadRepository.Table
+            var address = await _addressReadRepository.Table.OfType<ShippingAddress>()
                 .FirstOrDefaultAsync(a => a.UserId == userId, cancellationToken);
 
             if (address is not ShippingAddress shippingAddress)

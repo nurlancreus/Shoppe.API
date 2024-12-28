@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Shoppe.Application.DTOs.API;
 using Shoppe.Application.DTOs.Location;
+using Shoppe.Application.Features.Command.Coupon.Apply;
 using Shoppe.Application.Features.Query.Location.GetCititesByCountry;
 using Shoppe.Application.Features.Query.Location.GetCountries;
 using Shoppe.Application.Options.API;
+using Shoppe.Domain.Enums;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -128,6 +130,20 @@ namespace Shoppe.API.Controllers.v1
             var jsonResponse = await response.Content.ReadAsStringAsync();
 
             return Ok(jsonResponse);
+        }
+
+        [HttpPatch("apply-coupon")]
+        public async Task<IActionResult> ApplyCoupon([FromQuery] string couponCode)
+        {
+            var request = new ApplyCouponCommandRequest
+            {
+                CouponTarget = CouponTarget.Order,
+                CouponCode = couponCode
+            };
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
         }
 
     }

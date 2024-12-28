@@ -49,8 +49,10 @@ namespace Shoppe.Infrastructure
 
             services.AddScoped<ICalculatorService, CalculatorService>();
             services.AddScoped<IDiscountCalculatorService, CalculatorService>();
+            services.AddScoped<ICouponCalculatorService, CalculatorService>();
             services.AddScoped<IRatingCalculatorService, CalculatorService>();
             services.AddScoped<IShippingCalculatorService, CalculatorService>();
+            services.AddScoped<IBasketCalculatorService, CalculatorService>();
 
             services.AddScoped<IAddressValidationService, AddressValidationService>();
 

@@ -28,7 +28,7 @@ namespace Shoppe.Persistence.Concretes.Services
         {
             var citites = await _cityReadRepository.Table.Where(c => c.CountryId == countryId).ToListAsync(cancellationToken);
 
-            return citites.Select(c => new GetCityDTO { Id = c.Id, Name = c.Name, ShippingCost = _shippingCalculatorService.CalculateShippingCost(distance: 100m) }).ToList();
+            return citites.Select(c => new GetCityDTO { Id = c.Id, Name = c.Name, ShippingCost = _shippingCalculatorService.CalculateShippingCost( 100) }).ToList();
         }
 
         public async Task<List<GetCountryDTO>> GetCountriesAsync(CancellationToken cancellationToken = default)

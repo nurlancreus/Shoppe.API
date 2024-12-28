@@ -54,13 +54,18 @@ namespace Shoppe.Infrastructure.Concretes.Services
             return (1 - (1 - categoryDiscount.Value) * (1 - productDiscount.Value / 100)) * 100;
         }
 
-        public decimal CalculateShippingCost(decimal distance, decimal baseCost = IShippingCalculatorService.baseShippingCost)
+        public double CalculateShippingCost(double distance, double baseCost = IShippingCalculatorService.baseShippingCost)
         {
 
             return baseCost + (distance * IShippingCalculatorService.costPerKm);
         }
 
-        public double? CalculateCouponAppliedPrice(Basket basket)
+        public double CalculateTotalBasketItemsPrice(Basket basket)
+        {
+            return basket.Items.Sum(bi => bi.Product.Price * bi.Quantity);
+        }
+
+        public double CalculateTotalDiscountedBasketItemsPrice(Basket basket)
         {
             if (basket == null || basket.Items == null)
                 throw new ArgumentNullException(nameof(basket), "Basket or its items cannot be null.");
@@ -72,40 +77,37 @@ namespace Shoppe.Infrastructure.Concretes.Services
                 return (DiscountedPrice ?? i.Product.Price) * i.Quantity;
             });
 
-            if (basket.Coupon == null || !basket.Coupon.IsActive) return null;
-
-            bool isValid = ICouponValidationService.CheckIfIsValid(basket.Coupon, totalOrderAmount);
-
-            if (isValid)
-                return totalOrderAmount * (double)(1 - (basket.Coupon.DiscountPercentage / 100));
-
-            return null;
-
+            return totalOrderAmount;
         }
 
-        public double? CalculateCouponAppliedPrice(Order order)
+        public double CalculateCouponAppliedPrice(Basket basket)
+        {
+            var basketTotal = CalculateTotalDiscountedBasketItemsPrice(basket);
+
+            if (basket.Coupon == null || !basket.Coupon.IsActive) return basketTotal;
+
+            bool isValid = ICouponValidationService.CheckIfIsValid(basket.Coupon, basketTotal);
+
+            if (!isValid) return basketTotal;
+
+            return basketTotal * (double)(1 - (basket.Coupon.DiscountPercentage / 100));
+        }
+
+        public double CalculateCouponAppliedPrice(Order order)
         {
             if (order?.Basket == null)
                 throw new ArgumentNullException(nameof(order), "Order or its basket cannot be null.");
 
             var basketTotal = CalculateCouponAppliedPrice(order.Basket);
 
-            basketTotal ??= order.Basket.Items.Sum(i =>
-                {
-                    var (DiscountedPrice, _) = CalculateDiscountedPrice(i.Product);
-                    return (DiscountedPrice ?? i.Product.Price) * i.Quantity;
-                });
-
             if (order.Coupon == null || !order.Coupon.IsActive)
                 return basketTotal;
 
-            bool isOrderCouponValid = ICouponValidationService.CheckIfIsValid(order.Coupon, basketTotal.Value);
+            bool isOrderCouponValid = ICouponValidationService.CheckIfIsValid(order.Coupon, basketTotal);
 
-            if (!isOrderCouponValid)
-                return basketTotal;
+            if (!isOrderCouponValid) return basketTotal;
 
             return basketTotal * (double)(1 - (order.Coupon.DiscountPercentage / 100));
         }
-
     }
 }

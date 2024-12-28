@@ -11,9 +11,7 @@ namespace Shoppe.Domain.Entities
 {
     public class Address : BaseEntity
     {
-        [ForeignKey(nameof(Account))]
-        public string UserId { get; set; } = string.Empty;
-        public ApplicationUser Account { get; set; } = null!;
+
         public string FirstName {  get; set; } = string.Empty;
         public string LastName {  get; set; } = string.Empty;
         public string StreetAddress { get; set; } = string.Empty;

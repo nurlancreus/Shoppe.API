@@ -11,6 +11,8 @@ namespace Shoppe.Domain.Entities
 {
     public class BillingAddress : Address
     {
-        
+        [ForeignKey(nameof(Account))]
+        public string UserId { get; set; } = string.Empty;
+        public ApplicationUser Account { get; set; } = null!;
     }
 }

@@ -10,6 +10,6 @@ namespace Shoppe.Application.DTOs.Location
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public decimal ShippingCost { get; set; }
+        public double ShippingCost { get; set; }
     }
 }

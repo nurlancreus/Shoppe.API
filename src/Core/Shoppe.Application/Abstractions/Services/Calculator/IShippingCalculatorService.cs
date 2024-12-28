@@ -8,8 +8,8 @@ namespace Shoppe.Application.Abstractions.Services.Calculator
 {
     public interface IShippingCalculatorService
     {
-        const decimal baseShippingCost = 10m; // Base cost for Baku
-        const decimal costPerKm = 0.05m; // Cost per kilometer
-        decimal CalculateShippingCost(decimal distance, decimal baseCost = baseShippingCost);
+        const double baseShippingCost = 10; // Base cost for Baku
+        const double costPerKm = 0.05; // Cost per kilometer
+        double CalculateShippingCost(double distance, double baseCost = baseShippingCost);
     }
 }

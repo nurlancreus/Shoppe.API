@@ -8,6 +8,7 @@ using Shoppe.Application.DTOs.Contact;
 using Shoppe.Application.DTOs.Coupon;
 using Shoppe.Application.DTOs.Discount;
 using Shoppe.Application.DTOs.Files;
+using Shoppe.Application.DTOs.Order;
 using Shoppe.Application.DTOs.Product;
 using Shoppe.Application.DTOs.Reply;
 using Shoppe.Application.DTOs.Review;
@@ -88,13 +89,27 @@ namespace Shoppe.Application.Extensions.Mapping
             };
         }
 
-        public static GetBasketDTO ToGetBasketDTO(this Basket basket, IDiscountCalculatorService discountCalculatorService)
+        public static GetOrderDTO ToGetOrderDTO(this Order order, ICalculatorService calculatorService)
+        {
+            return new GetOrderDTO
+            {
+                Id = order.Id,
+                OrderStatus = order.OrderStatus.ToString(),
+                OrderCode = order.OrderCode,
+                ShippingCost = calculatorService.CalculateShippingCost(0), // modify distance
+                Total = calculatorService.CalculateCouponAppliedPrice(order),
+                SubTotal = calculatorService.CalculateTotalBasketItemsPrice(order.Basket),
+                CreatedAt = order.CreatedAt
+            };
+        }
+
+        public static GetBasketDTO ToGetBasketDTO(this Basket basket, ICalculatorService calculatorService)
         {
             return new GetBasketDTO()
             {
                 Id = basket.Id,
                 CreatedAt = basket.CreatedAt,
-                Items = basket.Items.Select(bi => bi.ToGetBasketItemDTO(discountCalculatorService)
+                Items = basket.Items.Select(bi => bi.ToGetBasketItemDTO(calculatorService)
                 ).ToList(),
                 User = new GetUserDTO
                 {
@@ -105,14 +120,8 @@ namespace Shoppe.Application.Extensions.Mapping
                     UserName = basket.User.UserName!,
                     CreatedAt = basket.User.CreatedAt,
                 },
-                TotalAmount = basket.Items.Sum(bi => bi.Quantity * bi.Product.Price),
-                TotalDiscountedAmount = basket.Items.Sum(bi =>
-                {
-                    var (discountedPrice, generalDiscountPercentage) = discountCalculatorService.CalculateDiscountedPrice(bi.Product);
-
-                    return bi.Quantity * (discountedPrice is double discountedP ? discountedP : bi.Product.Price);
-
-                })
+                TotalAmount = calculatorService.CalculateTotalBasketItemsPrice(basket),
+                TotalDiscountedAmount = calculatorService.CalculateTotalDiscountedBasketItemsPrice(basket)
             };
         }
 

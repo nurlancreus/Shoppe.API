@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Abstractions.Services.Calculator
 {
-    public interface ICouponCalculatorService
+    public interface IBasketCalculatorService
     {
-        double CalculateCouponAppliedPrice(Basket basket);
-        double CalculateCouponAppliedPrice(Order order);
+        double CalculateTotalDiscountedBasketItemsPrice(Basket basket);
+        double CalculateTotalBasketItemsPrice(Basket basket);
+
     }
 }

@@ -34,11 +34,11 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IBasketItemReadRepository _basketItemReadRepository;
         private readonly IBasketItemWriteRepository _basketItemWriteRepository;
         private readonly IProductReadRepository _productReadRepository;
-        private readonly IDiscountCalculatorService _discountCalculatorService;
+        private readonly ICalculatorService _calculatorService;
         private readonly IJwtSession _jwtSession;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BasketService(IBasketReadRepository basketReadRepository, IBasketWriteRepository basketWriteRepository, IBasketItemReadRepository basketItemReadRepository, IBasketItemWriteRepository basketItemWriteRepository, IProductReadRepository productReadRepository, IUnitOfWork unitOfWork, IDiscountCalculatorService discountCalculatorService, UserManager<ApplicationUser> userManager, IJwtSession jwtSession)
+        public BasketService(IBasketReadRepository basketReadRepository, IBasketWriteRepository basketWriteRepository, IBasketItemReadRepository basketItemReadRepository, IBasketItemWriteRepository basketItemWriteRepository, IProductReadRepository productReadRepository, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IJwtSession jwtSession, ICalculatorService calculatorService)
         {
             _basketReadRepository = basketReadRepository;
             _basketWriteRepository = basketWriteRepository;
@@ -46,9 +46,9 @@ namespace Shoppe.Persistence.Concretes.Services
             _basketItemWriteRepository = basketItemWriteRepository;
             _productReadRepository = productReadRepository;
             _unitOfWork = unitOfWork;
-            _discountCalculatorService = discountCalculatorService;
             _userManager = userManager;
             _jwtSession = jwtSession;
+            _calculatorService = calculatorService;
         }
 
         public async Task<GetBasketDTO?> GetMyCurrentBasketAsync(CancellationToken cancellationToken = default)
@@ -72,7 +72,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             if (basket == null) return null;
 
-            return basket.ToGetBasketDTO(_discountCalculatorService);
+            return basket.ToGetBasketDTO(_calculatorService);
         }
 
         private async Task<Basket> GetMyBasketAsync(CancellationToken cancellationToken = default)

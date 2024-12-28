@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Shoppe.Application.Features.Command.Coupon.Apply;
 using Shoppe.Application.Features.Command.Coupon.Create;
 using Shoppe.Application.Features.Command.Coupon.Delete;
 using Shoppe.Application.Features.Command.Coupon.Toggle;
@@ -8,6 +9,7 @@ using Shoppe.Application.Features.Command.Coupon.Update;
 using Shoppe.Application.Features.Command.Discount.Toggle;
 using Shoppe.Application.Features.Query.Contact.GetContactById;
 using Shoppe.Application.Features.Query.Coupon.GetAll;
+using Shoppe.Domain.Enums;
 
 namespace Shoppe.API.Controllers.v1
 {

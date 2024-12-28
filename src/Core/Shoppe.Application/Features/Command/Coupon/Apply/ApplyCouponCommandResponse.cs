@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Application.Features.Command.Address.Common.Clear
+namespace Shoppe.Application.Features.Command.Coupon.Apply
 {
-    public class ClearAddressCommandResponse : AppResponse
+    public class ApplyCouponCommandResponse : AppResponse
     {
     }
 }

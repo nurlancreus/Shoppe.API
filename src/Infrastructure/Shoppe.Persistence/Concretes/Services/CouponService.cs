@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Shoppe.Application.Abstractions.Pagination;
+using Shoppe.Application.Abstractions.Repositories.BasketRepos;
 using Shoppe.Application.Abstractions.Repositories.CouponRepos;
+using Shoppe.Application.Abstractions.Repositories.OrderRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.Services.Validation;
@@ -9,6 +11,7 @@ using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Coupon;
 using Shoppe.Application.Extensions.Mapping;
 using Shoppe.Domain.Entities;
+using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -23,17 +26,21 @@ namespace Shoppe.Persistence.Concretes.Services
     {
         private readonly ICouponReadRepository _couponReadRepository;
         private readonly ICouponWriteRepository _couponWriteRepository;
+        private readonly IOrderReadRepository _orderReadRepository;
+        private readonly IBasketReadRepository _basketReadRepository;
         private readonly IJwtSession _jwtSession;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPaginationService _paginationService;
 
-        public CouponService(ICouponReadRepository couponReadRepository, ICouponWriteRepository couponWriteRepository, IJwtSession jwtSession, IUnitOfWork unitOfWork, IPaginationService paginationService)
+        public CouponService(ICouponReadRepository couponReadRepository, ICouponWriteRepository couponWriteRepository, IJwtSession jwtSession, IUnitOfWork unitOfWork, IPaginationService paginationService, IBasketReadRepository basketReadRepository, IOrderReadRepository orderReadRepository)
         {
             _couponReadRepository = couponReadRepository;
             _couponWriteRepository = couponWriteRepository;
             _jwtSession = jwtSession;
             _unitOfWork = unitOfWork;
             _paginationService = paginationService;
+            _basketReadRepository = basketReadRepository;
+            _orderReadRepository = orderReadRepository;
         }
 
         public async Task<GetCouponDTO> Get(Guid id, CancellationToken cancellationToken = default)
@@ -206,6 +213,86 @@ namespace Shoppe.Persistence.Concretes.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             scope.Complete();
+        }
+
+        public async Task ApplyCouponAsync(CouponTarget target, string couponCode, CancellationToken cancellationToken = default)
+        {
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            switch (target)
+            {
+                case CouponTarget.Basket:
+                    await ApplyCouponToBasketAsync(couponCode, cancellationToken);
+                    break;
+                case CouponTarget.Order:
+                    await ApplyCouponToOrderAsync(couponCode, cancellationToken);
+                    break;
+                default:
+                    throw new InvalidOperationException("Invalid coupon target.");
+            }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            scope.Complete();
+
+        }
+
+        private async Task ApplyCouponToBasketAsync(string couponCode, CancellationToken cancellationToken = default)
+        {
+            var userId = _jwtSession.GetUserId();
+
+            var basket = await _basketReadRepository.Table
+                                .Include(b => b.Order)
+                                .Include(b => b.Coupon)
+                                .Include(b => b.User)
+                                .FirstOrDefaultAsync(b => b.UserId == userId && b.Coupon == null && (b.Order == null || b.Order.OrderStatus == OrderStatus.Completed), cancellationToken);
+
+            if (basket == null)
+            {
+                throw new EntityNotFoundException(nameof(basket));
+            }
+
+
+            var coupon = await _couponReadRepository.Table
+                                .Include(c => c.Baskets)
+                                .FirstOrDefaultAsync(c => c.Code == couponCode && !c.Baskets.Contains(basket), cancellationToken);
+
+            if (coupon == null)
+            {
+                throw new EntityNotFoundException(nameof(coupon));
+            }
+
+            coupon.Baskets.Add(basket);
+
+        }
+
+        private async Task ApplyCouponToOrderAsync(string couponCode, CancellationToken cancellationToken = default)
+        {
+            var userId = _jwtSession.GetUserId();
+
+            var order = await _orderReadRepository.Table
+                                .Include(o => o.Coupon)
+                                .Include(o => o.Basket)
+                                    .ThenInclude(b => b.User)
+                                .FirstOrDefaultAsync(o => o.Basket.UserId == userId && o.Coupon == null && o.OrderStatus == OrderStatus.Completed, cancellationToken);
+
+            if (order == null)
+            {
+                throw new EntityNotFoundException(nameof(order));
+            }
+
+
+            var coupon = await _couponReadRepository.Table
+                                .Include(c => c.Orders)
+                                .FirstOrDefaultAsync(c => c.Code == couponCode && !c.Orders.Contains(order), cancellationToken);
+
+            if (coupon == null)
+            {
+                throw new EntityNotFoundException(nameof(coupon));
+            }
+
+            coupon.Orders.Add(order);
+
         }
     }
 }

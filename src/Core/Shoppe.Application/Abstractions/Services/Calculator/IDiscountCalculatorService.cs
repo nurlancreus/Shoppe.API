@@ -12,5 +12,6 @@ namespace Shoppe.Application.Abstractions.Services.Calculator
     {
         (double? DiscountedPrice, decimal? GeneralDiscountPercentage) CalculateDiscountedPrice(Product product);
         decimal? CalculateEffectiveDiscount(ICollection<IDiscountable> discountables);
+
     }
 }

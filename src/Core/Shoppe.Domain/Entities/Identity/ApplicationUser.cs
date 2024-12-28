@@ -40,6 +40,9 @@ namespace Shoppe.Domain.Entities.Identity
         public ICollection<Reaction> Reactions { get; set; } = [];
         public ICollection<Basket> Baskets { get; set; } = [];
 
+        public BillingAddress BillingAddress { get; set; }
+        public ShippingAddress ShippingAddress { get; set; }
+
         //public virtual ICollection<ApplicationUserClaim> Claims { get; set; } = [];
         //public virtual ICollection<ApplicationUserLogin> Logins { get; set; } = [];
         //public virtual ICollection<ApplicationUserToken> Tokens { get; set; } = [];
