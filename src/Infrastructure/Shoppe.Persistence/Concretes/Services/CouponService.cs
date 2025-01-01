@@ -245,7 +245,7 @@ namespace Shoppe.Persistence.Concretes.Services
                                 .Include(b => b.Order)
                                 .Include(b => b.Coupon)
                                 .Include(b => b.User)
-                                .FirstOrDefaultAsync(b => b.UserId == userId && b.Coupon == null && (b.Order == null || b.Order.OrderStatus == OrderStatus.Completed), cancellationToken);
+                                .FirstOrDefaultAsync(b => b.UserId == userId && b.Coupon == null && (b.Order == null || b.Order.OrderStatus != OrderStatus.Completed), cancellationToken);
 
             if (basket == null)
             {
@@ -274,7 +274,7 @@ namespace Shoppe.Persistence.Concretes.Services
                                 .Include(o => o.Coupon)
                                 .Include(o => o.Basket)
                                     .ThenInclude(b => b.User)
-                                .FirstOrDefaultAsync(o => o.Basket.UserId == userId && o.Coupon == null && o.OrderStatus == OrderStatus.Completed, cancellationToken);
+                                .FirstOrDefaultAsync(o => o.Basket.UserId == userId && o.Coupon == null && o.OrderStatus != OrderStatus.Completed, cancellationToken);
 
             if (order == null)
             {

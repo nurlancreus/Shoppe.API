@@ -22,46 +22,24 @@ namespace Shoppe.Persistence.Concretes.Services
     {
         private readonly IAddressReadRepository _addressReadRepository;
         private readonly IAddressWriteRepository _addressWriteRepository;
+        private readonly IAddressValidationService _addressValidationService;
         private readonly IJwtSession _jwtSession;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AddressService(IAddressReadRepository addressReadRepository, IAddressWriteRepository addressWriteRepository, IUnitOfWork unitOfWork, IJwtSession jwtSession)
+        public AddressService(IAddressReadRepository addressReadRepository, IAddressWriteRepository addressWriteRepository, IUnitOfWork unitOfWork, IJwtSession jwtSession, IAddressValidationService addressValidationService)
         {
             _addressReadRepository = addressReadRepository;
             _addressWriteRepository = addressWriteRepository;
             _unitOfWork = unitOfWork;
             _jwtSession = jwtSession;
+            _addressValidationService = addressValidationService;
         }
 
         public async Task CreateBillingAsync(CreateBillingAddressDTO createBillingAddressDTO, CancellationToken cancellationToken = default)
         {
             var userId = _jwtSession.GetUserId();
 
-            var existingAddress = await _addressReadRepository.GetAsync(a =>
-                a.StreetAddress == createBillingAddressDTO.StreetAddress &&
-                a.City == createBillingAddressDTO.City &&
-                a.Country == createBillingAddressDTO.Country &&
-                a.PostalCode == createBillingAddressDTO.PostalCode &&
-                a.FirstName == createBillingAddressDTO.FirstName &&
-                a.LastName == createBillingAddressDTO.LastName &&
-                a.Email == createBillingAddressDTO.Email,
-                cancellationToken);
-
-            if (existingAddress != null)
-                throw new InvalidOperationException("An identical billing address already exists.");
-
-
-            if (!IAddressValidationService.ValidateCountry(createBillingAddressDTO.Country))
-            {
-                throw new InvalidOperationException("We can only ship to Azerbaijan or its neighboring countries.");
-            }
-
-            bool isPostalCodeValid = IAddressValidationService.ValidatePostalCode(createBillingAddressDTO.PostalCode, createBillingAddressDTO.Country);
-
-            if (!isPostalCodeValid)
-            {
-                throw new ValidationException("Invalid postal code for the specified country.");
-            }
+            await _addressValidationService.ValidateBillingAddressAsync(createBillingAddressDTO, cancellationToken);
 
             var billingAddress = new BillingAddress()
             {
@@ -135,7 +113,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            bool isUserAuth = false;  
+            bool isUserAuth = false;
             bool isDeleted = true;
 
             if (address is BillingAddress billingAddress)

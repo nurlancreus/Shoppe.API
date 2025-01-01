@@ -1,14 +1,17 @@
 ﻿using FluentValidation;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
+using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Features.Command.Basket.AddBasketItem;
 
 public class AddBasketItemCommandRequestValidator : AbstractValidator<AddBasketItemCommandRequest>
 {
     private readonly IProductReadRepository _productReadRepository;
+    private readonly IStockService _stockService;
 
-    public AddBasketItemCommandRequestValidator(IProductReadRepository productReadRepository)
+    public AddBasketItemCommandRequestValidator(IProductReadRepository productReadRepository, IStockService stockService)
     {
         _productReadRepository = productReadRepository;
+        _stockService = stockService;
 
         RuleFor(x => x.ProductId)
             .NotEmpty().WithMessage("Product ID is required.")
@@ -29,13 +32,7 @@ public class AddBasketItemCommandRequestValidator : AbstractValidator<AddBasketI
 
     private async Task<bool> HaveSufficientStock(AddBasketItemCommandRequest request, CancellationToken cancellationToken)
     {
-        var product = await _productReadRepository.GetByIdAsync(request.ProductId, cancellationToken);
 
-        if (product == null)
-        {
-            return false;
-        }
-
-        return product.Stock >= request.Quantity!.Value; 
+        return await _stockService.IsStockAvailableAsync(request.ProductId, request.Quantity!.Value, cancellationToken);
     }
 }

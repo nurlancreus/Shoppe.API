@@ -26,6 +26,9 @@ using Shoppe.Application.Abstractions.Services.Mail.Templates;
 using Shoppe.Application.Abstractions.Services.Calculator;
 using Shoppe.Application.Abstractions.Services.Validation;
 using Shoppe.Infrastructure.Concretes.Services.Validation;
+using Shoppe.Infrastructure.Concretes.Services.Payment.PayPal;
+using Shoppe.Application.Abstractions.Services.Payment;
+using Shoppe.Infrastructure.Concretes.Services.Payment;
 
 namespace Shoppe.Infrastructure
 {
@@ -55,6 +58,14 @@ namespace Shoppe.Infrastructure
             services.AddScoped<IBasketCalculatorService, CalculatorService>();
 
             services.AddScoped<IAddressValidationService, AddressValidationService>();
+
+            #region Payments
+            services.AddSingleton<PaypalClient>();
+
+            services.AddScoped<IPayPalService, PayPalService>();
+
+            services.AddScoped<IPaymentService, PaymentService>();
+            #endregion;
 
             #endregion
 

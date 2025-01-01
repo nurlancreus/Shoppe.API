@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Enums
 {
-    public enum PaymentMethod
+    public enum PaymentStatus
     {
-        DebitCard,
-        PayPal,
-        CashOnDelivery
+        Pending,        
+        Completed,     
+        Failed,        
+        Refunded,      
+        Canceled    
     }
 }

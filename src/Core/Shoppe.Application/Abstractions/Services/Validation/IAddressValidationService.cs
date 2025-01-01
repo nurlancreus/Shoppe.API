@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shoppe.Application.DTOs.Address;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,5 +38,10 @@ namespace Shoppe.Application.Abstractions.Services.Validation
 
             return AllowedCountries.ContainsKey(country);
         }
+
+        Task<bool> CheckIfAddressExistAsync(CreateBillingAddressDTO billingAddressDTO, CancellationToken cancellationToken = default);
+
+        Task ValidateBillingAddressAsync(CreateBillingAddressDTO billingAddressDTO, CancellationToken cancellationToken = default);
+        void ValidateShippingAddress(CreateShippingAddressDTO shippingAddressDTO);
     }
 }

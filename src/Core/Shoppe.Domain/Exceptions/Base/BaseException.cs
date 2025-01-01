@@ -32,6 +32,11 @@ namespace Shoppe.Domain.Exceptions.Base
             StatusCode = statusCode;
         }
 
+        protected BaseException(string? message, HttpStatusCode statusCode, Exception? innerException) : base(message, innerException)
+        {
+            StatusCode = statusCode;
+        }
+
         protected BaseException(string? message, Exception? innerException) : base(message, innerException)
         {
 

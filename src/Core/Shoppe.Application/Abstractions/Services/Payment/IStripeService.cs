@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Domain.Enums
+namespace Shoppe.Application.Abstractions.Services.Payment
 {
-    public enum PaymentMethod
+    public interface IStripeService
     {
-        DebitCard,
-        PayPal,
-        CashOnDelivery
     }
 }

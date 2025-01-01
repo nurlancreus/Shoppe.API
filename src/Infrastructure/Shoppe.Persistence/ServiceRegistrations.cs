@@ -73,7 +73,6 @@ using Shoppe.Persistence.Concretes.Repositories.LocationRepos;
 using Shoppe.Application.Abstractions.Services.Address;
 using Application.Interfaces.Services;
 
-
 namespace Shoppe.Persistence
 {
     public static class ServiceRegistrations
@@ -163,6 +162,7 @@ namespace Shoppe.Persistence
 
             #region Services Registrations
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IStockService, StockService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<IContactService, ContactService>();
