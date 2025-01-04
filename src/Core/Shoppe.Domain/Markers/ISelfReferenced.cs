@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Domain.Flags
+namespace Shoppe.Domain.Markers
 {
     public interface ISelfReferenced<T> where T : IBase
     {

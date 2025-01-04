@@ -14,7 +14,7 @@ namespace Shoppe.Domain.Entities
         public Guid OrderId { get; set; } 
         public Order Order { get; set; } = null!;
 
-        public decimal Amount { get; set; } 
+        public double Amount { get; set; } 
         public PaymentStatus PaymentStatus { get; set; } 
         public string PaymentReference { get; set; } = string.Empty;  
         public string TransactionId { get; set; } = string.Empty;  

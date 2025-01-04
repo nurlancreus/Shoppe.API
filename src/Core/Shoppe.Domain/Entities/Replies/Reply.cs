@@ -3,7 +3,7 @@ using Shoppe.Domain.Entities.Base;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Entities.Reactions;
 using Shoppe.Domain.Enums;
-using Shoppe.Domain.Flags;
+using Shoppe.Domain.Markers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;

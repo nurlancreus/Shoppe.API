@@ -29,6 +29,7 @@ using Shoppe.Infrastructure.Concretes.Services.Validation;
 using Shoppe.Infrastructure.Concretes.Services.Payment.PayPal;
 using Shoppe.Application.Abstractions.Services.Payment;
 using Shoppe.Infrastructure.Concretes.Services.Payment;
+using Shoppe.Infrastructure.Concretes.Services.Payment.Stripe;
 
 namespace Shoppe.Infrastructure
 {
@@ -56,6 +57,7 @@ namespace Shoppe.Infrastructure
             services.AddScoped<IRatingCalculatorService, CalculatorService>();
             services.AddScoped<IShippingCalculatorService, CalculatorService>();
             services.AddScoped<IBasketCalculatorService, CalculatorService>();
+            services.AddScoped<IPaymentCalculatorService, CalculatorService>();
 
             services.AddScoped<IAddressValidationService, AddressValidationService>();
 
@@ -63,6 +65,7 @@ namespace Shoppe.Infrastructure
             services.AddSingleton<PaypalClient>();
 
             services.AddScoped<IPayPalService, PayPalService>();
+            services.AddScoped<IStripeService, StripeService>();
 
             services.AddScoped<IPaymentService, PaymentService>();
             #endregion;

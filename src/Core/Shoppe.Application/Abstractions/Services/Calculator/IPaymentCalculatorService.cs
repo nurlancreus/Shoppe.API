@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shoppe.Domain.Flags
+namespace Shoppe.Application.Abstractions.Services.Calculator
 {
-    public interface IDiscountable
+    public interface IPaymentCalculatorService
     {
-        public Guid? DiscountId { get; set; }
-        public Discount? Discount { get; set; }
+        double CalculatePaymentPrice(Order order);
+
     }
 }

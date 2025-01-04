@@ -14,7 +14,7 @@ using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
-using Shoppe.Domain.Flags;
+using Shoppe.Domain.Markers;
 using System;
 using System.Linq;
 using System.Threading;

@@ -1,4 +1,4 @@
-﻿using Shoppe.Domain.Flags;
+﻿using Shoppe.Domain.Markers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;

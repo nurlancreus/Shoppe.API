@@ -2,7 +2,7 @@
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Base;
 using Shoppe.Domain.Enums;
-using Shoppe.Domain.Flags;
+using Shoppe.Domain.Markers;
 using System;
 using System.Collections.Generic;
 using System.Linq;

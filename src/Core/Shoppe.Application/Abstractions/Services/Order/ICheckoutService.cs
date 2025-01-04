@@ -7,7 +7,7 @@ namespace Application.Interfaces.Services
 {
     public interface ICheckoutService
     {
-        Task CheckoutAsync(CreateCheckoutDTO createCheckoutDTO, CancellationToken cancellationToken = default);
+        Task<GetCheckoutResponseDTO> CheckoutAsync(CreateCheckoutDTO createCheckoutDTO, CancellationToken cancellationToken = default);
 
     }
 }

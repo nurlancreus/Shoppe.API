@@ -21,6 +21,11 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment.PayPal
             _paypalClient = new PaypalClient(_paypalOptions.ClientId, _paypalOptions.ClientSecret, _paypalOptions.Mode, httpClientFactory);
         }
 
+        public Task CancelPaymentAsync(string paymentReference, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<string> CreatePaymentAsync(double amount, string currency, CancellationToken cancellationToken = default)
         {
             // Logic to create payment
@@ -35,12 +40,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment.PayPal
 
             var approvalUrl = createOrderResponse.Links.FirstOrDefault(link => link.Rel == "approve")?.Href;
 
-            if (approvalUrl == null)
-            {
-                throw new Exception("Approval URL not found in PayPal response.");
-            }
-
-            return approvalUrl;
+            return approvalUrl ?? throw new Exception("Approval URL not found in PayPal response.");
         }
 
         public async Task<bool> ExecutePaymentAsync(string paymentId, string payerId, CancellationToken cancellationToken = default)

@@ -10,5 +10,6 @@ namespace Shoppe.Application.Abstractions.Services.Payment
     {
         Task<string> CreatePaymentAsync(double amount, string currency, CancellationToken cancellationToken = default);
         Task<bool> ExecutePaymentAsync(string paymentId, string payerId, CancellationToken cancellationToken = default);
+        Task CancelPaymentAsync(string paymentReference, CancellationToken cancellationToken);
     }
 }

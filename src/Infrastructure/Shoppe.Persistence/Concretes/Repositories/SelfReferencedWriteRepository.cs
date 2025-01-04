@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Shoppe.Application.Abstractions.Repositories;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Base;
-using Shoppe.Domain.Flags;
+using Shoppe.Domain.Markers;
 using Shoppe.Persistence.Context;
 using System;
 using System.Collections.Generic;

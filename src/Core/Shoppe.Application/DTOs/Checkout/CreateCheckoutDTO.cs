@@ -13,6 +13,7 @@ namespace Shoppe.Application.DTOs.Checkout
         public Guid BasketId { get; set; }
         public CreateBillingAddressDTO? BillingAddress { get; set; }
         public CreateShippingAddressDTO? ShippingAddress { get; set; }
+        public string? CouponCode { get; set; }
         public string? Phone { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
 

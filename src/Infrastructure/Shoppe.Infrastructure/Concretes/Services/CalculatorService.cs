@@ -2,7 +2,7 @@
 using Shoppe.Application.Abstractions.Services.Validation;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Reviews;
-using Shoppe.Domain.Flags;
+using Shoppe.Domain.Markers;
 
 namespace Shoppe.Infrastructure.Concretes.Services
 {
@@ -28,7 +28,7 @@ namespace Shoppe.Infrastructure.Concretes.Services
 
             var finalPrice = product.Discount != null && product.Discount.IsActive && IDiscountValidationService.CheckIfIsValid(product.Discount) ? Math.Round(priceAfterCategoryDiscount * (double)(1 - product.Discount.DiscountPercentage / 100), 2) : priceAfterCategoryDiscount;
 
-            return (finalPrice, CalculateGeneralDiscountPercentage(effectiveDiscount, product.Discount?.DiscountPercentage));
+            return (Math.Round(finalPrice, 2), CalculateGeneralDiscountPercentage(effectiveDiscount, product.Discount?.DiscountPercentage));
         }
 
         public decimal? CalculateEffectiveDiscount(ICollection<IDiscountable> discountables)
@@ -77,20 +77,16 @@ namespace Shoppe.Infrastructure.Concretes.Services
                 return (DiscountedPrice ?? i.Product.Price) * i.Quantity;
             });
 
-            return totalOrderAmount;
+            return Math.Round(totalOrderAmount, 2);
         }
 
         public double CalculateCouponAppliedPrice(Basket basket)
         {
             var basketTotal = CalculateTotalDiscountedBasketItemsPrice(basket);
 
-            if (basket.Coupon == null || !basket.Coupon.IsActive) return basketTotal;
+            if (basket.Coupon == null || !basket.Coupon.IsActive || !ICouponValidationService.CheckIfIsValid(basket.Coupon, basketTotal)) return basketTotal;
 
-            bool isValid = ICouponValidationService.CheckIfIsValid(basket.Coupon, basketTotal);
-
-            if (!isValid) return basketTotal;
-
-            return basketTotal * (double)(1 - (basket.Coupon.DiscountPercentage / 100));
+            return Math.Round(basketTotal * (double)(1 - (basket.Coupon.DiscountPercentage / 100)), 2);
         }
 
         public double CalculateCouponAppliedPrice(Order order)
@@ -100,14 +96,19 @@ namespace Shoppe.Infrastructure.Concretes.Services
 
             var basketTotal = CalculateCouponAppliedPrice(order.Basket);
 
-            if (order.Coupon == null || !order.Coupon.IsActive)
+            if (order.Coupon == null || !order.Coupon.IsActive || !ICouponValidationService.CheckIfIsValid(order.Coupon, basketTotal))
                 return basketTotal;
 
-            bool isOrderCouponValid = ICouponValidationService.CheckIfIsValid(order.Coupon, basketTotal);
+            return Math.Round(basketTotal * (double)(1 - (order.Coupon.DiscountPercentage / 100)), 2);
+        }
 
-            if (!isOrderCouponValid) return basketTotal;
+        public double CalculatePaymentPrice(Order order)
+        {
+            var totalAmount = CalculateCouponAppliedPrice(order);
 
-            return basketTotal * (double)(1 - (order.Coupon.DiscountPercentage / 100));
+            var totalShippingCost = CalculateShippingCost(0);
+
+            return totalAmount * totalShippingCost;
         }
     }
 }

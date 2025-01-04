@@ -2,7 +2,7 @@
 using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Reviews;
-using Shoppe.Domain.Flags;
+using Shoppe.Domain.Markers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
