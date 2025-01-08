@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using Shoppe.Application.Options.Payment;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -9,19 +11,20 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Infrastructure.Concretes.Services.Payment.PayPal
 {
-    public sealed class PaypalClient(string clientId, string clientSecret, string mode, IHttpClientFactory httpClientFactory)
+    public sealed class PaypalClient(IOptions<PaymentOptions> options, IHttpClientFactory httpClientFactory)
     {
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
+        private readonly PaymentOptions paymentOptions = options.Value;
+        public string ClientId => paymentOptions.PayPal.ClientId;
+        public string ClientSecret => paymentOptions.PayPal.ClientSecret;
+        public string Mode => paymentOptions.PayPal.Mode;
 
-        public string Mode { get; } = mode;
-        public string ClientId { get; } = clientId;
-        public string ClientSecret { get; } = clientSecret;
 
         public string BaseUrl => Mode == "Live"
             ? "https://api-m.paypal.com"
             : "https://api-m.sandbox.paypal.com";
 
-        private async Task<AuthResponse?> Authenticate()
+        private async Task<AuthResponse?> AuthenticateAsync(CancellationToken cancellationToken = default)
         {
             var auth = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{ClientId}:{ClientSecret}"));
 
@@ -41,16 +44,16 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment.PayPal
                 Content = new FormUrlEncodedContent(content)
             };
 
-            var httpResponse = await _httpClient.SendAsync(request);
-            var jsonResponse = await httpResponse.Content.ReadAsStringAsync();
+            var httpResponse = await _httpClient.SendAsync(request, cancellationToken);
+            var jsonResponse = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
             var response = JsonSerializer.Deserialize<AuthResponse>(jsonResponse);
 
             return response;
         }
 
-        public async Task<CreateOrderResponse?> CreateOrder(string value, string currency, string reference)
+        public async Task<CreateOrderResponse?> CreateOrderAsync(string value, string currency, string reference, CancellationToken cancellationToken = default)
         {
-            var auth = await Authenticate();
+            var auth = await AuthenticateAsync(cancellationToken);
 
             var request = new CreateOrderRequest
             {
@@ -71,29 +74,55 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment.PayPal
 
             _httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {auth?.AccessToken}");
 
-            var httpResponse = await _httpClient.PostAsJsonAsync($"{BaseUrl}/v2/checkout/orders", request);
+            var httpResponse = await _httpClient.PostAsJsonAsync($"{BaseUrl}/v2/checkout/orders", request, cancellationToken);
 
-            var jsonResponse = await httpResponse.Content.ReadAsStringAsync();
+            var jsonResponse = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
             var response = JsonSerializer.Deserialize<CreateOrderResponse>(jsonResponse);
 
             return response;
         }
 
-        public async Task<CaptureOrderResponse?> CaptureOrder(string orderId)
+        public async Task<CreateOrderResponse?> GetOrderAsync(string orderId, CancellationToken cancellationToken = default)
         {
-            var auth = await Authenticate();
+            var auth = await AuthenticateAsync(cancellationToken);
+
+            _httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {auth?.AccessToken}");
+
+            var httpResponse = await _httpClient.GetAsync($"{BaseUrl}/v2/checkout/orders/{orderId}", cancellationToken);
+
+            var jsonResponse = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+            var response = JsonSerializer.Deserialize<CreateOrderResponse>(jsonResponse);
+
+            return response;
+        }
+
+        public async Task<CaptureOrderResponse?> CaptureOrderAsync(string orderId, CancellationToken cancellationToken = default)
+        {
+            var auth = await AuthenticateAsync(cancellationToken);
 
             _httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {auth?.AccessToken}");
 
             var httpContent = new StringContent("", Encoding.Default, "application/json");
 
-            var httpResponse = await _httpClient.PostAsync($"{BaseUrl}/v2/checkout/orders/{orderId}/capture", httpContent);
+            var httpResponse = await _httpClient.PostAsync($"{BaseUrl}/v2/checkout/orders/{orderId}/capture", httpContent, cancellationToken);
 
-            var jsonResponse = await httpResponse.Content.ReadAsStringAsync();
+            var jsonResponse = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
             var response = JsonSerializer.Deserialize<CaptureOrderResponse>(jsonResponse);
 
             return response;
         }
+
+        public async Task<bool> CancelOrderAsync(string orderId, CancellationToken cancellationToken = default)
+        {
+            var auth = await AuthenticateAsync(cancellationToken) ?? throw new InvalidOperationException("Failed to authenticate with PayPal.");
+
+            _httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {auth.AccessToken}");
+
+            var httpResponse = await _httpClient.DeleteAsync($"{BaseUrl}/v2/checkout/orders/{orderId}", cancellationToken);
+
+            return httpResponse.IsSuccessStatusCode;
+        }
+
     }
 
     public sealed class AuthResponse

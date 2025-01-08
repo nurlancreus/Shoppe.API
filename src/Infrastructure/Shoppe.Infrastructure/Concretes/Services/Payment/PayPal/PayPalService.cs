@@ -1,53 +1,39 @@
 ﻿using Microsoft.Extensions.Options;
 using Shoppe.Application.Abstractions.Services.Payment;
 using Shoppe.Application.Options.Payment;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shoppe.Infrastructure.Concretes.Services.Payment.PayPal
 {
     public class PayPalService : IPayPalService
     {
         private readonly PaypalClient _paypalClient;
-        private readonly PayPalOptions _paypalOptions;
 
         public PayPalService(IOptions<PaymentOptions> options, IHttpClientFactory httpClientFactory)
         {
-            _paypalOptions = options.Value.PayPal;
 
-            _paypalClient = new PaypalClient(_paypalOptions.ClientId, _paypalOptions.ClientSecret, _paypalOptions.Mode, httpClientFactory);
+            _paypalClient = new PaypalClient(options, httpClientFactory);
         }
 
-        public Task CancelPaymentAsync(string paymentReference, CancellationToken cancellationToken)
+        public async Task<(string paymentOrderId, string approvalUrl)> CreatePaymentAsync(double amount, string currency, string reference, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-        }
 
-        public async Task<string> CreatePaymentAsync(double amount, string currency, CancellationToken cancellationToken = default)
-        {
-            // Logic to create payment
-            var reference = Guid.NewGuid().ToString();  // Unique reference for the order
-
-            var createOrderResponse = await _paypalClient.CreateOrder(amount.ToString(), currency, reference);
+            var createOrderResponse = await _paypalClient.CreateOrderAsync(amount.ToString(), currency, reference, cancellationToken);
 
             if (createOrderResponse == null || createOrderResponse.Links == null)
             {
                 throw new Exception("Error creating PayPal payment.");
             }
 
-            var approvalUrl = createOrderResponse.Links.FirstOrDefault(link => link.Rel == "approve")?.Href;
+            var approvalUrl = createOrderResponse.Links.FirstOrDefault(link => link.Rel == "approve")?.Href ?? throw new Exception("Approval URL not found in PayPal response.");
 
-            return approvalUrl ?? throw new Exception("Approval URL not found in PayPal response.");
+            return (createOrderResponse.Id, approvalUrl);
         }
 
-        public async Task<bool> ExecutePaymentAsync(string paymentId, string payerId, CancellationToken cancellationToken = default)
+        public async Task<bool> CapturePaymentAsync(string paymentOrderId,  CancellationToken cancellationToken = default)
         {
             try
             {
-                var captureResponse = await _paypalClient.CaptureOrder(paymentId);
+                var captureResponse = await _paypalClient.CaptureOrderAsync(paymentOrderId, cancellationToken);
 
                 return captureResponse?.Status == "COMPLETED";
             }
@@ -55,6 +41,40 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment.PayPal
             {
                 return false;
             }
+        }
+
+        public async Task<bool> ConfirmPaymentAsync(string paymentOrderId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var orderDetails = await _paypalClient.GetOrderAsync(paymentOrderId, cancellationToken);
+
+                // Confirm if the order status is "APPROVED" before proceeding
+                if (orderDetails?.Status == "APPROVED")
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task CancelPaymentAsync(string paymentReference, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(paymentReference)) throw new ArgumentNullException(nameof(paymentReference));
+
+
+            var isPaymentCanceled = await _paypalClient.CancelOrderAsync(paymentReference, cancellationToken);
+
+            if (!isPaymentCanceled)
+            {
+                throw new InvalidOperationException($"Failed to cancel the payment with reference: {paymentReference}");
+            }
+
         }
     }
 }

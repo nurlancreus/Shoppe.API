@@ -8,10 +8,12 @@ namespace Shoppe.Application.Abstractions.Services.Payment
 {
     public interface IStripeService
     {
-        Task<string> CreatePaymentIntentAsync(long amount, string currency, CancellationToken cancellationToken = default);
+        Task<(string paymentIntentId, string clientSecret)> CreatePaymentIntentAsync(long amount, string currency, CancellationToken cancellationToken = default);
+
+        Task<bool> CapturePaymentAsync(string paymentIntentId, CancellationToken cancellationToken = default);
 
         Task<bool> ConfirmPaymentAsync(string paymentIntentId, CancellationToken cancellationToken = default);
 
-        Task CancelPaymentAsync(string transactionId, CancellationToken cancellationToken);
+        Task<bool> CancelPaymentAsync(string paymentIndentId, CancellationToken cancellationToken);
     }
 }

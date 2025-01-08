@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Bcpg;
 using Shoppe.Application.Abstractions.Repositories.OrderRepos;
 using Shoppe.Application.Abstractions.Services.Calculator;
@@ -10,12 +11,15 @@ using Shoppe.Domain.Entities;
 using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
 using Shoppe.Domain.Exceptions.Shoppe.Domain.Exceptions;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using PaymentMethod = Shoppe.Domain.Enums.PaymentMethod;
+using PaymentEntity = Shoppe.Domain.Entities.Payment;
 
 namespace Shoppe.Infrastructure.Concretes.Services.Payment
 {
@@ -25,15 +29,14 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
         private readonly IPayPalService _payPalService;
         private readonly IStripeService _stripeService;
         private readonly IUnitOfWork _unitOfWork;
-
-        // TODO: get transaction ids from gateways and add cancel methods for each gateway
-
-        public PaymentService(IOrderReadRepository orderReadRepository, IPayPalService payPalService, IStripeService stripeService, IUnitOfWork unitOfWork)
+        private readonly ILogger<PaymentTransaction> _logger;
+        public PaymentService(IOrderReadRepository orderReadRepository, IPayPalService payPalService, IStripeService stripeService, IUnitOfWork unitOfWork, ILogger<PaymentTransaction> logger)
         {
             _orderReadRepository = orderReadRepository;
             _payPalService = payPalService;
             _stripeService = stripeService;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<GetCheckoutResponseDTO> CreatePaymentAsync(Order order, string userId, PaymentMethod paymentMethod, double amount, CancellationToken cancellationToken = default)
@@ -42,11 +45,13 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
 
             if (order.Basket.UserId != userId) throw new UnauthorizedAccessException("You do not have permission to perform this action.");
 
+            var paymentReference = Guid.NewGuid().ToString();
+
             order.Payment ??= new()
             {
                 Method = paymentMethod,
                 PaymentStatus = PaymentStatus.Pending,
-                PaymentReference = string.Empty,
+                PaymentReference = paymentReference,
                 TransactionId = string.Empty,
             };
 
@@ -57,34 +62,16 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
 
             var gatewayResponse = paymentMethod switch
             {
-                PaymentMethod.PayPal => new GetCheckoutResponseDTO
-                {
-                    ApprovalUrl = await _payPalService.CreatePaymentAsync(amount, "USD", cancellationToken),
-                    PaymentMethod = nameof(PaymentMethod.PayPal),
-
-                },
-                PaymentMethod.DebitCard => new GetCheckoutResponseDTO
-                {
-                    ClientSecret = await _stripeService.CreatePaymentIntentAsync((long)(amount * 100), "USD", cancellationToken),
-                    PaymentMethod = nameof(PaymentMethod.DebitCard),
-                },
-                PaymentMethod.CashOnDelivery => new GetCheckoutResponseDTO
-                {
-                    Message = HandleCashOnDelivery(),
-                    PaymentMethod = nameof(PaymentMethod.CashOnDelivery),
-                },
-                _ => throw new PaymentFailedException("Invalid payment method")
+                PaymentMethod.PayPal => await ProcessPayPalPaymentAsync(order, amount, paymentReference, cancellationToken),
+                PaymentMethod.DebitCard => await ProcessStripePaymentAsync(order, amount, cancellationToken),
+                PaymentMethod.CashOnDelivery => ProcessCashOnDelivery(),
+                _ => throw new PaymentFailedException($"Invalid payment method: {paymentMethod}")
             };
-            // Save the payment reference and transaction info to the order
-            order.Payment.PaymentReference = gatewayResponse.ClientSecret ?? gatewayResponse.ApprovalUrl ?? Guid.NewGuid().ToString();  // Use the reference (like approval URL or paymentIntentId)
 
-            order.Payment.TransactionId = Guid.NewGuid().ToString(); // For this example, we're just using a GUID for the TransactionId
-
-            var paymentTransaction = new PaymentTransaction(_payPalService, _stripeService, order, _unitOfWork);
+            var paymentTransaction = new PaymentTransaction(_payPalService, _stripeService, order, _unitOfWork, _logger);
 
             // Enlist the payment transaction
             Transaction.Current?.EnlistVolatile(paymentTransaction, EnlistmentOptions.None);
-
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -93,8 +80,9 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
             return gatewayResponse;
         }
 
-        public async Task<bool> ConfirmPaymentAsync(Guid orderId, string paymentId, string payerId, CancellationToken cancellationToken = default)
+        public async Task<bool> CompletePaymentAsync(Guid orderId, CancellationToken cancellationToken = default)
         {
+            // Fetch the order and its payment details
             var order = await _orderReadRepository.Table
                                 .Include(o => o.Payment)
                                 .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
@@ -102,35 +90,93 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
             if (order == null || order.Payment == null)
                 throw new EntityNotFoundException(nameof(order));
 
-            bool paymentConfirmed = false;
+            bool paymentCaptured = await CapturePaymentAsync(order.Payment, cancellationToken);
 
-            paymentConfirmed = order.Payment.Method switch
-            {
-                PaymentMethod.PayPal => await _payPalService.ExecutePaymentAsync(paymentId, payerId, cancellationToken),
-                PaymentMethod.DebitCard => await _stripeService.ConfirmPaymentAsync(paymentId, cancellationToken),
-                PaymentMethod.CashOnDelivery => true,
-                _ => throw new PaymentFailedException("Invalid payment method"),
-            };
-
-            if (paymentConfirmed)
-            {
-                order.Payment.PaymentStatus = PaymentStatus.Completed;
-                order.Payment.TransactionId = paymentId;
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-                return true;
-            }
-            else
+            if (!paymentCaptured)
             {
                 order.Payment.PaymentStatus = PaymentStatus.Failed;
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 return false;
             }
+
+            // Now, confirm the payment after capture
+            bool paymentConfirmed = await ConfirmPaymentAsync(order.Payment, cancellationToken);
+
+            // Set the payment status based on the confirmation result
+            order.Payment.PaymentStatus = paymentConfirmed ? PaymentStatus.Completed : PaymentStatus.Failed;
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return paymentConfirmed;
         }
+
+        private async Task<bool> CapturePaymentAsync(PaymentEntity payment, CancellationToken cancellationToken = default)
+        {
+            bool paymentConfirmed = payment.Method switch
+            {
+                PaymentMethod.PayPal => await _payPalService.CapturePaymentAsync(payment.TransactionId, cancellationToken),
+                PaymentMethod.DebitCard => await _stripeService.CapturePaymentAsync(payment.TransactionId, cancellationToken),
+                PaymentMethod.CashOnDelivery => true,
+                _ => throw new PaymentFailedException("Invalid payment method"),
+            };
+            return paymentConfirmed;
+        }
+
+        private async Task<bool> ConfirmPaymentAsync(PaymentEntity payment, CancellationToken cancellationToken = default)
+        {
+            bool paymentConfirmed = payment.Method switch
+            {
+                PaymentMethod.PayPal => await _payPalService.ConfirmPaymentAsync(payment.TransactionId, cancellationToken),
+                PaymentMethod.DebitCard => await _stripeService.ConfirmPaymentAsync(payment.TransactionId, cancellationToken),
+                PaymentMethod.CashOnDelivery => true,
+                _ => throw new PaymentFailedException("Invalid payment method"),
+            };
+            payment.PaymentStatus = paymentConfirmed ? PaymentStatus.Completed : PaymentStatus.Failed;
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return paymentConfirmed;
+        }
+
 
         private static string HandleCashOnDelivery()
         {
             return "Cash on Delivery order has been successfully created. Awaiting payment on delivery.";
         }
 
+        private async Task<GetCheckoutResponseDTO> ProcessPayPalPaymentAsync(Order order, double amount, string paymentReference, CancellationToken cancellationToken)
+        {
+            var (paymentOrderId, approvalUrl) = await _payPalService.CreatePaymentAsync(amount, "USD", paymentReference, cancellationToken);
+
+            order.Payment!.TransactionId = paymentOrderId;
+
+            return new GetCheckoutResponseDTO
+            {
+                ApprovalUrl = approvalUrl,
+                PaymentMethod = nameof(PaymentMethod.PayPal)
+            };
+        }
+
+        private async Task<GetCheckoutResponseDTO> ProcessStripePaymentAsync(Order order, double amount, CancellationToken cancellationToken)
+        {
+            var (paymentIntentId, clientSecret) = await _stripeService.CreatePaymentIntentAsync((long)(amount * 100), "USD", cancellationToken);
+
+            order.Payment!.TransactionId = paymentIntentId;
+
+            return new GetCheckoutResponseDTO
+            {
+                ClientSecret = clientSecret,
+                PaymentMethod = nameof(PaymentMethod.DebitCard)
+            };
+        }
+
+        private static GetCheckoutResponseDTO ProcessCashOnDelivery()
+        {
+            return new GetCheckoutResponseDTO
+            {
+                Message = HandleCashOnDelivery(),
+                PaymentMethod = nameof(PaymentMethod.CashOnDelivery)
+            };
+        }
     }
 }
