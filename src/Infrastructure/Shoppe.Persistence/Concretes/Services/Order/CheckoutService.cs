@@ -30,8 +30,8 @@ namespace Shoppe.Persistence.Concretes.Services
     {
         private readonly IOrderReadRepository _orderReadRepository;
         private readonly IOrderWriteRepository _orderWriteRepository;
-        private readonly ICouponReadRepository _couponReadRepository;
         private readonly IPaymentCalculatorService _paymentCalculatorService;
+        private readonly ICouponService _couponService;
         private readonly IBasketReadRepository _basketReadRepository;
         private readonly IStockService _stockService;
         private readonly IAddressValidationService _addressValidationService;
@@ -39,12 +39,12 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtSession _jwtSession;
 
-        public CheckoutService(IOrderReadRepository orderReadRepository, IOrderWriteRepository orderWriteRepository, IBasketReadRepository basketReadRepository, ICouponReadRepository couponReadRepository, IPaymentCalculatorService paymentCalculatorService, IPaymentService paymentService, IUnitOfWork unitOfWork, IJwtSession jwtSession, IStockService stockService, IAddressValidationService addressValidationService)
+        public CheckoutService(IOrderReadRepository orderReadRepository, IOrderWriteRepository orderWriteRepository, IBasketReadRepository basketReadRepository, ICouponService couponService, IPaymentCalculatorService paymentCalculatorService, IPaymentService paymentService, IUnitOfWork unitOfWork, IJwtSession jwtSession, IStockService stockService, IAddressValidationService addressValidationService)
         {
             _orderReadRepository = orderReadRepository;
             _orderWriteRepository = orderWriteRepository;
             _basketReadRepository = basketReadRepository;
-            _couponReadRepository = couponReadRepository;
+            _couponService = couponService;
             _paymentCalculatorService = paymentCalculatorService;
             _unitOfWork = unitOfWork;
             _jwtSession = jwtSession;
@@ -58,6 +58,7 @@ namespace Shoppe.Persistence.Concretes.Services
             var userId = _jwtSession.GetUserId();
 
             var basket = await _basketReadRepository.Table
+                                .Include(b => b.Coupon)
                                 .Include(b => b.Items)
                                     .ThenInclude(bi => bi.Product)
                                         .ThenInclude(p => p.Discount)
@@ -66,26 +67,20 @@ namespace Shoppe.Persistence.Concretes.Services
                                         .ThenInclude(p => p.Categories)
                                             .ThenInclude(c => c.Discount)
                                 .Include(b => b.Order)
+                                    .ThenInclude(o => o!.Coupon)
                                 .Include(b => b.User)
                                     .ThenInclude(u => u.ShippingAddress)
                                 .Include(b => b.User)
                                     .ThenInclude(u => u.BillingAddress)
-                                .FirstOrDefaultAsync(b => b.Id == createCheckoutDTO.BasketId, cancellationToken);
+                                .FirstOrDefaultAsync(b => b.Id == createCheckoutDTO.BasketId && (b.Order == null || b.Order.OrderStatus != OrderStatus.Completed), cancellationToken);
 
             if (basket == null) throw new EntityNotFoundException(nameof(basket));
-            
 
             if (userId != basket.UserId)
                 throw new UnauthorizedAccessException("You do not have permission to perform this action.");
 
-            Coupon? coupon = null;
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
-            if (!string.IsNullOrEmpty(createCheckoutDTO.CouponCode))
-            {
-                coupon = await _couponReadRepository.Table.FirstOrDefaultAsync(c => c.Code == createCheckoutDTO.CouponCode, cancellationToken);
-            }
 
             foreach (var item in basket.Items)
             {
@@ -131,8 +126,12 @@ namespace Shoppe.Persistence.Concretes.Services
             basket.Order.ShippingAddress = basket.User.ShippingAddress;
             basket.Order.OrderCode = IOrderService.GenerateOrderCode();
             basket.Order.OrderStatus = OrderStatus.Pending;
-            basket.Order.Coupon = coupon;
             basket.Order.ContactNumber = createCheckoutDTO.Phone ?? basket.User.ShippingAddress.Phone;
+
+            if (!string.IsNullOrEmpty(createCheckoutDTO.CouponCode))
+            {
+                await _couponService.ApplyCouponToOrderAsync(basket.Order, createCheckoutDTO.CouponCode, cancellationToken);
+            }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

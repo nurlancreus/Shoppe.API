@@ -13,6 +13,7 @@ namespace Shoppe.Application.Abstractions.Services.Payment
     {
         Task<GetCheckoutResponseDTO> CreatePaymentAsync(Order order, string userId, PaymentMethod paymentMethod, double amount, CancellationToken cancellationToken = default);
 
-        Task<bool> CompletePaymentAsync(Guid orderId, CancellationToken cancellationToken = default);
+        Task CompletePaymentAsync(string? PaymentOrderId, CancellationToken cancellationToken = default);
+        Task<bool> CapturePaymentAsync(Guid orderId, CancellationToken cancellationToken = default);
     }
 }

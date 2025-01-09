@@ -1,22 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Bcpg;
 using Shoppe.Application.Abstractions.Repositories.OrderRepos;
-using Shoppe.Application.Abstractions.Services.Calculator;
 using Shoppe.Application.Abstractions.Services.Payment;
-using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Checkout;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
 using Shoppe.Domain.Exceptions.Shoppe.Domain.Exceptions;
-using Stripe;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 using PaymentMethod = Shoppe.Domain.Enums.PaymentMethod;
 using PaymentEntity = Shoppe.Domain.Entities.Payment;
@@ -80,46 +71,62 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
             return gatewayResponse;
         }
 
-        public async Task<bool> CompletePaymentAsync(Guid orderId, CancellationToken cancellationToken = default)
+        public async Task CompletePaymentAsync(string? paymentOrderId, CancellationToken cancellationToken = default)
         {
             // Fetch the order and its payment details
             var order = await _orderReadRepository.Table
                                 .Include(o => o.Payment)
-                                .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
+                                .FirstOrDefaultAsync(o => o.Payment!.TransactionId == paymentOrderId, cancellationToken);
 
             if (order == null || order.Payment == null)
                 throw new EntityNotFoundException(nameof(order));
 
-            bool paymentCaptured = await CapturePaymentAsync(order.Payment, cancellationToken);
+            bool isPaymentConfirmed = await ConfirmPaymentAsync(order.Payment, cancellationToken);
 
-            if (!paymentCaptured)
+            if (!isPaymentConfirmed)
             {
                 order.Payment.PaymentStatus = PaymentStatus.Failed;
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-                return false;
+
+                throw new PaymentFailedException("Payment confirmation failed");
             }
 
-            // Now, confirm the payment after capture
-            bool paymentConfirmed = await ConfirmPaymentAsync(order.Payment, cancellationToken);
-
-            // Set the payment status based on the confirmation result
-            order.Payment.PaymentStatus = paymentConfirmed ? PaymentStatus.Completed : PaymentStatus.Failed;
+            order.Payment.PaymentStatus = PaymentStatus.Completed;
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return paymentConfirmed;
         }
 
-        private async Task<bool> CapturePaymentAsync(PaymentEntity payment, CancellationToken cancellationToken = default)
+        public async Task<bool> CapturePaymentAsync(Guid orderId, CancellationToken cancellationToken = default)
         {
-            bool paymentConfirmed = payment.Method switch
+            var order = await _orderReadRepository.Table
+                               .Include(o => o.Payment)
+                               .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
+
+            if (order == null || order.Payment == null) throw new EntityNotFoundException("Order or its payment is not found");
+
+            bool paymentCaptured = order.Payment.Method switch
             {
-                PaymentMethod.PayPal => await _payPalService.CapturePaymentAsync(payment.TransactionId, cancellationToken),
-                PaymentMethod.DebitCard => await _stripeService.CapturePaymentAsync(payment.TransactionId, cancellationToken),
+                PaymentMethod.PayPal => await _payPalService.CapturePaymentAsync(order.Payment.TransactionId, cancellationToken),
+                PaymentMethod.DebitCard => await _stripeService.CapturePaymentAsync(order.Payment.TransactionId, cancellationToken),
                 PaymentMethod.CashOnDelivery => true,
                 _ => throw new PaymentFailedException("Invalid payment method"),
             };
-            return paymentConfirmed;
+
+            if (!paymentCaptured) throw new PaymentFailedException("Payment capture failed");
+
+            bool isPaymentConfirmed = await ConfirmPaymentAsync(order.Payment, cancellationToken);
+
+            if (!isPaymentConfirmed)
+            {
+                order.Payment.PaymentStatus = PaymentStatus.Failed;
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                throw new PaymentFailedException("Payment confirmation failed");
+            }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return paymentCaptured;
         }
 
         private async Task<bool> ConfirmPaymentAsync(PaymentEntity payment, CancellationToken cancellationToken = default)
@@ -131,9 +138,6 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
                 PaymentMethod.CashOnDelivery => true,
                 _ => throw new PaymentFailedException("Invalid payment method"),
             };
-            payment.PaymentStatus = paymentConfirmed ? PaymentStatus.Completed : PaymentStatus.Failed;
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return paymentConfirmed;
         }
