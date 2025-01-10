@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.Role.Create;
 using Shoppe.Domain.Entities.Identity;
 using System.Collections.Generic;

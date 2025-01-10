@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Shoppe.Application.Abstractions.Repositories.BlogRepos;
 using Shoppe.Application.Abstractions.Repositories.ProductRepos;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.Review.CreateReview;
 using Shoppe.Domain.Enums;
 using System;

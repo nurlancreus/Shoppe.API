@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Shoppe.Application.Features.Command.User.Update;
 using Shoppe.Application.Helpers;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Domain.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
 using Shoppe.Application.Abstractions.Services.Session;

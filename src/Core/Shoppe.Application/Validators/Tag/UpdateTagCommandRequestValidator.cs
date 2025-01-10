@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Shoppe.Application.Abstractions.Repositories.TagRepos;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.Tag.Update;
 using System.Threading;
 using System.Threading.Tasks;

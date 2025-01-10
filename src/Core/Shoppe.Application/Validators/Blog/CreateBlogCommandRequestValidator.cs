@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Shoppe.Application.Features.Command.Blog.Create;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Helpers;
 using Shoppe.Application.Abstractions.Repositories.TagRepos;
 

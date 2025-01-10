@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.DTOs.Product;
 using Shoppe.Application.Features.Command.Product.UpdateProduct;
 using Shoppe.Application.Helpers;

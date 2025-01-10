@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.Contact.UpdateContact;
 using Shoppe.Domain.Enums;
 using System;

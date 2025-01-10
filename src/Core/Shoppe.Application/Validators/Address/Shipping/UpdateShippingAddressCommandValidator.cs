@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Shoppe.Application.Abstractions.Services.Validation;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.Address.Shipping.Update;
 using System;
 using System.Collections.Generic;

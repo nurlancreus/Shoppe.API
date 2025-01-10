@@ -2,7 +2,7 @@
 using Shoppe.Application.Features.Command.Blog.Update;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Domain.Enums;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Abstractions.Repositories.TagRepos;
 using Shoppe.Application.Helpers;
 

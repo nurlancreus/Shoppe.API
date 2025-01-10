@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.Review.UpdateReview;
 using System;
 using System.Collections.Generic;

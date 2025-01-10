@@ -1,4 +1,4 @@
-﻿namespace Shoppe.Application.Constants
+﻿namespace Shoppe.Domain.Constants
 {
     public static class UserConst
     {

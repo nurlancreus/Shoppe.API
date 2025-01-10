@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Shoppe.Application.Abstractions.Repositories.BlogRepos;
-using Shoppe.Application.Abstractions.Repositories.ProductRepos; // Assuming you might need this for future types
+using Shoppe.Application.Abstractions.Repositories.ProductRepos; 
 using Shoppe.Application.Abstractions.Repositories.ReplyRepos;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.Reply.Create;
 using Shoppe.Domain.Enums;
 using System;

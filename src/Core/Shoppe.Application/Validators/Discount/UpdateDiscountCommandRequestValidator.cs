@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.Discount.UpdateDiscount;
 using System;
 

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Shoppe.Application.Abstractions.Repositories.ReplyRepos; // Assuming you have a Reply repository interface
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.Reply.Update;
 using System.Threading;
 using System.Threading.Tasks;

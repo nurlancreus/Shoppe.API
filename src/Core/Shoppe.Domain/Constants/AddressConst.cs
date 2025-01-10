@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Shoppe.Application.Constants
+﻿
+namespace Shoppe.Domain.Constants
 {
-    internal class AddressConst
+    public class AddressConst
     {
         public const int MaxFirstNameLength = 50;
         public const int MaxLastNameLength = 50;

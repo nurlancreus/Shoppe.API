@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Shoppe.Application.DTOs.Slide;
 using Shoppe.Application.Helpers;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Shoppe.Application.Features.Command.Slider.AddSlide;
 

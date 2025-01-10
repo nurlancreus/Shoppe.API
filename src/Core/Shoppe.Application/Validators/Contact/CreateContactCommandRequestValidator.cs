@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.Contact.CreateContact;
 using Shoppe.Domain.Enums;
 using System;

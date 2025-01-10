@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.User.ChangeProfilePicture;
 using Shoppe.Application.Helpers;
 using Shoppe.Domain.Entities.Identity;

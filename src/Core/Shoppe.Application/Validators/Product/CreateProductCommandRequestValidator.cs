@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Shoppe.Application.Abstractions.Repositories.CategoryRepos;
 using Shoppe.Application.Abstractions.Repositories.DiscountRepos;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Features.Command.Product.CreateProduct;
 using Shoppe.Application.Helpers;
 using Shoppe.Domain.Enums;
