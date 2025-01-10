@@ -12,6 +12,6 @@ namespace Shoppe.Domain.Enums
         Completed,     
         Failed,        
         Refunded,      
-        Canceled    
+        Cancelled    
     }
 }

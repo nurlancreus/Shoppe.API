@@ -11,5 +11,6 @@ namespace Shoppe.Application.Options.Payment
         public string ClientId { get; set; } = string.Empty;
         public string ClientSecret { get; set; } = string.Empty;
         public string Mode { get; set; } = string.Empty;
+        public string WebhookId { get; set; } = string.Empty;
     }
 }

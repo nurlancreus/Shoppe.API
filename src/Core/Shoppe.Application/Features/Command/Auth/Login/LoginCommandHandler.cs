@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Shoppe.Application.Abstractions.Services.Auth;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Application.Extensions.Mapping;
 using System;
 using System.Collections.Generic;

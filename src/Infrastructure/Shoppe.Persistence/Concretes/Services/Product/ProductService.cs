@@ -18,6 +18,7 @@ using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
 using System.Transactions;
+using Shoppe.Domain.Constants;
 
 namespace Shoppe.Persistence.Concretes.Services
 {

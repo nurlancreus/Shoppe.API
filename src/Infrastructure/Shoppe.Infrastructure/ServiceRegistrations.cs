@@ -30,6 +30,8 @@ using Shoppe.Infrastructure.Concretes.Services.Payment.PayPal;
 using Shoppe.Application.Abstractions.Services.Payment;
 using Shoppe.Infrastructure.Concretes.Services.Payment;
 using Shoppe.Infrastructure.Concretes.Services.Payment.Stripe;
+using Shoppe.Application.Abstractions.Services.Payment.PayPal;
+using Shoppe.Application.Abstractions.Services.Payment.Stripe;
 
 namespace Shoppe.Infrastructure
 {
@@ -45,12 +47,15 @@ namespace Shoppe.Infrastructure
             services.AddScoped<IJwtSession, JwtSession>();
             services.AddScoped<IContentUpdater, ContentUpdater>();
 
+            #region Email
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IEmailTemplateService, EmailTemplateService>();
             services.AddScoped<IAccountEmailTemplateService, EmailTemplateService>();
             services.AddScoped<IContactEmailTemplateService, EmailTemplateService>();
             services.AddScoped<IOrderEmailTemplateService, EmailTemplateService>();
+            #endregion;
 
+            #region Calculators
             services.AddScoped<ICalculatorService, CalculatorService>();
             services.AddScoped<IDiscountCalculatorService, CalculatorService>();
             services.AddScoped<ICouponCalculatorService, CalculatorService>();
@@ -58,6 +63,7 @@ namespace Shoppe.Infrastructure
             services.AddScoped<IShippingCalculatorService, CalculatorService>();
             services.AddScoped<IBasketCalculatorService, CalculatorService>();
             services.AddScoped<IPaymentCalculatorService, CalculatorService>();
+            #endregion
 
             services.AddScoped<IAddressValidationService, AddressValidationService>();
 
@@ -68,7 +74,11 @@ namespace Shoppe.Infrastructure
             services.AddScoped<IStripeService, StripeService>();
 
             services.AddScoped<IPaymentService, PaymentService>();
-            #endregion;
+
+            services.AddScoped<IStripeWebhookService, StripeWebhookService>();
+            services.AddScoped<IPayPalWebhookService, PayPalWebhookService>();
+            services.AddScoped<IPaymentEventService, PaymentEventService>();
+            #endregion
 
             #endregion
 

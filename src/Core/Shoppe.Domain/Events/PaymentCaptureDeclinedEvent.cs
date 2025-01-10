@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Domain.Events
 {
-    public record PaymentCaptureCompletedEvent(string? PaymentOrderId) : INotification;
+    public record PaymentCaptureDeclinedEvent(string? PaymentOrderId) : INotification;
 }

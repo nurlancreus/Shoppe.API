@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Shoppe.Application.Abstractions.Services.Payment;
+using Shoppe.Application.Abstractions.Services.Payment.PayPal;
+using Shoppe.Application.Abstractions.Services.Payment.Stripe;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Enums;
@@ -95,7 +96,8 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
                 }
 
                 // Update payment status
-                _order.Payment.PaymentStatus = PaymentStatus.Canceled;
+                _order.Payment.PaymentStatus = PaymentStatus.Cancelled;
+                _order.OrderStatus = OrderStatus.Cancelled;
                 _logger.LogInformation("Payment status set to 'Canceled' for order ID {OrderId}", _order.Id);
 
                 // Persist changes

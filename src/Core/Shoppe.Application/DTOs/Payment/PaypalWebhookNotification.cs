@@ -1,43 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Shoppe.Application.DTOs.Payment
 {
     public record PayPalWebhookNotification
     {
-        public string EventType { get; set; }  // EventType should be required
-        public PayPalPaymentResource Resource { get; set; }
-        public List<PayPalWebhookLink> Links { get; set; } // Representing the links array in the response
+        [JsonPropertyName("event_type")]
+        public string EventType { get; set; } = string.Empty;  // Required field
+
+        [JsonPropertyName("resource")]
+        public PayPalPaymentResource Resource { get; set; } = null!;
+
+        [JsonPropertyName("links")]
+        public List<PayPalWebhookLink> Links { get; set; } = []; // Represents the links array
     }
 
     public record PayPalPaymentResource
     {
-        public string Id { get; set; }  // This corresponds to the resource id (e.g., authorization id)
+        [JsonPropertyName("id")]
+        public string Id { get; set; } = string.Empty;  // Resource ID (e.g., authorization ID)
+
+        [JsonPropertyName("create_time")]
         public DateTime CreateTime { get; set; }
-        public DateTime? UpdateTime { get; set; } // Update time is nullable
-        public string State { get; set; }  // The state of the authorization (e.g., 'authorized')
-        public PayPalPaymentAmount Amount { get; set; }
-        public string ParentPayment { get; set; }  // The parent payment reference
+
+        [JsonPropertyName("update_time")]
+        public DateTime? UpdateTime { get; set; } // Nullable for optional updates
+
+        [JsonPropertyName("state")]
+        public string State { get; set; } = string.Empty;  // State of the authorization (e.g., 'authorized')
+
+        [JsonPropertyName("amount")]
+        public PayPalPaymentAmount Amount { get; set; } = null!;
+
+        [JsonPropertyName("parent_payment")]
+        public string ParentPayment { get; set; } = string.Empty; // Reference to the parent payment
+
+        [JsonPropertyName("valid_until")]
         public DateTime ValidUntil { get; set; }
-        public List<PayPalWebhookLink> Links { get; set; } // Links to related resources, e.g., capture, void
+
+        [JsonPropertyName("links")]
+        public List<PayPalWebhookLink> Links { get; set; } = []; // Links to related resources
     }
 
     public record PayPalPaymentAmount
     {
-        public string Total { get; set; }
-        public string Currency { get; set; }
-        public PayPalPaymentAmountDetails Details { get; set; }  // Includes details like subtotal
+        [JsonPropertyName("total")]
+        public string Total { get; set; } = string.Empty;
+
+        [JsonPropertyName("currency")]
+        public string Currency { get; set; } = string.Empty;
+
+        [JsonPropertyName("details")]
+        public PayPalPaymentAmountDetails Details { get; set; } = null!;  // Details like subtotal
     }
 
     public record PayPalPaymentAmountDetails
     {
-        public string Subtotal { get; set; }
+        [JsonPropertyName("subtotal")]
+        public string Subtotal { get; set; } = string.Empty;
     }
 
     public record PayPalWebhookLink
     {
-        public string Href { get; set; }  // URL to the related resource
-        public string Rel { get; set; }  // Relationship type (e.g., 'self', 'capture')
-        public string Method { get; set; }  // HTTP method (e.g., GET, POST)
+        [JsonPropertyName("href")]
+        public string Href { get; set; } = string.Empty;  // URL to the related resource
+
+        [JsonPropertyName("rel")]
+        public string Rel { get; set; } = string.Empty;  // Relationship type (e.g., 'self', 'capture')
+
+        [JsonPropertyName("method")]
+        public string Method { get; set; } = string.Empty;  // HTTP method (e.g., GET, POST)
     }
 }

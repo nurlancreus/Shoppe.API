@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using System.Drawing;
 using System.IO;
+using Shoppe.Domain.Constants;
 
 namespace Shoppe.Persistence.Concretes.Services
 {

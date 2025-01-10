@@ -1,4 +1,4 @@
-﻿using Shoppe.Application.Abstractions.Services.Payment;
+﻿using Shoppe.Application.Abstractions.Services.Payment.Stripe;
 using Stripe;
 
 
@@ -22,7 +22,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment.Stripe
             return (paymentIntent.Id, paymentIntent.ClientSecret);
         }
 
-        public async Task<bool> ConfirmPaymentAsync(string paymentIntentId, CancellationToken cancellationToken = default)
+        public async Task<bool> IsPaymentCapturedAsync(string paymentIntentId, CancellationToken cancellationToken = default)
         {
             try
             {

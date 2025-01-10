@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using Shoppe.Application.Abstractions.Services.Payment;
+using Shoppe.Application.Abstractions.Services.Payment.PayPal;
 using Shoppe.Application.Options.Payment;
 
 namespace Shoppe.Infrastructure.Concretes.Services.Payment.PayPal
@@ -43,14 +43,34 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment.PayPal
             }
         }
 
-        public async Task<bool> ConfirmPaymentAsync(string paymentOrderId, CancellationToken cancellationToken = default)
+        public async Task<bool> IsPaymentCapturedAsync(string paymentOrderId, CancellationToken cancellationToken = default)
         {
             try
             {
                 var orderDetails = await _paypalClient.GetOrderAsync(paymentOrderId, cancellationToken);
 
-                // Confirm if the order status is "APPROVED" before proceeding
-                if (orderDetails?.Status == "APPROVED")
+                // Confirm if the order status is "COMPLETED" before proceeding
+                if (orderDetails?.Status == "COMPLETED")
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> IsPaymentOrderVoidedAsync(string paymentOrderId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var orderDetails = await _paypalClient.GetOrderAsync(paymentOrderId, cancellationToken);
+
+                // Confirm if the order status is "VOIDED" before proceeding
+                if (orderDetails?.Status == "VOIDED")
                 {
                     return true;
                 }
@@ -74,7 +94,6 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment.PayPal
             {
                 throw new InvalidOperationException($"Failed to cancel the payment with reference: {paymentReference}");
             }
-
         }
     }
 }

@@ -6,7 +6,7 @@ using Shoppe.Application.Abstractions.Repositories.SocialMediaRepos;
 using Shoppe.Application.Abstractions.Services.Content;
 using Shoppe.Application.Abstractions.Services.Storage;
 using Shoppe.Application.Abstractions.UoW;
-using Shoppe.Application.Constants;
+using Shoppe.Domain.Constants;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Enums;

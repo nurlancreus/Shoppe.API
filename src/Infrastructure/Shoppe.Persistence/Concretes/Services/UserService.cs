@@ -17,6 +17,7 @@ using Shoppe.Application.DTOs.Role;
 using Shoppe.Application.DTOs.Token;
 using Shoppe.Application.DTOs.User;
 using Shoppe.Application.Extensions.Mapping;
+using Shoppe.Domain.Constants;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Exceptions;

@@ -10,6 +10,9 @@ namespace Shoppe.Domain.Enums
     {
         Pending,
         Completed,
-        Cancelled
+        Cancelled,
+        Refunded,
+        Failed,
+        Processing,
     }
 }

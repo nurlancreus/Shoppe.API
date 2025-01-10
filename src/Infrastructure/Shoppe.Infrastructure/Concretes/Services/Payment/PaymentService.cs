@@ -9,8 +9,8 @@ using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
 using Shoppe.Domain.Exceptions.Shoppe.Domain.Exceptions;
 using System.Transactions;
-using PaymentMethod = Shoppe.Domain.Enums.PaymentMethod;
-using PaymentEntity = Shoppe.Domain.Entities.Payment;
+using Shoppe.Application.Abstractions.Services.Payment.PayPal;
+using Shoppe.Application.Abstractions.Services.Payment.Stripe;
 
 namespace Shoppe.Infrastructure.Concretes.Services.Payment
 {
@@ -71,31 +71,6 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
             return gatewayResponse;
         }
 
-        public async Task CompletePaymentAsync(string? paymentOrderId, CancellationToken cancellationToken = default)
-        {
-            // Fetch the order and its payment details
-            var order = await _orderReadRepository.Table
-                                .Include(o => o.Payment)
-                                .FirstOrDefaultAsync(o => o.Payment!.TransactionId == paymentOrderId, cancellationToken);
-
-            if (order == null || order.Payment == null)
-                throw new EntityNotFoundException(nameof(order));
-
-            bool isPaymentConfirmed = await ConfirmPaymentAsync(order.Payment, cancellationToken);
-
-            if (!isPaymentConfirmed)
-            {
-                order.Payment.PaymentStatus = PaymentStatus.Failed;
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                throw new PaymentFailedException("Payment confirmation failed");
-            }
-
-            order.Payment.PaymentStatus = PaymentStatus.Completed;
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-
         public async Task<bool> CapturePaymentAsync(Guid orderId, CancellationToken cancellationToken = default)
         {
             var order = await _orderReadRepository.Table
@@ -104,7 +79,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
 
             if (order == null || order.Payment == null) throw new EntityNotFoundException("Order or its payment is not found");
 
-            bool paymentCaptured = order.Payment.Method switch
+            bool isPaymentCaptured = order.Payment.Method switch
             {
                 PaymentMethod.PayPal => await _payPalService.CapturePaymentAsync(order.Payment.TransactionId, cancellationToken),
                 PaymentMethod.DebitCard => await _stripeService.CapturePaymentAsync(order.Payment.TransactionId, cancellationToken),
@@ -112,36 +87,20 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
                 _ => throw new PaymentFailedException("Invalid payment method"),
             };
 
-            if (!paymentCaptured) throw new PaymentFailedException("Payment capture failed");
-
-            bool isPaymentConfirmed = await ConfirmPaymentAsync(order.Payment, cancellationToken);
-
-            if (!isPaymentConfirmed)
+            if (!isPaymentCaptured)
             {
                 order.Payment.PaymentStatus = PaymentStatus.Failed;
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                throw new PaymentFailedException("Payment confirmation failed");
+                throw new PaymentFailedException("Payment capture failed");
             }
+
+            order.Payment.PaymentStatus = PaymentStatus.Completed;
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return paymentCaptured;
+            return isPaymentCaptured;
         }
-
-        private async Task<bool> ConfirmPaymentAsync(PaymentEntity payment, CancellationToken cancellationToken = default)
-        {
-            bool paymentConfirmed = payment.Method switch
-            {
-                PaymentMethod.PayPal => await _payPalService.ConfirmPaymentAsync(payment.TransactionId, cancellationToken),
-                PaymentMethod.DebitCard => await _stripeService.ConfirmPaymentAsync(payment.TransactionId, cancellationToken),
-                PaymentMethod.CashOnDelivery => true,
-                _ => throw new PaymentFailedException("Invalid payment method"),
-            };
-
-            return paymentConfirmed;
-        }
-
 
         private static string HandleCashOnDelivery()
         {

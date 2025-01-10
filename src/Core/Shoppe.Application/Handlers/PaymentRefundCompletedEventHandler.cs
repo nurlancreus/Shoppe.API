@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Handlers
 {
-    public class PaymentCaptureCompletedEventHandler : INotificationHandler<PaymentCaptureCompletedEvent>
+    public class PaymentRefundCompletedEventHandler : INotificationHandler<PaymentRefundCompletedEvent>
     {
         private readonly IPaymentEventService _paymentEventService;
 
-        public PaymentCaptureCompletedEventHandler(IPaymentEventService paymentEventService)
+        public PaymentRefundCompletedEventHandler(IPaymentEventService paymentEventService)
         {
             _paymentEventService = paymentEventService;
         }
 
-        public async Task Handle(PaymentCaptureCompletedEvent notification, CancellationToken cancellationToken)
+        public async Task Handle(PaymentRefundCompletedEvent notification, CancellationToken cancellationToken)
         {
-            await _paymentEventService.PaymentCapturedAsync(notification.PaymentOrderId, cancellationToken);
+            await _paymentEventService.PaymentRefundedAsync(notification.PaymentOrderId, cancellationToken);
         }
     }
 }

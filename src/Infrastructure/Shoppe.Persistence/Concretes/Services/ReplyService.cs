@@ -11,6 +11,7 @@ using Shoppe.Application.Constants;
 using Shoppe.Application.DTOs.Files;
 using Shoppe.Application.DTOs.Reply;
 using Shoppe.Application.Extensions.Mapping;
+using Shoppe.Domain.Constants;
 using Shoppe.Domain.Entities.Replies;
 using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
