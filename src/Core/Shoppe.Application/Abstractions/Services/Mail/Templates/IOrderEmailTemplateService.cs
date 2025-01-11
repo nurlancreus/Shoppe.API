@@ -9,9 +9,12 @@ namespace Shoppe.Application.Abstractions.Services.Mail.Templates
 {
     public interface IOrderEmailTemplateService
     {
-        string GenerateOrderConfirmationTemplate(string recipientName, string orderNumber, Order order, decimal totalAmount);
-        string GenerateShippingConfirmationTemplate(string recipientName, string trackingNumber, DateTime shippingDate);
+        string GenerateOrderConfirmationTemplate(string recipientName, string orderNumber, Order order);
+        string GenerateOrderCanceledTemplate(string recipientName, string orderNumber, Order order);
+        string GenerateOrderFailedTemplate(string recipientName, string orderNumber, Order order);
+        string GenerateOrderRefundedTemplate(string recipientName, string orderNumber, Order order);
+        string GenerateOrderShippedTemplate(string recipientName, string trackingNumber, DateTime shippingDate);
         string GenerateOrderDeliveredTemplate(string recipientName, string orderNumber, DateTime deliveryDate);
-        string GenerateInvoiceTemplate(string recipientName, string invoiceNumber, Order order, decimal totalAmount, DateTime invoiceDate);
+        string GenerateInvoiceTemplate(string recipientName, string invoiceNumber, Order order, double totalAmount, DateTime invoiceDate);
     }
 }

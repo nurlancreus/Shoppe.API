@@ -5,6 +5,8 @@ using System.Net;
 using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Shoppe.Domain.Exceptions.Shoppe.Domain.Exceptions;
+using Shoppe.Domain.Exceptions;
 
 namespace Shoppe.API.Configurations
 {
@@ -24,7 +26,7 @@ namespace Shoppe.API.Configurations
                     {
                         var exception = contextFeature.Error;
                         var problemDetails = CreateProblemDetails(exception, context.Request.Path);
-                        
+
                         problemDetails.Status ??= (int)HttpStatusCode.InternalServerError;
 
                         try
@@ -140,7 +142,6 @@ namespace Shoppe.API.Configurations
 
             return problemDetails;
         }
-
 
         private static List<string> GetInnerExceptionMessages(Exception exception)
         {

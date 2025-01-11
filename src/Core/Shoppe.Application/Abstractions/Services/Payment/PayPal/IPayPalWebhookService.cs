@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace Shoppe.Application.Abstractions.Services.Payment.PayPal
 {
-    public interface IPayPalWebhookService
+    public interface IPayPalWebHookService
     {
-        Task<bool> VerifyWebhookAsync(string rawBody, IHeaderDictionary headers, CancellationToken cancellationToken = default);
+        Task ReceivePayloadAsync(string payload, IHeaderDictionary headers, CancellationToken cancellationToken = default);
     }
-
 }

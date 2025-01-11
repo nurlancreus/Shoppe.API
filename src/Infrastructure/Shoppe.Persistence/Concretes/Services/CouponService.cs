@@ -224,7 +224,7 @@ namespace Shoppe.Persistence.Concretes.Services
                                 .Include(b => b.Order)
                                 .Include(b => b.Coupon)
                                 .Include(b => b.User)
-                                .FirstOrDefaultAsync(b => b.UserId == userId && b.Coupon == null && (b.Order == null || b.Order.OrderStatus != OrderStatus.Completed), cancellationToken);
+                                .FirstOrDefaultAsync(b => b.UserId == userId && b.Coupon == null && (b.Order == null || b.Order.Status != OrderStatus.Completed), cancellationToken);
 
             if (basket == null) throw new EntityNotFoundException(nameof(basket));
 
@@ -237,7 +237,7 @@ namespace Shoppe.Persistence.Concretes.Services
                                 .Include(o => o.Coupon)
                                 .Include(o => o.Basket)
                                     .ThenInclude(b => b.User)
-                                .FirstOrDefaultAsync(o => o.Basket.UserId == userId && o.Coupon == null && o.OrderStatus != OrderStatus.Completed, cancellationToken);
+                                .FirstOrDefaultAsync(o => o.Basket.UserId == userId && o.Coupon == null && o.Status != OrderStatus.Completed, cancellationToken);
 
             if (order == null) throw new EntityNotFoundException(nameof(order));
 

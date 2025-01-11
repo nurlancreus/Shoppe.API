@@ -77,7 +77,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
                 switch (_order.Payment.Method)
                 {
                     case PaymentMethod.PayPal:
-                        _logger.LogInformation("Cancelling PayPal payment with reference {PaymentReference}", _order.Payment.PaymentReference);
+                        _logger.LogInformation("Cancelling PayPal payment with reference {PaymentReference}", _order.Payment.Reference);
                         await _payPalService.CancelPaymentAsync(_order.Payment.TransactionId, cancellationToken);
                         break;
 
@@ -96,8 +96,8 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
                 }
 
                 // Update payment status
-                _order.Payment.PaymentStatus = PaymentStatus.Cancelled;
-                _order.OrderStatus = OrderStatus.Cancelled;
+                _order.Payment.Status = PaymentStatus.Canceled;
+                _order.Status = OrderStatus.Canceled;
                 _logger.LogInformation("Payment status set to 'Canceled' for order ID {OrderId}", _order.Id);
 
                 // Persist changes

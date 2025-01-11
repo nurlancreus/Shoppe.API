@@ -8,9 +8,9 @@ namespace Shoppe.Application.Abstractions.Services.Payment
 {
     public interface IPaymentEventService
     {
-        Task PaymentCapturedAsync(string? paymentOrderId, CancellationToken cancellationToken = default);
-        Task PaymentCancelledAsync(string? paymentOrderId, CancellationToken cancellationToken = default);
-        Task PaymentDeclinedAsync(string? paymentOrderId, CancellationToken cancellationToken = default);
-        Task PaymentRefundedAsync(string? paymentOrderId, CancellationToken cancellationToken = default);
+        Task PaymentSucceededAsync(string? transactionId, CancellationToken cancellationToken = default);
+        Task PaymentCanceledAsync(string? transactionId, CancellationToken cancellationToken = default);
+        Task PaymentFailedAsync(string? transactionId, CancellationToken cancellationToken = default);
+        Task PaymentRefundedAsync(string? transactionId, CancellationToken cancellationToken = default);
     }
 }

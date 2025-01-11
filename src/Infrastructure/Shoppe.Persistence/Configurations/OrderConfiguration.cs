@@ -40,9 +40,8 @@ namespace Shoppe.Persistence.Configurations
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder
-                .Property(o => o.OrderStatus)
+                .Property(o => o.Status)
                 .HasConversion<string>();
-
         }
     }
 }

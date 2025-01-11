@@ -19,8 +19,8 @@ namespace Shoppe.Domain.Entities
         public string ContactNumber { get; set; } = string.Empty;
         public Guid? CouponId { get; set; }
         public Coupon? Coupon { get; set; }
-        public string OrderCode { get; set; } = string.Empty;
-
-        public OrderStatus OrderStatus { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public Shipment? Shipment { get; set; }
+        public OrderStatus Status { get; set; }
     }
 }

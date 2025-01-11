@@ -7,7 +7,6 @@ using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Contacts;
 using Shoppe.Domain.Entities.Files;
 using Shoppe.Domain.Entities.Identity;
-using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Reactions;
 using Shoppe.Domain.Entities.Replies;
 using Shoppe.Domain.Entities.Reviews;
@@ -60,6 +59,7 @@ namespace Shoppe.Persistence.Context
         public DbSet<BasketItem> BasketItems { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Shipment> Shipments { get; set; }
 
         public DbSet<Review> Reviews { get; set; }
         public DbSet<ProductReview> ProductReviews { get; set; }
@@ -70,7 +70,6 @@ namespace Shoppe.Persistence.Context
         public DbSet<Reaction> Reactions { get; set; }
         public DbSet<BlogReaction> BlogReactions { get; set; }
         public DbSet<ReplyReaction> ReplyReactions { get; set; }
-
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }

@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Shoppe.Application.DTOs.Payment
 {
-    public record PayPalWebhookNotification
+    public record PayPalWebHookNotification
     {
         [JsonPropertyName("event_type")]
         public string EventType { get; set; } = string.Empty;  // Required field
@@ -13,7 +13,7 @@ namespace Shoppe.Application.DTOs.Payment
         public PayPalPaymentResource Resource { get; set; } = null!;
 
         [JsonPropertyName("links")]
-        public List<PayPalWebhookLink> Links { get; set; } = []; // Represents the links array
+        public List<PayPalWebHookLink> Links { get; set; } = []; // Represents the links array
     }
 
     public record PayPalPaymentResource
@@ -40,7 +40,7 @@ namespace Shoppe.Application.DTOs.Payment
         public DateTime ValidUntil { get; set; }
 
         [JsonPropertyName("links")]
-        public List<PayPalWebhookLink> Links { get; set; } = []; // Links to related resources
+        public List<PayPalWebHookLink> Links { get; set; } = []; // Links to related resources
     }
 
     public record PayPalPaymentAmount
@@ -61,7 +61,7 @@ namespace Shoppe.Application.DTOs.Payment
         public string Subtotal { get; set; } = string.Empty;
     }
 
-    public record PayPalWebhookLink
+    public record PayPalWebHookLink
     {
         [JsonPropertyName("href")]
         public string Href { get; set; } = string.Empty;  // URL to the related resource

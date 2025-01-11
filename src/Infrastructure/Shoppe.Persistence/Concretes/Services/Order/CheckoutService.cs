@@ -12,6 +12,7 @@ using Shoppe.Application.Abstractions.Services.Validation;
 using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.DTOs.Address;
 using Shoppe.Application.DTOs.Checkout;
+using Shoppe.Application.DTOs.Shipment;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Enums;
@@ -31,6 +32,7 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IOrderReadRepository _orderReadRepository;
         private readonly IOrderWriteRepository _orderWriteRepository;
         private readonly IPaymentCalculatorService _paymentCalculatorService;
+        private readonly IOrderService _orderService;
         private readonly ICouponService _couponService;
         private readonly IBasketReadRepository _basketReadRepository;
         private readonly IStockService _stockService;
@@ -39,12 +41,13 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtSession _jwtSession;
 
-        public CheckoutService(IOrderReadRepository orderReadRepository, IOrderWriteRepository orderWriteRepository, IBasketReadRepository basketReadRepository, ICouponService couponService, IPaymentCalculatorService paymentCalculatorService, IPaymentService paymentService, IUnitOfWork unitOfWork, IJwtSession jwtSession, IStockService stockService, IAddressValidationService addressValidationService)
+        public CheckoutService(IOrderReadRepository orderReadRepository, IOrderWriteRepository orderWriteRepository, IBasketReadRepository basketReadRepository, ICouponService couponService, IPaymentCalculatorService paymentCalculatorService, IOrderService orderService, IPaymentService paymentService, IUnitOfWork unitOfWork, IJwtSession jwtSession, IStockService stockService, IAddressValidationService addressValidationService)
         {
             _orderReadRepository = orderReadRepository;
             _orderWriteRepository = orderWriteRepository;
             _basketReadRepository = basketReadRepository;
             _couponService = couponService;
+            _orderService = orderService;
             _paymentCalculatorService = paymentCalculatorService;
             _unitOfWork = unitOfWork;
             _jwtSession = jwtSession;
@@ -72,7 +75,7 @@ namespace Shoppe.Persistence.Concretes.Services
                                     .ThenInclude(u => u.ShippingAddress)
                                 .Include(b => b.User)
                                     .ThenInclude(u => u.BillingAddress)
-                                .FirstOrDefaultAsync(b => b.Id == createCheckoutDTO.BasketId && (b.Order == null || b.Order.OrderStatus != OrderStatus.Completed), cancellationToken);
+                                .FirstOrDefaultAsync(b => b.Id == createCheckoutDTO.BasketId && (b.Order == null || b.Order.Status != OrderStatus.Completed), cancellationToken);
 
             if (basket == null) throw new EntityNotFoundException(nameof(basket));
 
@@ -120,24 +123,43 @@ namespace Shoppe.Persistence.Concretes.Services
                 basket.User.BillingAddress.StreetAddress = billingAddress.StreetAddress;
             }
 
-            basket.Order ??= new();
+            bool isOrderExist = false;
+
+            if (basket.Order == null) basket.Order = new();
+            else isOrderExist = true;
 
             basket.Order.BillingAddress = basket.User.BillingAddress;
             basket.Order.ShippingAddress = basket.User.ShippingAddress;
-            basket.Order.OrderCode = IOrderService.GenerateOrderCode();
-            basket.Order.OrderStatus = OrderStatus.Pending;
             basket.Order.ContactNumber = createCheckoutDTO.Phone ?? basket.User.ShippingAddress.Phone;
+
+            if(createCheckoutDTO.Shipment is CreateShipmentDTO shipmentDTO)
+            {
+                basket.Order.Shipment ??= new()
+                {
+                    Provider = Enum.Parse<ShippingProvider>(shipmentDTO.Provider),
+                    Method = Enum.Parse<DeliveryMethod>(shipmentDTO.Method),
+                    // Cost = calculate shipment cost
+                    // TrackingNumber = generate tracking number
+                    // EstimatedDeliveryDate = // find a way to calculate estimated delivery date
+                    Status = ShippingStatus.Pending,
+                    IsShipped = false,
+                };
+            };
 
             if (!string.IsNullOrEmpty(createCheckoutDTO.CouponCode))
             {
                 await _couponService.ApplyCouponToOrderAsync(basket.Order, createCheckoutDTO.CouponCode, cancellationToken);
             }
 
+            if (!isOrderExist) await _orderService.OrderCreatedAsync(basket.Order, cancellationToken);
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             scope.Complete();
 
-            return await _paymentService.CreatePaymentAsync(basket.Order, userId, createCheckoutDTO.PaymentMethod, _paymentCalculatorService.CalculatePaymentPrice(basket.Order), cancellationToken);
+            var totalPaymentAmount = _paymentCalculatorService.CalculatePaymentPrice(basket.Order);
+
+            return await _paymentService.CreatePaymentAsync(basket.Order, userId, createCheckoutDTO.PaymentMethod, totalPaymentAmount, cancellationToken);
         }
     }
 }

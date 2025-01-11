@@ -1,4 +1,5 @@
-﻿using Shoppe.Application.Abstractions.Services.Mail.Templates;
+﻿using Shoppe.Application.Abstractions.Services.Calculator;
+using Shoppe.Application.Abstractions.Services.Mail.Templates;
 using Shoppe.Application.Helpers;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Enums;
@@ -7,6 +8,13 @@ namespace Shoppe.Application.Abstractions.Services.Mail
 {
     public class EmailTemplateService : IEmailTemplateService
     {
+        private readonly ICalculatorService _calculatorService;
+
+        public EmailTemplateService(ICalculatorService calculatorService)
+        {
+            _calculatorService = calculatorService;
+        }
+
         public string GenerateContactResponseTemplate(string recipientName, ContactSubject subject, string message)
         {
             return $@"
@@ -52,38 +60,119 @@ namespace Shoppe.Application.Abstractions.Services.Mail
                 </html>";
         }
 
-        public string GenerateOrderConfirmationTemplate(string recipientName, string orderNumber, Order order, decimal totalAmount)
+        public string GenerateOrderConfirmationTemplate(string recipientName, string orderNumber, Order order)
         {
-            var orderDetails = string.Join("", order.Basket.Items.Select(item => $@"
-                <tr>
-                    <td>{item.Product.Name}</td>
-                    <td>{item.Quantity}</td>
-                    <td>${item.Product.Price}</td>
-                </tr>
-            "));
+            var orderDetails = string.Join("", order.Basket.Items.Select(item =>
+            {
+                var (discountedPrice, discountPercentage) = _calculatorService.CalculateDiscountedPrice(item.Product);
+                var discountedPriceText = discountedPrice.HasValue ? $"${discountedPrice.Value}" : $"${item.Product.Price}";
+                var discountPercentageText = discountPercentage.HasValue ? $"{discountPercentage.Value}%" : "No discount";
+
+                return $@"
+            <tr>
+                <td>{item.Product.Name}</td>
+                <td>{item.Quantity}</td>
+                <td>${item.Product.Price}</td>
+                <td>{discountedPriceText}</td>
+                <td>{discountPercentageText}</td>
+            </tr>
+        ";
+            }));
+
+            var shippingCost = order.Shipment!.Cost;
+            var basketTotal = _calculatorService.CalculateTotalDiscountedBasketItemsPrice(order.Basket);
+            var basketFinalAmount = _calculatorService.CalculateCouponAppliedPrice(order.Basket);
+            var orderFinalAmount = _calculatorService.CalculateCouponAppliedPrice(order);
+
+            var basketCouponDiscount = order.Basket.Coupon != null && order.Basket.Coupon.IsActive
+                ? $"{order.Basket.Coupon.DiscountPercentage}%"
+                : "No basket coupon";
+
+            var orderCouponDiscount = order.Coupon != null && order.Coupon.IsActive
+                ? $"{order.Coupon.DiscountPercentage}%"
+                : "No order coupon";
+
+            var basketCouponPrice = order.Basket.Coupon != null && order.Basket.Coupon.IsActive
+                ? $"${basketFinalAmount}"
+                : $"${basketTotal}";
+
+            var finalAmount = order.Coupon != null && order.Coupon.IsActive ? $"${orderFinalAmount}" : basketCouponPrice;
 
             return $@"
-                <html>
-                    <body>
-                        <p>Dear {recipientName},</p>
-                        <p>Thank you for your order! Your order number is <strong>{orderNumber}</strong>. Below are the details of your order:</p>
-                        <table border='1'>
-                            <tr>
-                                <th>Product</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                            </tr>
-                            {orderDetails}
-                        </table>
-                        <p><strong>Total: ${totalAmount}</strong></p>
-                        <br>
-                        <p>Best regards,</p>
-                        <p>Shoppe Team</p>
-                    </body>
-                </html>";
+        <html>
+            <body>
+                <p>Dear {recipientName},</p>
+                <p>Thank you for your order! Your order number is <strong>{orderNumber}</strong>. Below are the details of your order:</p>
+                <table border='1'>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Discounted Price</th>
+                        <th>Discount Percentage</th>
+                    </tr>
+                    {orderDetails}
+                </table>
+                <p><strong>Total Before Basket Coupon: ${basketTotal}</strong></p>
+                <p><strong>Basket Coupon Applied: {basketCouponDiscount}</strong></p>
+                <p><strong>Total After Basket Coupon: {basketCouponPrice}</strong></p>
+                <p><strong>Order Coupon Applied: {orderCouponDiscount}</strong></p>
+                <p><strong>Total After Order Coupon: {finalAmount}</strong></p>
+                <p><strong>Shipping Cost: ${shippingCost}</strong></p>
+                <p><strong>Total: ${orderFinalAmount}</strong></p>
+                <br>
+                <p>Best regards,</p>
+                <p>Shoppe Team</p>
+            </body>
+        </html>";
         }
 
-        public string GenerateShippingConfirmationTemplate(string recipientName, string trackingNumber, DateTime shippingDate)
+        public string GenerateOrderCanceledTemplate(string recipientName, string orderNumber, Order order)
+        {
+            return $@"
+        <html>
+            <body>
+                <p>Dear {recipientName},</p>
+                <p>We regret to inform you that your order with order number <strong>{orderNumber}</strong> has been canceled.</p>
+                <p>If you believe this is an error, please contact our customer support team for further assistance.</p>
+                <br>
+                <p>Best regards,</p>
+                <p>Shoppe Team</p>
+            </body>
+        </html>";
+        }
+
+        public string GenerateOrderFailedTemplate(string recipientName, string orderNumber, Order order)
+        {
+            return $@"
+        <html>
+            <body>
+                <p>Dear {recipientName},</p>
+                <p>We are sorry to inform you that your order with order number <strong>{orderNumber}</strong> has failed.</p>
+                <p>This could be due to payment processing issues or other factors. Please try again later, or contact our support team if you need assistance.</p>
+                <br>
+                <p>Best regards,</p>
+                <p>Shoppe Team</p>
+            </body>
+        </html>";
+        }
+
+        public string GenerateOrderRefundedTemplate(string recipientName, string orderNumber, Order order)
+        {
+            return $@"
+        <html>
+            <body>
+                <p>Dear {recipientName},</p>
+                <p>We would like to inform you that your order with order number <strong>{orderNumber}</strong> has been refunded.</p>
+                <p>The refund will be processed to your original payment method. Please allow a few business days for the refund to appear in your account.</p>
+                <br>
+                <p>Best regards,</p>
+                <p>Shoppe Team</p>
+            </body>
+        </html>";
+        }
+
+        public string GenerateOrderShippedTemplate(string recipientName, string trackingNumber, DateTime shippingDate)
         {
             return $@"
                 <html>
@@ -91,7 +180,7 @@ namespace Shoppe.Application.Abstractions.Services.Mail
                         <p>Dear {recipientName},</p>
                         <p>Your order has been shipped! You can track your shipment using the following tracking number:</p>
                         <p><strong>{trackingNumber}</strong></p>
-                        <p>Shipping Date: {shippingDate.ToString("MMMM dd, yyyy")}</p>
+                        <p>Shipping Date: {shippingDate:MMMM dd, yyyy}</p>
                         <br>
                         <p>Best regards,</p>
                         <p>Shoppe Team</p>
@@ -105,7 +194,7 @@ namespace Shoppe.Application.Abstractions.Services.Mail
                 <html>
                     <body>
                         <p>Dear {recipientName},</p>
-                        <p>We are pleased to inform you that your order <strong>{orderNumber}</strong> has been delivered successfully on <strong>{deliveryDate.ToString("MMMM dd, yyyy")}</strong>.</p>
+                        <p>We are pleased to inform you that your order <strong>{orderNumber}</strong> has been delivered successfully on <strong>{deliveryDate:MMMM dd, yyyy}</strong>.</p>
                         <br>
                         <p>Best regards,</p>
                         <p>Shoppe Team</p>
@@ -127,7 +216,7 @@ namespace Shoppe.Application.Abstractions.Services.Mail
                 </html>";
         }
 
-        public string GenerateInvoiceTemplate(string recipientName, string invoiceNumber, Order order, decimal totalAmount, DateTime invoiceDate)
+        public string GenerateInvoiceTemplate(string recipientName, string invoiceNumber, Order order, double totalAmount, DateTime invoiceDate)
         {
             var orderDetails = string.Join("", order.Basket.Items.Select(item => $@"
                 <tr>

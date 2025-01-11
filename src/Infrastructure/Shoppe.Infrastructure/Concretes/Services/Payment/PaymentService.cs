@@ -41,15 +41,15 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
             order.Payment ??= new()
             {
                 Method = paymentMethod,
-                PaymentStatus = PaymentStatus.Pending,
-                PaymentReference = paymentReference,
+                Status = PaymentStatus.Pending,
+                Reference = paymentReference,
                 TransactionId = string.Empty,
             };
 
             order.Payment.Amount = amount;
 
             // Save the initial state of payment
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+           // await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var gatewayResponse = paymentMethod switch
             {
@@ -89,13 +89,13 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
 
             if (!isPaymentCaptured)
             {
-                order.Payment.PaymentStatus = PaymentStatus.Failed;
+                order.Payment.Status = PaymentStatus.Failed;
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 throw new PaymentFailedException("Payment capture failed");
             }
 
-            order.Payment.PaymentStatus = PaymentStatus.Completed;
+            order.Payment.Status = PaymentStatus.Completed;
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -86,7 +86,7 @@ namespace Shoppe.Persistence.Concretes.Services
                 ?? throw new EntityNotFoundException("User not found.");
 
             var targetBasket = user.Baskets
-                .SingleOrDefault(basket => basket.Order == null || basket.Order.OrderStatus != OrderStatus.Completed);
+                .SingleOrDefault(basket => basket.Order == null || basket.Order.Status != OrderStatus.Completed);
 
             if (targetBasket == null)
             {

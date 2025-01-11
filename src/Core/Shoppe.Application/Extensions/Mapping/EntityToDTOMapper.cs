@@ -94,8 +94,8 @@ namespace Shoppe.Application.Extensions.Mapping
             return new GetOrderDTO
             {
                 Id = order.Id,
-                OrderStatus = order.OrderStatus.ToString(),
-                OrderCode = order.OrderCode,
+                OrderStatus = order.Status.ToString(),
+                OrderCode = order.Code,
                 ShippingCost = calculatorService.CalculateShippingCost(0), // modify distance
                 Total = calculatorService.CalculateCouponAppliedPrice(order),
                 SubTotal = calculatorService.CalculateTotalBasketItemsPrice(order.Basket),

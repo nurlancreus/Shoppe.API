@@ -162,7 +162,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Mail
             }
         }
 
-        private string ReplaceTemplatePlaceholders(string template, object templateData)
+        private static string ReplaceTemplatePlaceholders(string template, object templateData)
         {
             var jsonData = JsonSerializer.Serialize(templateData);
             var dataDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonData);
