@@ -13,6 +13,7 @@ using Shoppe.Domain.Enums;
 using FluentValidation.AspNetCore;
 using FluentValidation;
 using Shoppe.Application.Validators.Product;
+using Shoppe.SignalR;
 
 namespace Shoppe.API
 {
@@ -29,7 +30,8 @@ namespace Shoppe.API
             builder.Services
                 .RegisterApplicationServices()
                 .RegisterPersistenceServices(builder.Configuration)
-                .RegisterInfrastructureServices();
+                .RegisterInfrastructureServices()
+                .RegisterSignalRServices();
 
             builder.Services.AddStorage(StorageType.AWS, builder.Configuration);
 
@@ -91,6 +93,9 @@ namespace Shoppe.API
             app.UseMyLoggingMiddleware();
 
             app.MapControllers();
+
+            // Map SignalR Hubs
+            app.MapHubs();
 
             app.Run();
         }

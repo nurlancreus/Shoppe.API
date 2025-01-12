@@ -24,7 +24,7 @@ namespace Shoppe.Persistence.Concretes.Services
             return quantity <= product.Stock;
         }
 
-        public void DeduckStock(Product product, int quantity)
+        public void DeductStock(Product product, int quantity)
         {
             if (IsStockAvailable(product, quantity))
             {
@@ -52,7 +52,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task DeduckStockAsync(Guid productId, int quantity, CancellationToken cancellationToken = default)
         {
-            var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken, false);
+            var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken);
 
             if (product == null)
             {
@@ -68,7 +68,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         public async Task AddStockAsync(Guid productId, int quantity, CancellationToken cancellationToken = default)
         {
-            var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken, false);
+            var product = await _productReadRepository.GetByIdAsync(productId, cancellationToken);
 
             if (product == null)
             {

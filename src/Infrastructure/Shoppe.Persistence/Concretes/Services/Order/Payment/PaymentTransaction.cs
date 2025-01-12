@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 
-namespace Shoppe.Infrastructure.Concretes.Services.Payment
+namespace Shoppe.Persistence.Concretes.Services.Payment
 {
     public class PaymentTransaction : IEnlistmentNotification
     {

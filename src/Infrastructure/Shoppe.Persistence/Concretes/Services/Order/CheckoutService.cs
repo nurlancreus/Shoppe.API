@@ -1,9 +1,9 @@
 ﻿using Application.Interfaces.Services;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.X509;
 using Shoppe.Application.Abstractions.Repositories.BasketRepos;
-using Shoppe.Application.Abstractions.Repositories.CouponRepos;
-using Shoppe.Application.Abstractions.Repositories.OrderRepos;
 using Shoppe.Application.Abstractions.Services;
 using Shoppe.Application.Abstractions.Services.Calculator;
 using Shoppe.Application.Abstractions.Services.Payment;
@@ -29,8 +29,6 @@ namespace Shoppe.Persistence.Concretes.Services
 {
     public class CheckoutService : ICheckoutService
     {
-        private readonly IOrderReadRepository _orderReadRepository;
-        private readonly IOrderWriteRepository _orderWriteRepository;
         private readonly IPaymentCalculatorService _paymentCalculatorService;
         private readonly IOrderService _orderService;
         private readonly ICouponService _couponService;
@@ -41,10 +39,8 @@ namespace Shoppe.Persistence.Concretes.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtSession _jwtSession;
 
-        public CheckoutService(IOrderReadRepository orderReadRepository, IOrderWriteRepository orderWriteRepository, IBasketReadRepository basketReadRepository, ICouponService couponService, IPaymentCalculatorService paymentCalculatorService, IOrderService orderService, IPaymentService paymentService, IUnitOfWork unitOfWork, IJwtSession jwtSession, IStockService stockService, IAddressValidationService addressValidationService)
+        public CheckoutService(IBasketReadRepository basketReadRepository, ICouponService couponService, IPaymentCalculatorService paymentCalculatorService, IOrderService orderService, IPaymentService paymentService, IUnitOfWork unitOfWork, IJwtSession jwtSession, IStockService stockService, IAddressValidationService addressValidationService)
         {
-            _orderReadRepository = orderReadRepository;
-            _orderWriteRepository = orderWriteRepository;
             _basketReadRepository = basketReadRepository;
             _couponService = couponService;
             _orderService = orderService;
@@ -61,105 +57,123 @@ namespace Shoppe.Persistence.Concretes.Services
             var userId = _jwtSession.GetUserId();
 
             var basket = await _basketReadRepository.Table
-                                .Include(b => b.Coupon)
-                                .Include(b => b.Items)
-                                    .ThenInclude(bi => bi.Product)
-                                        .ThenInclude(p => p.Discount)
-                                .Include(b => b.Items)
-                                    .ThenInclude(bi => bi.Product)
-                                        .ThenInclude(p => p.Categories)
-                                            .ThenInclude(c => c.Discount)
-                                .Include(b => b.Order)
-                                    .ThenInclude(o => o!.Coupon)
-                                .Include(b => b.User)
-                                    .ThenInclude(u => u.ShippingAddress)
-                                .Include(b => b.User)
-                                    .ThenInclude(u => u.BillingAddress)
-                                .FirstOrDefaultAsync(b => b.Id == createCheckoutDTO.BasketId && (b.Order == null || b.Order.Status != OrderStatus.Completed), cancellationToken);
+                .Include(b => b.User)
+                    .ThenInclude(u => u.BillingAddress)
+                .Include(b => b.User)
+                    .ThenInclude(u => u.ShippingAddress)
+                .Include(b => b.Items)
+                    .ThenInclude(bi => bi.Product)
+                        .ThenInclude(p => p.Discount)
+                .Include(b => b.Items)
+                    .ThenInclude(bi => bi.Product)
+                        .ThenInclude(p => p.Categories)
+                            .ThenInclude(c => c.Discount)
+                .Include(b => b.Order)
+                    .ThenInclude(o => o!.Shipment)
+                .Include(b => b.Order)
+                    .ThenInclude(o => o!.Coupon)
+                .Include(b => b.Order)
+                    .ThenInclude(o => o!.Payment)
+                .FirstOrDefaultAsync(b => b.Id == createCheckoutDTO.BasketId && (b.Order == null || b.Order.Status != OrderStatus.Completed), cancellationToken);
 
             if (basket == null) throw new EntityNotFoundException(nameof(basket));
+            if (userId != basket.UserId) throw new UnauthorizedAccessException("You do not have permission to perform this action.");
 
-            if (userId != basket.UserId)
-                throw new UnauthorizedAccessException("You do not have permission to perform this action.");
+            if (basket.User.ShippingAddress == null && createCheckoutDTO.ShippingAddress == null)
+                throw new ValidationException("Shipping address is required");
 
+            if (basket.User.BillingAddress == null && createCheckoutDTO.BillingAddress == null)
+                throw new ValidationException("Billing address is required");
+
+            if (basket.Order?.Shipment == null && createCheckoutDTO.Shipment == null)
+                throw new ValidationException("Shipment details is required");
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             foreach (var item in basket.Items)
             {
-                _stockService.DeduckStock(item.Product, item.Quantity);
+                _stockService.DeductStock(item.Product, item.Quantity);
             }
 
-            if (createCheckoutDTO.ShippingAddress is CreateShippingAddressDTO shippingAddress)
-            {
-                _addressValidationService.ValidateShippingAddress(createCheckoutDTO.ShippingAddress);
+            UpdateAddress(basket.User, createCheckoutDTO);
 
-                basket.User.ShippingAddress ??= new();
-
-                basket.User.ShippingAddress.FirstName = shippingAddress.FirstName;
-                basket.User.ShippingAddress.LastName = shippingAddress.LastName;
-                basket.User.ShippingAddress.City = shippingAddress.City;
-                basket.User.ShippingAddress.Country = shippingAddress.Country;
-                basket.User.ShippingAddress.Email = shippingAddress.Email;
-                basket.User.ShippingAddress.Phone = shippingAddress.Phone;
-                basket.User.ShippingAddress.PostalCode = shippingAddress.PostalCode;
-                basket.User.ShippingAddress.StreetAddress = shippingAddress.StreetAddress;
-            }
-
-            if (createCheckoutDTO.BillingAddress is CreateBillingAddressDTO billingAddress)
-            {
-
-                await _addressValidationService.ValidateBillingAddressAsync(createCheckoutDTO.BillingAddress, cancellationToken);
-
-                basket.User.BillingAddress ??= new();
-
-                basket.User.BillingAddress.FirstName = billingAddress.FirstName;
-                basket.User.BillingAddress.LastName = billingAddress.LastName;
-                basket.User.BillingAddress.City = billingAddress.City;
-                basket.User.BillingAddress.Country = billingAddress.Country;
-                basket.User.BillingAddress.Email = billingAddress.Email;
-                basket.User.BillingAddress.Phone = billingAddress.Phone;
-                basket.User.BillingAddress.PostalCode = billingAddress.PostalCode;
-                basket.User.BillingAddress.StreetAddress = billingAddress.StreetAddress;
-            }
-
-            bool isOrderExist = false;
-
-            if (basket.Order == null) basket.Order = new();
-            else isOrderExist = true;
-
-            basket.Order.BillingAddress = basket.User.BillingAddress;
-            basket.Order.ShippingAddress = basket.User.ShippingAddress;
-            basket.Order.ContactNumber = createCheckoutDTO.Phone ?? basket.User.ShippingAddress.Phone;
-
-            if(createCheckoutDTO.Shipment is CreateShipmentDTO shipmentDTO)
-            {
-                basket.Order.Shipment ??= new()
-                {
-                    Provider = Enum.Parse<ShippingProvider>(shipmentDTO.Provider),
-                    Method = Enum.Parse<DeliveryMethod>(shipmentDTO.Method),
-                    // Cost = calculate shipment cost
-                    // TrackingNumber = generate tracking number
-                    // EstimatedDeliveryDate = // find a way to calculate estimated delivery date
-                    Status = ShippingStatus.Pending,
-                    IsShipped = false,
-                };
-            };
+            InitializeOrder(basket, createCheckoutDTO);
 
             if (!string.IsNullOrEmpty(createCheckoutDTO.CouponCode))
             {
-                await _couponService.ApplyCouponToOrderAsync(basket.Order, createCheckoutDTO.CouponCode, cancellationToken);
+                await _couponService.ApplyCouponToOrderAsync(basket.Order!, createCheckoutDTO.CouponCode, cancellationToken);
             }
 
-            if (!isOrderExist) await _orderService.OrderCreatedAsync(basket.Order, cancellationToken);
-
+            await _orderService.OrderCreatedAsync(basket.Order!, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             scope.Complete();
 
-            var totalPaymentAmount = _paymentCalculatorService.CalculatePaymentPrice(basket.Order);
+            var totalPaymentAmount = _paymentCalculatorService.CalculatePaymentPrice(basket.Order!);
+            var paymentResult = await _paymentService.CreatePaymentAsync(basket.Order!, userId, createCheckoutDTO.PaymentMethod, totalPaymentAmount, cancellationToken);
 
-            return await _paymentService.CreatePaymentAsync(basket.Order, userId, createCheckoutDTO.PaymentMethod, totalPaymentAmount, cancellationToken);
+            return paymentResult;
+        }
+
+        private async void UpdateAddress(ApplicationUser user, CreateCheckoutDTO dto)
+        {
+            if (dto.ShippingAddress is CreateShippingAddressDTO shippingAddress)
+            {
+                _addressValidationService.ValidateShippingAddress(shippingAddress);
+
+                user.ShippingAddress ??= new();
+                user.ShippingAddress.FirstName = shippingAddress.FirstName;
+                user.ShippingAddress.LastName = shippingAddress.LastName;
+                user.ShippingAddress.City = shippingAddress.City;
+                user.ShippingAddress.Country = shippingAddress.Country;
+                user.ShippingAddress.Email = shippingAddress.Email;
+                user.ShippingAddress.Phone = shippingAddress.Phone;
+                user.ShippingAddress.PostalCode = shippingAddress.PostalCode;
+                user.ShippingAddress.StreetAddress = shippingAddress.StreetAddress;
+
+            }
+
+            if (dto.BillingAddress is CreateBillingAddressDTO billingAddressDTO)
+            {
+                await _addressValidationService.ValidateBillingAddressAsync(billingAddressDTO);
+
+                user.BillingAddress ??= new();
+                user.BillingAddress.FirstName = billingAddressDTO.FirstName;
+                user.BillingAddress.LastName = billingAddressDTO.LastName;
+                user.BillingAddress.City = billingAddressDTO.City;
+                user.BillingAddress.Country = billingAddressDTO.Country;
+                user.BillingAddress.Email = billingAddressDTO.Email;
+                user.BillingAddress.Phone = billingAddressDTO.Phone;
+                user.BillingAddress.PostalCode = billingAddressDTO.PostalCode;
+                user.BillingAddress.StreetAddress = billingAddressDTO.StreetAddress;
+
+            }
+        }
+
+        private static void InitializeOrder(Basket basket, CreateCheckoutDTO dto)
+        {
+            basket.Order ??= new()
+            {
+                Code = IOrderService.GenerateOrderCode()
+            };
+
+            basket.Order.Status = OrderStatus.Pending;
+            basket.Order.ShippingAddress = basket.User.ShippingAddress;
+            basket.Order.BillingAddress = basket.User.BillingAddress;
+            basket.Order.ContactNumber = dto.Phone ?? basket.User.ShippingAddress.Phone;
+
+            if (!string.IsNullOrEmpty(dto.OrderNote)) basket.Order.Note = dto.OrderNote;
+
+            if (dto.Shipment is CreateShipmentDTO shipment)
+            {
+                basket.Order.Shipment ??= new Shipment
+                {
+                    Provider = Enum.Parse<ShippingProvider>(shipment.Provider),
+                    Method = Enum.Parse<DeliveryMethod>(shipment.Method),
+                    Status = ShippingStatus.Pending,
+                    IsShipped = false
+                };
+            }
         }
     }
 }

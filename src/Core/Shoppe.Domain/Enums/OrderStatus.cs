@@ -14,5 +14,6 @@ namespace Shoppe.Domain.Enums
         Refunded,
         Failed,
         Processing,
+        Shipped
     }
 }

@@ -248,6 +248,25 @@ namespace Shoppe.Application.Abstractions.Services.Mail
                 </html>";
         }
 
+        public string GenerateOrderProcessingTemplate(string recipientName, string orderNumber, DateTime estimatedShippingDate, string additionalNotes = "")
+        {
+            return $@"
+        <html>
+            <body>
+                <p>Dear {recipientName},</p>
+                <p>This is a notification regarding the order with order number <strong>{orderNumber}</strong>.</p>
+                <p>The order is currently being processed and is expected to be shipped by <strong>{estimatedShippingDate:MMMM dd, yyyy}</strong>.</p>
+                <p>{additionalNotes}</p>
+                <br>
+                <p>Please ensure the order is handled promptly.</p>
+                <br>
+                <p>Best regards,</p>
+                <p>Shoppe Team</p>
+            </body>
+        </html>";
+        }
+
+
         public string GenerateContactReceivedTemplate(string recipientName, ContactSubject subject)
         {
             return $@"

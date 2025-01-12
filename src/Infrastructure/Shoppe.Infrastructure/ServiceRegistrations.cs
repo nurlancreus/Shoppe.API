@@ -73,11 +73,8 @@ namespace Shoppe.Infrastructure
             services.AddScoped<IPayPalService, PayPalService>();
             services.AddScoped<IStripeService, StripeService>();
 
-            services.AddScoped<IPaymentService, PaymentService>();
-
             services.AddScoped<IStripeWebHookService, StripeWebHookService>();
             services.AddScoped<IPayPalWebHookService, PayPalWebHookService>();
-            services.AddScoped<IPaymentEventService, PaymentEventService>();
             #endregion
 
             #endregion

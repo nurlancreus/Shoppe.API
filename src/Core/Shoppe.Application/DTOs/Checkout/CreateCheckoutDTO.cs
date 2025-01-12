@@ -14,6 +14,7 @@ namespace Shoppe.Application.DTOs.Checkout
         public Guid BasketId { get; set; }
         public CreateBillingAddressDTO? BillingAddress { get; set; }
         public CreateShippingAddressDTO? ShippingAddress { get; set; }
+        public string OrderNote { get; set; } = string.Empty;
         public CreateShipmentDTO? Shipment { get; set; }
         public string? CouponCode { get; set; }
         public string? Phone { get; set; }

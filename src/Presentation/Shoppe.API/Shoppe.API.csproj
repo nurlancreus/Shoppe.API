@@ -31,6 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure\Shoppe.Infrastructure\Shoppe.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Shoppe.Persistence\Shoppe.Persistence.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Shoppe.SignalR\Shoppe.SignalR.csproj" />
   </ItemGroup>
 
 </Project>

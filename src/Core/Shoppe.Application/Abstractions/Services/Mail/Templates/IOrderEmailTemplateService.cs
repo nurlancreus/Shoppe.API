@@ -14,6 +14,7 @@ namespace Shoppe.Application.Abstractions.Services.Mail.Templates
         string GenerateOrderFailedTemplate(string recipientName, string orderNumber, Order order);
         string GenerateOrderRefundedTemplate(string recipientName, string orderNumber, Order order);
         string GenerateOrderShippedTemplate(string recipientName, string trackingNumber, DateTime shippingDate);
+        string GenerateOrderProcessingTemplate(string recipientName, string orderNumber, DateTime estimatedShippingDate, string additionalNotes = "");
         string GenerateOrderDeliveredTemplate(string recipientName, string orderNumber, DateTime deliveryDate);
         string GenerateInvoiceTemplate(string recipientName, string invoiceNumber, Order order, double totalAmount, DateTime invoiceDate);
     }

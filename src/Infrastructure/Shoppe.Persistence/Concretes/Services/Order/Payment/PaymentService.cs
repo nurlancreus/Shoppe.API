@@ -12,7 +12,7 @@ using System.Transactions;
 using Shoppe.Application.Abstractions.Services.Payment.PayPal;
 using Shoppe.Application.Abstractions.Services.Payment.Stripe;
 
-namespace Shoppe.Infrastructure.Concretes.Services.Payment
+namespace Shoppe.Persistence.Concretes.Services.Payment
 {
     public class PaymentService : IPaymentService
     {
@@ -47,9 +47,6 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
             };
 
             order.Payment.Amount = amount;
-
-            // Save the initial state of payment
-           // await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var gatewayResponse = paymentMethod switch
             {
@@ -102,11 +99,6 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
             return isPaymentCaptured;
         }
 
-        private static string HandleCashOnDelivery()
-        {
-            return "Cash on Delivery order has been successfully created. Awaiting payment on delivery.";
-        }
-
         private async Task<GetCheckoutResponseDTO> ProcessPayPalPaymentAsync(Order order, double amount, string paymentReference, CancellationToken cancellationToken)
         {
             var (paymentOrderId, approvalUrl) = await _payPalService.CreatePaymentAsync(amount, "USD", paymentReference, cancellationToken);
@@ -140,6 +132,11 @@ namespace Shoppe.Infrastructure.Concretes.Services.Payment
                 Message = HandleCashOnDelivery(),
                 PaymentMethod = nameof(PaymentMethod.CashOnDelivery)
             };
+        }
+
+        private static string HandleCashOnDelivery()
+        {
+            return "Cash on Delivery order has been successfully created. Awaiting payment on delivery.";
         }
     }
 }
