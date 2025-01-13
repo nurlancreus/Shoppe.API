@@ -12,7 +12,7 @@ namespace Shoppe.Application.Options.API
         public const string AmadeusAPI = "AmadeusAPI";
 
         public string BaseUrl { get; set; } = string.Empty;
-        public float Version { get; set; }
+        public float? Version { get; set; }
         public string? ApiKey { get; set; }
         public string? ApiSecret { get; set; }
     }
