@@ -1,0 +1,24 @@
+﻿using Mock.ShippingProvider.Domain.Entities.Base;
+using Mock.ShippingProvider.Domain.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Mock.ShippingProvider.Domain.Entities
+{
+    public class Shipment : BaseEntity
+    {
+        public string TrackingNumber { get; set; } = string.Empty;  // Unique tracking number
+        public ShippingStatus Status { get; set; }  // Using enum for status
+        public ShippingMethod ShippingMethod { get; set; }
+        public ShippingRate ShippingRate { get; set; } = null!;
+        public DateTime EstimatedDate { get; set; }
+
+        public Guid OriginAddressId { get; set; }  // Foreign key to Address
+        public Address OriginAddress { get; set; } = null!;  // Navigation property to Origin Address
+        public Guid DestinationAddressId { get; set; }  // Foreign key to Address
+        public Address DestinationAddress { get; set; } = null!;  // Navigation property to Destination Address
+    }
+}
