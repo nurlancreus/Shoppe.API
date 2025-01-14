@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Mock.ShippingProvider.Application.DTOs
 {
-    public class CountryGeoInfo
+    public class LocationGeoInfoDTO
     {
         public double Latitude { get; set; }
         public double Longitude { get; set; }
-        public string Country { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
     }
 }

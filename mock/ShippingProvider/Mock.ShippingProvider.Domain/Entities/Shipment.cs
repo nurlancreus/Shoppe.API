@@ -16,9 +16,12 @@ namespace Mock.ShippingProvider.Domain.Entities
         public ShippingRate ShippingRate { get; set; } = null!;
         public DateTime EstimatedDate { get; set; }
 
-        public Guid OriginAddressId { get; set; }  // Foreign key to Address
-        public Address OriginAddress { get; set; } = null!;  // Navigation property to Origin Address
+        public Guid? OriginAddressId { get; set; }  // Foreign key to Address
+        public Address? OriginAddress { get; set; } // Navigation property to Origin Address if null then origin address taken from client (company)
         public Guid DestinationAddressId { get; set; }  // Foreign key to Address
         public Address DestinationAddress { get; set; } = null!;  // Navigation property to Destination Address
+
+        public Guid ApiClientId { get; set; } // Foreign key to ApiClient
+        public ApiClient ApiClient { get; set; } = null!; // Navigation property to ApiClient
     }
 }

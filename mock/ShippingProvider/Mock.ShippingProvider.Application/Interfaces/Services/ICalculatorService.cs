@@ -1,16 +1,19 @@
 ﻿using Mock.ShippingProvider.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Mock.ShippingProvider.Domain.Enums;
 
-namespace Mock.ShippingProvider.Domain.Helpers
+namespace Mock.ShippingProvider.Application.Interfaces.Services
 {
-    public static class ShippingCalculator
+    public interface ICalculatorService
     {
+        DateTime CalculateEstimatedDelivery(Shipment shipment);
+        decimal CalculateShippingCost(Shipment shipment);
         public static double CalculateDistance(Address origin, Address destination)
         {
+            if (!IValidationService.ValidateAddress(origin) || !IValidationService.ValidateAddress(destination))
+            {
+                return 0;
+            }
+
             const double EarthRadius = 6371.0; // Earth's radius in kilometers
 
             // Convert latitude and longitude from degrees to radians
@@ -33,6 +36,5 @@ namespace Mock.ShippingProvider.Domain.Helpers
             double distance = EarthRadius * c; // Distance in kilometers
             return distance;
         }
-
     }
 }

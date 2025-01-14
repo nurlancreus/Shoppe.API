@@ -1,6 +1,14 @@
-﻿using Mock.ShippingProvider.Application.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Mock.ShippingProvider.API.Middlewares;
+using Mock.ShippingProvider.Application.Interfaces.Repositories;
+using Mock.ShippingProvider.Application.Interfaces.Services;
 using Mock.ShippingProvider.Application.Options;
+using Mock.ShippingProvider.Infrastructure.Persistence;
+using Mock.ShippingProvider.Infrastructure.Persistence.Repositories;
+//using Mock.ShippingProvider.Infrastructure.Persistence.Services;
 using Mock.ShippingProvider.Infrastructure.Services;
+using System.Reflection;
 
 namespace Mock.ShippingProvider.API
 {
@@ -12,15 +20,31 @@ namespace Mock.ShippingProvider.API
             builder.Services.AddAuthorization();
             builder.Services.AddHttpClient();
 
-            #region Register Business
-            builder.Services.AddScoped<IGeoInfoService, GeoInfoService>();
-            #endregion
+            builder.Services.AddDbContext<ShippingProviderDbContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("Mock"), sqlOptions => sqlOptions
+                .MigrationsAssembly(typeof(ShippingProviderDbContext).Assembly.FullName))
+                .EnableSensitiveDataLogging();
+            });
+
+            //#region Register Repositories
+            //builder.Services.AddScoped<IApiClientRepository, ApiClientRepository>();
+            //builder.Services.AddScoped<IShipmentRepository, ShipmentRepository>();
+            //#endregion
+
+            //#region Register Client Services
+            //builder.Services.AddScoped<IGeoInfoService, GeoInfoService>();
+            //builder.Services.AddScoped<ICalculatorService, CalculatorService>();
+
+            //builder.Services.AddScoped<IApiClientService, ApiClientService>();
+            //#endregion
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.Configure<APIOptions>(APIOptions.GeoCodeAPI,
+            builder.Services.Configure<APISettings>(APISettings.GeoCodeAPI,
                     builder.Configuration.GetSection("API:GeoCodeAPI"));
+            builder.Services.Configure<ShippingRatesSettings>(builder.Configuration.GetSection("ShippingRatesSettings"));
         }
 
         public static void RegisterMiddlewares(this WebApplication app)
@@ -35,6 +59,8 @@ namespace Mock.ShippingProvider.API
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
+            app.UseMiddleware<ApiKeyMiddleware>();
         }
     }
 

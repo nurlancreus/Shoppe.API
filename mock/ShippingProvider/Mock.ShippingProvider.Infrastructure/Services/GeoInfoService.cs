@@ -1,29 +1,29 @@
 ﻿using Microsoft.Extensions.Options;
 using Mock.ShippingProvider.Application.DTOs;
-using Mock.ShippingProvider.Application.Interfaces;
 using Mock.ShippingProvider.Application.Options;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Mock.ShippingProvider.Application.Interfaces.Services;
 
 namespace Mock.ShippingProvider.Infrastructure.Services
 {
     public class GeoInfoService : IGeoInfoService
     {
         private readonly HttpClient _httpClient;
-        private readonly APIOptions _apiOptions;
+        private readonly APISettings _apiOptions;
 
-        public GeoInfoService(IHttpClientFactory httpClientFactory, IOptionsSnapshot<APIOptions> options)
+        public GeoInfoService(IHttpClientFactory httpClientFactory, IOptionsSnapshot<APISettings> options)
         {
             _httpClient = httpClientFactory.CreateClient();
-            _apiOptions = options.Get(APIOptions.GeoCodeAPI);
+            _apiOptions = options.Get(APISettings.GeoCodeAPI);
         }
 
-        public async Task<CountryGeoInfo> GetCountryGeoInfoByNameAsync(string countryName)
+        public async Task<LocationGeoInfoDTO?> GetLocationGeoInfoByNameAsync(string locationName)
         {
             // Define the API endpoint
-            var url = $"{_apiOptions.BaseUrl}/search?q={countryName}&format=json&limit=1&api_key={_apiOptions.ApiKey}";
+            var url = $"{_apiOptions.BaseUrl}/search?q={locationName}&format=json&limit=1&api_key={_apiOptions.ApiKey}";
 
             // Send the GET request
             var response = await _httpClient.GetStringAsync(url);
@@ -41,12 +41,27 @@ namespace Mock.ShippingProvider.Infrastructure.Services
             var geoInfo = geoInfoList[0];
 
             // Map the response to the CountryGeoInfo DTO
-            return new CountryGeoInfo
+            return new LocationGeoInfoDTO
             {
-                Country = geoInfo.DisplayName,
+                Name = geoInfo.DisplayName,
                 Latitude = double.Parse(geoInfo.Lat),
                 Longitude = double.Parse(geoInfo.Lon),
             };
+        }
+
+        public async Task<LocationGeoInfoDTO> GetLocationGeoInfoByNameAsync(string countryName, string districtName)
+        {
+            var response = await GetLocationGeoInfoByNameAsync(districtName);
+
+            response ??= await GetLocationGeoInfoByNameAsync(countryName);
+
+            if (response == null)
+            {
+                // implement results pattern 
+                return null;
+            }
+
+            return response;
         }
     }
 

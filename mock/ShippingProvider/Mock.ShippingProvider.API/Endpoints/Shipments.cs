@@ -4,17 +4,17 @@
     {
         public static void RegisterShipmentEndpoints(this IEndpointRouteBuilder routes)
         {
-            var users = routes.MapGroup("/api/v1/shipments");
+            var shipments = routes.MapGroup("/api/v1/shipments");
 
-            users.MapGet("", () => { });
+            shipments.MapGet("", () => { });
 
-            users.MapGet("/{id}", (int id) => { });
+            shipments.MapGet("/{id}", (int id) => { });
 
-            users.MapPost("", () => { });
+            shipments.MapPost("", () => { });
 
-            users.MapPut("/{id}", (int id) => { });
+            shipments.MapPut("/{id}", (int id) => { });
 
-            users.MapDelete("/{id}", (int id) => { });
+            shipments.MapDelete("/{id}", (int id) => { });
         }
     }
 }

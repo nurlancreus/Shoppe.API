@@ -1,4 +1,4 @@
-﻿using Mock.ShippingProvider.Application.Interfaces;
+﻿using Mock.ShippingProvider.Application.Interfaces.Services;
 
 namespace Mock.ShippingProvider.API.Endpoints
 {
@@ -11,7 +11,7 @@ namespace Mock.ShippingProvider.API.Endpoints
             // Endpoint for retrieving country information
             calculatorGroup.MapGet("country", async (string country, IGeoInfoService geoInfoService) =>
             {
-                var res = await geoInfoService.GetCountryGeoInfoByNameAsync(country); // get name of the country
+                var res = await geoInfoService.GetLocationGeoInfoByNameAsync(country); // get name of the country
 
                 // Handle logic to retrieve country details
                 return Results.Ok(res);

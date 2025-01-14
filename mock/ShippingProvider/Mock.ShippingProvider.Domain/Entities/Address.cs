@@ -18,7 +18,24 @@ namespace Mock.ShippingProvider.Domain.Entities
         public double Longitude { get; set; }
 
         // Navigation properties
+        public ICollection<ApiClient> Clients { get; set; } = [];
         public ICollection<Shipment> ShipmentsOrigin { get; set; } = [];
         public ICollection<Shipment> ShipmentsDestination { get; set; } = [];
+
+        private Address(string country, string city, string? state, string postalCode, string street, double latitude, double longitude)
+        {
+            Country = country;
+            City = city;
+            State = state;
+            PostalCode = postalCode;
+            Street = street;
+            Latitude = latitude;
+            Longitude = longitude;
+        }
+
+        public static Address Create(string country, string city, string? state, string postalCode, string street, double latitude, double longitude)
+        {
+            return new Address(country, city, state, postalCode, street, latitude, longitude);
+        }
     }
 }

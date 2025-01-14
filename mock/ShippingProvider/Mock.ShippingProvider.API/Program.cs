@@ -1,5 +1,6 @@
 
 using Mock.ShippingProvider.API.Endpoints;
+using Mock.ShippingProvider.Infrastructure.Persistence;
 
 namespace Mock.ShippingProvider.API
 {

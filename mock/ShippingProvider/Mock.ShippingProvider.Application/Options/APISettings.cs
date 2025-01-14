@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Mock.ShippingProvider.Application.Options
 {
-    public class APIOptions
+    public class APISettings
     {
         public const string GeoCodeAPI = "GeoCodeAPI";
         public string BaseUrl { get; set; } = string.Empty;
