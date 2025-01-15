@@ -18,7 +18,7 @@ namespace Mock.ShippingProvider.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            ApiClientSeeder.SeedClient(modelBuilder);
+            modelBuilder.SeedClient();
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetAssembly(typeof(ShipmentConfiguration))!);
 

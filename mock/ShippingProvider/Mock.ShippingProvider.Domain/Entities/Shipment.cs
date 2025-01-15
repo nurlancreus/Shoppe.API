@@ -12,8 +12,7 @@ namespace Mock.ShippingProvider.Domain.Entities
     {
         public string TrackingNumber { get; set; } = string.Empty;  // Unique tracking number
         public ShippingStatus Status { get; set; }  // Using enum for status
-        public ShippingMethod ShippingMethod { get; set; }
-        public ShippingRate ShippingRate { get; set; } = null!;
+        public ShippingRate Rate { get; set; } = null!;
         public DateTime EstimatedDate { get; set; }
 
         public Guid? OriginAddressId { get; set; }  // Foreign key to Address
@@ -23,5 +22,16 @@ namespace Mock.ShippingProvider.Domain.Entities
 
         public Guid ApiClientId { get; set; } // Foreign key to ApiClient
         public ApiClient ApiClient { get; set; } = null!; // Navigation property to ApiClient
+
+        private Shipment()
+        {
+            TrackingNumber = IGenerator.GenerateTrackingNumber();
+            Status = ShippingStatus.Pending;
+        }
+
+        public static Shipment Create()
+        {
+            return new Shipment();
+        }
     }
 }

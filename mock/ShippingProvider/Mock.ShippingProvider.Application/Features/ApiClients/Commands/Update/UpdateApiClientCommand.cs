@@ -1,14 +1,17 @@
-﻿using System;
+﻿using MediatR;
+using Mock.ShippingProvider.Application.Features.ApiClients.DTOs;
+using Mock.ShippingProvider.Application.Responses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mock.ShippingProvider.Application.DTOs
+namespace Mock.ShippingProvider.Application.Features.ApiClients.Commands.Update
 {
-    public record UpdateApiClientRequestDTO
+    public record UpdateApiClientCommand : IRequest<ResponseWithData<ApiClientDTO>>
     {
-        public Guid Id { get; set; }  // Required for identifying the client to update
+        public Guid? Id { get; set; }
         public string? CompanyName { get; set; }
         public string? Country { get; set; }
         public string? City { get; set; }

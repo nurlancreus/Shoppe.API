@@ -18,7 +18,8 @@ namespace Mock.ShippingProvider.Domain.Entities
         public double Longitude { get; set; }
 
         // Navigation properties
-        public ICollection<ApiClient> Clients { get; set; } = [];
+        public Guid ClientId { get; set; } // Foreign key to ApiClient
+        public ApiClient? Client { get; set; }
         public ICollection<Shipment> ShipmentsOrigin { get; set; } = [];
         public ICollection<Shipment> ShipmentsDestination { get; set; } = [];
 

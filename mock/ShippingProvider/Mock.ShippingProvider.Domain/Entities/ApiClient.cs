@@ -9,7 +9,6 @@ namespace Mock.ShippingProvider.Domain.Entities
         public string SecretKey { get; set; } = string.Empty;  // Secret Key for HMAC
         public bool IsActive { get; set; } = true;
 
-        public Guid AddressId { get; set; }  // Foreign key to Address
         public Address Address { get; set; } = null!;  // Navigation Property to Address
 
         public ICollection<Shipment> Shipments { get; set; } = []; // Navigation Property to Shipments
@@ -17,6 +16,8 @@ namespace Mock.ShippingProvider.Domain.Entities
         private ApiClient(string companyName)
         {
             CompanyName = companyName;
+            ApiKey = IGenerator.GenerateApiKey();
+            SecretKey = IGenerator.GenerateSecretKey();
             IsActive = true;
         }
 

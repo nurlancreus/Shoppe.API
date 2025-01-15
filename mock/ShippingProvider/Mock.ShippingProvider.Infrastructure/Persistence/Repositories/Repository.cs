@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace Mock.ShippingProvider.Infrastructure.Persistence.Repositories
 {
-    public class Repository<T>(ShippingProviderDbContext dbContext, DbSet<T> dbSet) : IRepository<T> where T : BaseEntity
+    public class Repository<T>(ShippingProviderDbContext dbContext) : IRepository<T> where T : BaseEntity
     {
         private readonly ShippingProviderDbContext _dbContext = dbContext;
-        private readonly DbSet<T> _dbSet = dbSet;
+        private readonly DbSet<T> _dbSet = dbContext.Set<T>();
 
         public DbSet<T> Table => _dbSet;
         public async Task AddAsync(T entity, CancellationToken cancellationToken = default)

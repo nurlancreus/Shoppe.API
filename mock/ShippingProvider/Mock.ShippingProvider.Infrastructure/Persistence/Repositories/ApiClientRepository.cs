@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Mock.ShippingProvider.Infrastructure.Persistence.Repositories
 {
-    public class ApiClientRepository(ShippingProviderDbContext dbContext, DbSet<ApiClient> dbSet) : Repository<ApiClient>(dbContext, dbSet), IApiClientRepository
+    public class ApiClientRepository(ShippingProviderDbContext dbContext) : Repository<ApiClient>(dbContext), IApiClientRepository
     {
     }
 }

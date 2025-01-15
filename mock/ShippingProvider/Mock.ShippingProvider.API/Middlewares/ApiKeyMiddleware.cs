@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Mock.ShippingProvider.API.Attributes;
 using Mock.ShippingProvider.Infrastructure.Persistence;
 using System.Security.Cryptography;
 using System.Text;
@@ -13,6 +14,16 @@ namespace Mock.ShippingProvider.API.Middlewares
 
         public async Task InvokeAsync(HttpContext context, ShippingProviderDbContext dbContext)
         {
+            // Check if the endpoint has the AllowAnonymousApiKey attribute
+            var endpoint = context.GetEndpoint();
+            var allowAnonymous = endpoint?.Metadata.GetMetadata<AllowAnonymousApiKeyAttribute>() != null;
+
+            if (allowAnonymous)
+            {
+                await _next(context); // Bypass authentication
+                return;
+            }
+
             if (!context.Request.Headers.TryGetValue("X-Api-Key", out var extractedApiKey) ||
                 !context.Request.Headers.TryGetValue("X-Secret-Key", out var extractedSecretKey))
             {

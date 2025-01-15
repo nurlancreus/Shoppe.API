@@ -21,7 +21,7 @@ namespace Mock.ShippingProvider.Infrastructure.Services
             var distance = ICalculatorService.CalculateDistance(shipment.OriginAddress, shipment.DestinationAddress);
 
             int baseDays = CalculateDefaultDeliveryTime(distance);  // Default delivery time
-            int deliveryTime = CalculateDeliveryTime(baseDays, shipment.ShippingMethod);
+            int deliveryTime = CalculateDeliveryTime(baseDays, shipment.Rate.Method);
 
             return DateTime.Now.AddDays(deliveryTime);
         }
@@ -29,17 +29,18 @@ namespace Mock.ShippingProvider.Infrastructure.Services
         // Calculate the shipping cost based on weight, dimensions, distance, and shipping method
         public decimal CalculateShippingCost(Shipment shipment)
         {
-            decimal baseCost = shipment.ShippingRate.Rate;  // Use the rate defined for the shipping method
-            decimal weightSurcharge = CalculateWeightCost(shipment.ShippingRate.Weight);  // Surcharge based on weight
-            decimal sizeSurcharge = CalculateSizeCost(shipment.ShippingRate.Dimensions);  // Surcharge based on volume
+            decimal baseCost = shipment.Rate.Rate;  // Use the rate defined for the shipping method
+            decimal weightSurcharge = CalculateWeightCost(shipment.Rate.Weight);  // Surcharge based on weight
+            decimal sizeSurcharge = CalculateSizeCost(shipment.Rate.Dimensions);  // Surcharge based on volume
 
             // Calculate distance surcharge based on origin and destination
-            var distance = ICalculatorService.CalculateDistance(shipment.OriginAddress, shipment.DestinationAddress);
+            var address = shipment.OriginAddress ?? shipment.ApiClient.Address;
+            var distance = ICalculatorService.CalculateDistance(address, shipment.DestinationAddress);
 
             decimal distanceSurcharge = CalculateDistanceCost(distance);
 
             // Adjust cost based on shipping method
-            baseCost = CalculateDeliveryCost(baseCost, shipment.ShippingMethod);
+            baseCost = CalculateDeliveryCost(baseCost, shipment.Rate.Method);
 
 
             return baseCost + weightSurcharge + sizeSurcharge + distanceSurcharge;

@@ -13,6 +13,21 @@ namespace Mock.ShippingProvider.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Shipment> builder)
         {
+            builder.HasKey(s => s.Id);
+
+            builder
+                .HasIndex(s => s.TrackingNumber)
+                .IsUnique();
+
+            builder
+                .Property(s => s.Status)
+                .HasConversion<string>();
+
+            builder
+                .HasOne(s => s.Rate)
+                .WithOne(r => r.Shipment)
+                .HasForeignKey<ShippingRate>(r => r.ShipmentId);
+
             builder
                 .HasOne(s => s.OriginAddress)
                 .WithMany(a => a.ShipmentsOrigin)
@@ -29,6 +44,8 @@ namespace Mock.ShippingProvider.Infrastructure.Persistence.Configurations
                 .WithMany(c => c.Shipments)
                 .HasForeignKey(s => s.ApiClientId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.ToTable(bi => bi.HasCheckConstraint("CK_Shipment_EstimatedDate", "[EstimatedDate] > getdate()"));
         }
     }
 }
