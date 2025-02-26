@@ -14,5 +14,4 @@ namespace Shoppe.Domain.Enums
         Delivered,
         Bounced
     }
-
 }

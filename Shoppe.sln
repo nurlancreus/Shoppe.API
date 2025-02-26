@@ -23,18 +23,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shoppe.API", "src\Presentat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shoppe.SignalR", "src\Infrastructure\Shoppe.SignalR\Shoppe.SignalR.csproj", "{ECFF1ADD-951A-42C3-9FFC-2E24DE11EC30}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mock", "mock", "{A220925A-140F-4643-BACD-2992B228481D}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ShippingProvider", "ShippingProvider", "{A545498E-3CEA-4ED4-BC3A-B97991372926}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mock.ShippingProvider.API", "mock\ShippingProvider\Mock.ShippingProvider.API\Mock.ShippingProvider.API.csproj", "{55948997-C6FF-4C44-9990-B8894CFE16BB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mock.ShippingProvider.Domain", "mock\ShippingProvider\Mock.ShippingProvider.Domain\Mock.ShippingProvider.Domain.csproj", "{AD3E065D-A9E3-48CE-A8AE-8A7CAAD33177}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mock.ShippingProvider.Application", "mock\ShippingProvider\Mock.ShippingProvider.Application\Mock.ShippingProvider.Application.csproj", "{FC8ECCEB-EE1A-4BF2-9F67-1668D1FD5E1A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mock.ShippingProvider.Infrastructure", "mock\ShippingProvider\Mock.ShippingProvider.Infrastructure\Mock.ShippingProvider.Infrastructure.csproj", "{B1E35BEB-D97B-44D3-9156-4E9003905960}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,22 +53,6 @@ Global
 		{ECFF1ADD-951A-42C3-9FFC-2E24DE11EC30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECFF1ADD-951A-42C3-9FFC-2E24DE11EC30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECFF1ADD-951A-42C3-9FFC-2E24DE11EC30}.Release|Any CPU.Build.0 = Release|Any CPU
-		{55948997-C6FF-4C44-9990-B8894CFE16BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{55948997-C6FF-4C44-9990-B8894CFE16BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{55948997-C6FF-4C44-9990-B8894CFE16BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{55948997-C6FF-4C44-9990-B8894CFE16BB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AD3E065D-A9E3-48CE-A8AE-8A7CAAD33177}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AD3E065D-A9E3-48CE-A8AE-8A7CAAD33177}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AD3E065D-A9E3-48CE-A8AE-8A7CAAD33177}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AD3E065D-A9E3-48CE-A8AE-8A7CAAD33177}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FC8ECCEB-EE1A-4BF2-9F67-1668D1FD5E1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FC8ECCEB-EE1A-4BF2-9F67-1668D1FD5E1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FC8ECCEB-EE1A-4BF2-9F67-1668D1FD5E1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FC8ECCEB-EE1A-4BF2-9F67-1668D1FD5E1A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B1E35BEB-D97B-44D3-9156-4E9003905960}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B1E35BEB-D97B-44D3-9156-4E9003905960}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B1E35BEB-D97B-44D3-9156-4E9003905960}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B1E35BEB-D97B-44D3-9156-4E9003905960}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,11 +67,6 @@ Global
 		{437B6A46-F773-46BE-81AD-8617CEA1D607} = {DD01FA78-E8A7-4A9F-8B13-5B9CAA8C63E7}
 		{E4B6BFC8-A541-4679-8D7A-F08567BEB233} = {5DF1280C-54BE-49B5-AFD2-93D20B3CAE73}
 		{ECFF1ADD-951A-42C3-9FFC-2E24DE11EC30} = {DD01FA78-E8A7-4A9F-8B13-5B9CAA8C63E7}
-		{A545498E-3CEA-4ED4-BC3A-B97991372926} = {A220925A-140F-4643-BACD-2992B228481D}
-		{55948997-C6FF-4C44-9990-B8894CFE16BB} = {A545498E-3CEA-4ED4-BC3A-B97991372926}
-		{AD3E065D-A9E3-48CE-A8AE-8A7CAAD33177} = {A545498E-3CEA-4ED4-BC3A-B97991372926}
-		{FC8ECCEB-EE1A-4BF2-9F67-1668D1FD5E1A} = {A545498E-3CEA-4ED4-BC3A-B97991372926}
-		{B1E35BEB-D97B-44D3-9156-4E9003905960} = {A545498E-3CEA-4ED4-BC3A-B97991372926}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0D1A21BB-1AEE-447A-AAA2-1CFE4B5D578A}

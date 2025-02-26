@@ -1,6 +1,0 @@
-@Mock.ShippingProvider.API_HostAddress = http://localhost:5057
-
-GET {{Mock.ShippingProvider.API_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
