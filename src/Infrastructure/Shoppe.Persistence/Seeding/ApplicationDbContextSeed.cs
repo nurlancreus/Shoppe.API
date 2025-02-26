@@ -5,12 +5,6 @@ using Shoppe.Domain.Entities.Categories;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Entities.Tags;
 using Shoppe.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shoppe.Persistence.Seeding
 {
