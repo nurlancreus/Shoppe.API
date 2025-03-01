@@ -142,7 +142,7 @@ To run the project, clients must provide valid values for the necessary configur
 
 - **Do not add new features** unless explicitly requested.
 - Follow the **Onion Architecture** structure and respect domain separation.
-- Ensure all contributions include **unit tests**.
+- Ensure all contributions include.
 - Use **meaningful commit messages** and follow the repository's coding standards.
 - Secure sensitive information (e.g., API keys, database credentials) and do not commit them.
 
