@@ -4,7 +4,7 @@ Shoppe is a full-stack e-commerce platform designed for a boujiteria shop. The b
 
 ## Project Structure
 
-The solution follows a onion architecture and consists of multiple projects:
+The solution follows an onion architecture and consists of multiple projects:
 
 ```
 │-- src
@@ -62,7 +62,7 @@ To run the project, clients must provide valid values for the necessary configur
     "Audience": "https://localhost:3000/",
     "Issuer": "https://localhost:7223/",
     "SecurityKey": "<your-security-key>",
-    "AccessTokenLifeTimeInMinutes": 600
+    "AccessTokenLifeTimeInMinutes": 10
   },
   "Refresh": {
     "RefreshTokenLifeTimeInMinutes": 60
@@ -154,7 +154,7 @@ To run the project, clients must provide valid values for the necessary configur
 
 1. Clone the repository.
 2. Provide valid values in `appsettings.json`.
-3. Apply database migrations:
+3. Apply database 'init' migration:
    ```sh
    dotnet ef database update
    ```
@@ -163,5 +163,13 @@ To run the project, clients must provide valid values for the necessary configur
    dotnet run --project src/Presentation/Shoppe.API
    ```
 
+### Super Admin Credentials
+
+To use the API, log in with the following super admin credentials:
+
+- **Email:** superadmin@example.com
+- **Password:** gGjrfmdb8wp13658$%
+
 ## License
 This project is licensed under the MIT License.
+
