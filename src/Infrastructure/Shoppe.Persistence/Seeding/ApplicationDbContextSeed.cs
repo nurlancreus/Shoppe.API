@@ -31,7 +31,7 @@ namespace Shoppe.Persistence.Seeding
                 NormalizedEmail = "SUPERADMIN@EXAMPLE.COM",
             };
 
-            adminUser.PasswordHash = passwordHasher.HashPassword(adminUser, "qwerty1234");
+            adminUser.PasswordHash = passwordHasher.HashPassword(adminUser, "gGjrfmdb8wp13658$%");
 
             builder.Entity<ApplicationUser>().HasData(adminUser);
 

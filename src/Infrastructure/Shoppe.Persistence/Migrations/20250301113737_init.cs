@@ -875,45 +875,36 @@ namespace Shoppe.Persistence.Migrations
             migrationBuilder.InsertData(
                 table: "About",
                 columns: new[] { "Id", "Content", "CreatedAt", "Description", "Email", "Name", "Phone", "Title", "UpdatedAt" },
-                values: new object[] { new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"), null, new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8095), "Who we are and why we do what we do!", "contact@shoppe.com", "Shoppe", "123-456-7890", "", null });
+                values: new object[] { new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"), null, new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(2814), "Who we are and why we do what we do!", "contact@shoppe.com", "Shoppe", "123-456-7890", "", null });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "CreatedAt", "Description", "Name", "NormalizedName", "UpdatedAt" },
-                values: new object[] { "041221a9-3336-4185-ac58-7f0ca6b57ccf", null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "SuperAdmin", "SUPERADMIN", null });
+                values: new object[] { "595dcfce-6a12-4c56-b0a9-1c911fb6c2bb", null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "SuperAdmin", "SUPERADMIN", null });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "CreatedAt", "DeactivatedAt", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "RefreshToken", "RefreshTokenEndDate", "SecurityStamp", "TwoFactorEnabled", "UpdatedAt", "UserName" },
-                values: new object[] { "c313d1de-2fb9-4296-93b3-10463934569c", 0, "adc245bd-3c01-4cb8-a938-dd404683bb20", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "superadmin@example.com", false, "Nurlan", "Shukurov", false, null, "SUPERADMIN@EXAMPLE.COM", "SUPERADMIN", "AQAAAAIAAYagAAAAECT5UHxaPzSGK22+yBSI6ZGpLfnDufennkMFygrvHF1KplHHsO6c3mTp2Spko8okNg==", null, false, null, null, "80495b2c-2aef-4c73-8bdd-85b7a0515c1a", false, null, "superadmin" });
+                values: new object[] { "801b9680-ec59-4435-8591-5db3e7003210", 0, "43a14c37-1f3f-4f00-b4f9-fc4923bdab7e", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "superadmin@example.com", false, "Nurlan", "Shukurov", false, null, "SUPERADMIN@EXAMPLE.COM", "SUPERADMIN", "AQAAAAIAAYagAAAAENgVpDCNnmkscn4CH/ssLiIQgEJ8aqYJWtEgQczLL4WjUhdCPGLB5/Sxzr/SSLGGIQ==", null, false, null, null, "dd10ab5d-fa4d-4751-8176-30210803e37f", false, null, "superadmin" });
 
             migrationBuilder.InsertData(
                 table: "Categories",
                 columns: new[] { "Id", "CreatedAt", "Description", "Name", "Type", "UpdatedAt" },
-                values: new object[] { new Guid("1266abbb-a545-480d-872b-b9dc4850674e"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8341), "Tips on how to take care of your jewelry", "Jewelry Care", "Blog", null });
-
-            migrationBuilder.InsertData(
-                table: "Categories",
-                columns: new[] { "Id", "CreatedAt", "Description", "DiscountId", "Name", "Type", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { new Guid("37d1d45f-245d-4d62-be0a-724e24b18080"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8283), "Rings for engagement, fashion, and more", null, "Rings", "Product", null },
-                    { new Guid("92d6f1dd-5d28-4162-a228-73bc9f8c13fe"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8286), "Unique brooches to complement any outfit", null, "Brooches", "Product", null }
+                    { new Guid("089d21e5-6054-4024-8dfd-98b29312e40b"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(3040), "Updates on the latest jewelry trends", "Latest Trends", "Blog", null },
+                    { new Guid("21a439c0-40d7-40c3-af2a-df43aba25414"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(3037), "Tips on how to take care of your jewelry", "Jewelry Care", "Blog", null },
+                    { new Guid("3d3f06a6-e471-4f85-b0ae-b8ae8381571b"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(3045), "Jewelry gift ideas for various occasions", "Gift Ideas", "Blog", null }
                 });
 
             migrationBuilder.InsertData(
                 table: "Categories",
-                columns: new[] { "Id", "CreatedAt", "Description", "Name", "Type", "UpdatedAt" },
-                values: new object[] { new Guid("b41deab4-f51f-4369-8660-885e24895603"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8352), "Jewelry gift ideas for various occasions", "Gift Ideas", "Blog", null });
-
-            migrationBuilder.InsertData(
-                table: "Categories",
                 columns: new[] { "Id", "CreatedAt", "Description", "DiscountId", "Name", "Type", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { new Guid("cbb018db-840c-47df-9d57-38e3e320ba5c"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8280), "Beautiful bracelets in various styles", null, "Bracelets", "Product", null },
-                    { new Guid("cd092e50-35af-4074-a0b0-d076b7b9c3d5"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8278), "Stylish earrings for all occasions", null, "Earrings", "Product", null },
-                    { new Guid("d3835af1-b593-456b-9f05-e1eb5dbd73b5"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8274), "Elegant and modern necklaces", null, "Necklaces", "Product", null }
+                    { new Guid("3d9cb9d6-57b6-4d1f-8df5-02807f8f4e64"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(2978), "Beautiful bracelets in various styles", null, "Bracelets", "Product", null },
+                    { new Guid("4c8412f3-6e96-4af4-8cb0-450dcfd72247"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(2988), "Rings for engagement, fashion, and more", null, "Rings", "Product", null },
+                    { new Guid("5522031d-fb76-4cd4-abf1-9cbf17e7c778"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(2975), "Stylish earrings for all occasions", null, "Earrings", "Product", null }
                 });
 
             migrationBuilder.InsertData(
@@ -921,9 +912,17 @@ namespace Shoppe.Persistence.Migrations
                 columns: new[] { "Id", "CreatedAt", "Description", "Name", "Type", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { new Guid("d5fd1a89-4aee-41b2-b7c3-9a849858de4b"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8346), "Learn about different gemstones and their meanings", "Gemstone Guide", "Blog", null },
-                    { new Guid("db1bb094-1290-4f20-93b6-79d157c8d577"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8354), "Guides and inspiration for making your own jewelry", "DIY Jewelry", "Blog", null },
-                    { new Guid("e46e2a5c-23e2-4feb-8294-8a21dcd95484"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8344), "Updates on the latest jewelry trends", "Latest Trends", "Blog", null }
+                    { new Guid("6e18c69f-19f0-4ead-baed-b6d09ff2a229"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(3043), "Learn about different gemstones and their meanings", "Gemstone Guide", "Blog", null },
+                    { new Guid("8be6f44f-212e-4ef5-a104-4f71deb1125e"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(3047), "Guides and inspiration for making your own jewelry", "DIY Jewelry", "Blog", null }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "Id", "CreatedAt", "Description", "DiscountId", "Name", "Type", "UpdatedAt" },
+                values: new object[,]
+                {
+                    { new Guid("bda97e0a-3bd0-4c35-be72-83e9da5573ba"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(2991), "Unique brooches to complement any outfit", null, "Brooches", "Product", null },
+                    { new Guid("d7580997-59f4-4e4a-8ae0-d118871e726d"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(2972), "Elegant and modern necklaces", null, "Necklaces", "Product", null }
                 });
 
             migrationBuilder.InsertData(
@@ -931,27 +930,27 @@ namespace Shoppe.Persistence.Migrations
                 columns: new[] { "Id", "CreatedAt", "Description", "Name", "Type", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { new Guid("11fe218e-4574-47df-bd75-851eef23349b"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8419), null, "Gemstones", "Blog", null },
-                    { new Guid("76788b58-6a50-4682-9189-dc89b93868e4"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8424), null, "Trends", "Blog", null },
-                    { new Guid("a4b22b65-7927-46f4-b3b6-5faf713c164a"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8421), null, "DIY Jewelry", "Blog", null },
-                    { new Guid("a54488a9-d825-4905-82ff-e7f022fd620d"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8414), null, "Fashion", "Blog", null },
-                    { new Guid("f826d50c-0698-46ae-a75d-db6a9fc266a9"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8416), null, "Jewelry Care", "Blog", null }
+                    { new Guid("3f11cee9-c385-46e1-b438-81cc66dc290b"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(3104), null, "Fashion", "Blog", null },
+                    { new Guid("594fd226-730e-4052-b042-88462d0eb1b7"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(3115), null, "DIY Jewelry", "Blog", null },
+                    { new Guid("66aeb6e6-a465-42c2-8771-3f32f9c0a3f5"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(3112), null, "Gemstones", "Blog", null },
+                    { new Guid("d13dd3ea-c061-443d-8c71-abb90f473bd9"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(3110), null, "Jewelry Care", "Blog", null },
+                    { new Guid("ea078075-1332-4c3c-aeae-6143ddc41fbc"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(3117), null, "Trends", "Blog", null }
                 });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { "041221a9-3336-4185-ac58-7f0ca6b57ccf", "c313d1de-2fb9-4296-93b3-10463934569c" });
+                values: new object[] { "595dcfce-6a12-4c56-b0a9-1c911fb6c2bb", "801b9680-ec59-4435-8591-5db3e7003210" });
 
             migrationBuilder.InsertData(
                 table: "SocialMediaLinks",
                 columns: new[] { "Id", "AboutId", "CreatedAt", "SocialPlatform", "URL", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { new Guid("307906a6-65cb-4c55-9340-d05c7f401ecc"), new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8183), "Facebook", "https://facebook.com/shoppe", null },
-                    { new Guid("9ab56b14-088a-4c36-931d-1b570af92b42"), new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8186), "X", "https://x.com/shoppe", null },
-                    { new Guid("b22e4706-51d8-4d41-836a-cc6dbffae555"), new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8189), "Instagram", "https://instagram.com/shoppe", null },
-                    { new Guid("b5583219-2afb-4c13-8390-4c2bd5c6bc92"), new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"), new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8205), "Youtube", "https://youtube.com/shoppe", null }
+                    { new Guid("32acf79e-082b-4700-b5a0-5bd6d3c05e26"), new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(2898), "Instagram", "https://instagram.com/shoppe", null },
+                    { new Guid("8058d51b-d56f-4bd5-a9e6-39639444fce7"), new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(2892), "Facebook", "https://facebook.com/shoppe", null },
+                    { new Guid("a90171d7-6d4c-40be-a1e4-0d2f63a65365"), new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(2912), "Youtube", "https://youtube.com/shoppe", null },
+                    { new Guid("eae55f54-d03a-4ad8-881f-0999e065cf1f"), new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"), new DateTime(2025, 3, 1, 11, 37, 36, 998, DateTimeKind.Utc).AddTicks(2896), "X", "https://x.com/shoppe", null }
                 });
 
             migrationBuilder.CreateIndex(
