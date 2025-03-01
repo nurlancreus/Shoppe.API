@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Base;
 using Shoppe.Domain.Entities.Categories;
@@ -14,12 +16,7 @@ using Shoppe.Domain.Entities.Sliders;
 using Shoppe.Domain.Entities.Tags;
 using Shoppe.Persistence.Configurations;
 using Shoppe.Persistence.Seeding;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shoppe.Persistence.Context
 {
@@ -108,6 +105,25 @@ namespace Shoppe.Persistence.Context
                 {
                     entry.Entity.UpdatedAt = DateTime.UtcNow;
                 }
+            }
+        }
+
+        public static bool CheckDatabaseAvailability(IConfiguration configuration)
+        {
+            try
+            {
+                using var scope = new ServiceCollection()
+                    .AddDbContext<ShoppeDbContext>(options =>
+                        options.UseSqlServer(configuration.GetConnectionString("Default")))
+                    .BuildServiceProvider()
+                    .CreateScope();
+
+                var dbContext = scope.ServiceProvider.GetRequiredService<ShoppeDbContext>();
+                return dbContext.Database.CanConnect();
+            }
+            catch
+            {
+                return false;
             }
         }
     }

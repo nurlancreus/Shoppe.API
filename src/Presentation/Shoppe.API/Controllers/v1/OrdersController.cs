@@ -1,22 +1,23 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Shoppe.Application.DTOs.API;
 using Shoppe.Application.DTOs.Location;
 using Shoppe.Application.Features.Command.Coupon.Apply;
-using Shoppe.Application.Features.Query.Location.GetCititesByCountry;
-using Shoppe.Application.Features.Query.Location.GetCountries;
+using Shoppe.Application.Features.Command.Order.Complete;
+using Shoppe.Application.Features.Command.Order.CreateCheckout;
+using Shoppe.Application.Features.Query.Contact.GetAllContacts;
+using Shoppe.Application.Features.Query.Contact.GetContactById;
 using Shoppe.Application.Options.API;
 using Shoppe.Domain.Enums;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 
 namespace Shoppe.API.Controllers.v1
 {
-    public class OrdersController : ApplicationControllerBase
+    [Authorize]
+    public class OrdersController : ApplicationVersionController
     {
         private readonly ISender _sender;
         private readonly APIOptions _aPICountriesOptions;
@@ -30,8 +31,43 @@ namespace Shoppe.API.Controllers.v1
             _aPICountriesOptions = aPIOptions.Get(APIOptions.CountryAPI);
             _aPIAmadeusOptions = aPIOptions.Get(APIOptions.AmadeusAPI);
         }
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] GetAllContactsQueryRequest request)
+        {
+            var response = await _sender.Send(request);
 
-        [HttpGet("/countries")]
+            return Ok(response);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(Guid id)
+        {
+            var request = new GetContactByIdQueryRequest { Id = id };
+
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Checkout([FromBody] CreateCheckoutCommandRequest request)
+        {
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Complete(Guid id)
+        {
+            var request = new CompleteOrderCommandRequest { OrderId = id };
+            var response = await _sender.Send(request);
+
+            return Ok(response);
+        }
+
+            [HttpGet("/countries")]
         public async Task<IActionResult> GetCountries()
         {
 
@@ -132,6 +168,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(jsonResponse);
         }
 
+        [Authorize]
         [HttpPatch("apply-coupon")]
         public async Task<IActionResult> ApplyCoupon([FromQuery] string couponCode)
         {

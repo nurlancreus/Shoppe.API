@@ -6,14 +6,12 @@
         {
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowShoppeClient", builder =>
+                options.AddPolicy(ApiConstants.CorsPolicies.AllowShoppeClientPolicy, builder =>
                 {
                     builder.WithOrigins("http://localhost:3000/") // Add allowed origins
                            .AllowAnyHeader()
                            .AllowAnyMethod()
                            .AllowCredentials(); // Allow cookies, authorization headers, etc.
-
-                    //builder.AllowAnyOrigin();
                 });
             });
         }

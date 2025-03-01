@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Address.Billing.Create;
 using Shoppe.Application.Features.Command.Address.Billing.Update;
@@ -10,7 +10,8 @@ using Shoppe.Application.Features.Query.Address.Shipping.Get;
 
 namespace Shoppe.API.Controllers.v1
 {
-    public class AddressesController : ApplicationControllerBase
+    [Authorize]
+    public class AddressesController : ApplicationVersionController
     {
         private readonly ISender _sender;
 

@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Discount.AssignDiscount;
 using Shoppe.Application.Features.Command.Discount.CreateDiscount;
@@ -11,9 +11,8 @@ using Shoppe.Application.Features.Query.Discount.GetAll;
 
 namespace Shoppe.API.Controllers.v1
 {
-    //[ApiVersion("1.0")]
-
-    public class DiscountsController : ApplicationControllerBase
+    [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
+    public class DiscountsController : ApplicationVersionController
     {
         private readonly ISender _sender;
 

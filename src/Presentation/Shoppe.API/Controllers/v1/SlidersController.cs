@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Slider.AddSlide;
 using Shoppe.Application.Features.Command.Slider.Create;
@@ -8,11 +8,11 @@ using Shoppe.Application.Features.Command.Slider.RemoveImage;
 using Shoppe.Application.Features.Command.Slider.Update;
 using Shoppe.Application.Features.Query.Slider.Get;
 using Shoppe.Application.Features.Query.Slider.GetAll;
-using Shoppe.Application.Features.Query.Tag.GetAll;
 
 namespace Shoppe.API.Controllers.v1
 {
-    public class SlidersController : ApplicationControllerBase
+    [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
+    public class SlidersController : ApplicationVersionController
     {
         private readonly ISender _sender;
 

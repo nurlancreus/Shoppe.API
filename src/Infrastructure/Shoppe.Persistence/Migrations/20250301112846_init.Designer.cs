@@ -12,8 +12,8 @@ using Shoppe.Persistence.Context;
 namespace Shoppe.Persistence.Migrations
 {
     [DbContext(typeof(ShoppeDbContext))]
-    [Migration("20250111143359_mig_5")]
-    partial class mig_5
+    [Migration("20250301112846_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -140,6 +140,13 @@ namespace Shoppe.Persistence.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "c313d1de-2fb9-4296-93b3-10463934569c",
+                            RoleId = "041221a9-3336-4185-ac58-7f0ca6b57ccf"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -220,6 +227,18 @@ namespace Shoppe.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("About");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8095),
+                            Description = "Who we are and why we do what we do!",
+                            Email = "contact@shoppe.com",
+                            Name = "Shoppe",
+                            Phone = "123-456-7890",
+                            Title = ""
+                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Address", b =>
@@ -656,6 +675,15 @@ namespace Shoppe.Persistence.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "041221a9-3336-4185-ac58-7f0ca6b57ccf",
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "SuperAdmin",
+                            NormalizedName = "SUPERADMIN"
+                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Identity.ApplicationUser", b =>
@@ -747,6 +775,28 @@ namespace Shoppe.Persistence.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "c313d1de-2fb9-4296-93b3-10463934569c",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "adc245bd-3c01-4cb8-a938-dd404683bb20",
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "superadmin@example.com",
+                            EmailConfirmed = false,
+                            FirstName = "Nurlan",
+                            IsActive = false,
+                            LastName = "Shukurov",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "SUPERADMIN@EXAMPLE.COM",
+                            NormalizedUserName = "SUPERADMIN",
+                            PasswordHash = "AQAAAAIAAYagAAAAECT5UHxaPzSGK22+yBSI6ZGpLfnDufennkMFygrvHF1KplHHsO6c3mTp2Spko8okNg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "80495b2c-2aef-4c73-8bdd-85b7a0515c1a",
+                            TwoFactorEnabled = false,
+                            UserName = "superadmin"
+                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Order", b =>
@@ -1138,6 +1188,40 @@ namespace Shoppe.Persistence.Migrations
                     b.HasIndex("AboutId");
 
                     b.ToTable("SocialMediaLinks");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("307906a6-65cb-4c55-9340-d05c7f401ecc"),
+                            AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8183),
+                            SocialPlatform = "Facebook",
+                            URL = "https://facebook.com/shoppe"
+                        },
+                        new
+                        {
+                            Id = new Guid("9ab56b14-088a-4c36-931d-1b570af92b42"),
+                            AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8186),
+                            SocialPlatform = "X",
+                            URL = "https://x.com/shoppe"
+                        },
+                        new
+                        {
+                            Id = new Guid("b22e4706-51d8-4d41-836a-cc6dbffae555"),
+                            AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8189),
+                            SocialPlatform = "Instagram",
+                            URL = "https://instagram.com/shoppe"
+                        },
+                        new
+                        {
+                            Id = new Guid("b5583219-2afb-4c13-8390-4c2bd5c6bc92"),
+                            AboutId = new Guid("dd37583b-9c78-4159-a1e7-ccdc6a8be9eb"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8205),
+                            SocialPlatform = "Youtube",
+                            URL = "https://youtube.com/shoppe"
+                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Tags.Tag", b =>
@@ -1210,6 +1294,48 @@ namespace Shoppe.Persistence.Migrations
                     b.HasBaseType("Shoppe.Domain.Entities.Categories.Category");
 
                     b.HasDiscriminator().HasValue("Blog");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("1266abbb-a545-480d-872b-b9dc4850674e"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8341),
+                            Description = "Tips on how to take care of your jewelry",
+                            Name = "Jewelry Care",
+                            Type = "Blog"
+                        },
+                        new
+                        {
+                            Id = new Guid("e46e2a5c-23e2-4feb-8294-8a21dcd95484"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8344),
+                            Description = "Updates on the latest jewelry trends",
+                            Name = "Latest Trends",
+                            Type = "Blog"
+                        },
+                        new
+                        {
+                            Id = new Guid("d5fd1a89-4aee-41b2-b7c3-9a849858de4b"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8346),
+                            Description = "Learn about different gemstones and their meanings",
+                            Name = "Gemstone Guide",
+                            Type = "Blog"
+                        },
+                        new
+                        {
+                            Id = new Guid("b41deab4-f51f-4369-8660-885e24895603"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8352),
+                            Description = "Jewelry gift ideas for various occasions",
+                            Name = "Gift Ideas",
+                            Type = "Blog"
+                        },
+                        new
+                        {
+                            Id = new Guid("db1bb094-1290-4f20-93b6-79d157c8d577"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8354),
+                            Description = "Guides and inspiration for making your own jewelry",
+                            Name = "DIY Jewelry",
+                            Type = "Blog"
+                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Categories.ProductCategory", b =>
@@ -1222,6 +1348,48 @@ namespace Shoppe.Persistence.Migrations
                     b.HasIndex("DiscountId");
 
                     b.HasDiscriminator().HasValue("Product");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("d3835af1-b593-456b-9f05-e1eb5dbd73b5"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8274),
+                            Description = "Elegant and modern necklaces",
+                            Name = "Necklaces",
+                            Type = "Product"
+                        },
+                        new
+                        {
+                            Id = new Guid("cd092e50-35af-4074-a0b0-d076b7b9c3d5"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8278),
+                            Description = "Stylish earrings for all occasions",
+                            Name = "Earrings",
+                            Type = "Product"
+                        },
+                        new
+                        {
+                            Id = new Guid("cbb018db-840c-47df-9d57-38e3e320ba5c"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8280),
+                            Description = "Beautiful bracelets in various styles",
+                            Name = "Bracelets",
+                            Type = "Product"
+                        },
+                        new
+                        {
+                            Id = new Guid("37d1d45f-245d-4d62-be0a-724e24b18080"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8283),
+                            Description = "Rings for engagement, fashion, and more",
+                            Name = "Rings",
+                            Type = "Product"
+                        },
+                        new
+                        {
+                            Id = new Guid("92d6f1dd-5d28-4162-a228-73bc9f8c13fe"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8286),
+                            Description = "Unique brooches to complement any outfit",
+                            Name = "Brooches",
+                            Type = "Product"
+                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Contacts.RegisteredContact", b =>
@@ -1368,6 +1536,43 @@ namespace Shoppe.Persistence.Migrations
                     b.HasBaseType("Shoppe.Domain.Entities.Tags.Tag");
 
                     b.HasDiscriminator().HasValue("Blog");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a54488a9-d825-4905-82ff-e7f022fd620d"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8414),
+                            Name = "Fashion",
+                            Type = "Blog"
+                        },
+                        new
+                        {
+                            Id = new Guid("f826d50c-0698-46ae-a75d-db6a9fc266a9"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8416),
+                            Name = "Jewelry Care",
+                            Type = "Blog"
+                        },
+                        new
+                        {
+                            Id = new Guid("11fe218e-4574-47df-bd75-851eef23349b"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8419),
+                            Name = "Gemstones",
+                            Type = "Blog"
+                        },
+                        new
+                        {
+                            Id = new Guid("a4b22b65-7927-46f4-b3b6-5faf713c164a"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8421),
+                            Name = "DIY Jewelry",
+                            Type = "Blog"
+                        },
+                        new
+                        {
+                            Id = new Guid("76788b58-6a50-4682-9189-dc89b93868e4"),
+                            CreatedAt = new DateTime(2025, 3, 1, 11, 28, 45, 605, DateTimeKind.Utc).AddTicks(8424),
+                            Name = "Trends",
+                            Type = "Blog"
+                        });
                 });
 
             modelBuilder.Entity("Shoppe.Domain.Entities.Files.AboutContentImageFile", b =>

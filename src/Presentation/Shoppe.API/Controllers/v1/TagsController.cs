@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Tag.Create;
 using Shoppe.Application.Features.Command.Tag.Delete;
@@ -8,8 +9,8 @@ using Shoppe.Application.Features.Query.Tag.GetAll;
 
 namespace Shoppe.API.Controllers.v1
 {
-    //[ApiVersion("1.0")]
-    public class TagsController : ApplicationControllerBase
+    [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
+    public class TagsController : ApplicationVersionController
     {
         private readonly ISender _sender;
 

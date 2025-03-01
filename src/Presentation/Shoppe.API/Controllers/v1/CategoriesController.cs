@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Category.CreateCategory;
 using Shoppe.Application.Features.Command.Category.DeleteCategory;
@@ -10,8 +10,8 @@ using Shoppe.Application.Features.Query.Category.GetCategoryById;
 
 namespace Shoppe.API.Controllers.v1
 {
-    //[ApiVersion("1.0")]
-    public class CategoriesController : ApplicationControllerBase
+    [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
+    public class CategoriesController : ApplicationVersionController
     {
         private readonly ISender _sender;
 

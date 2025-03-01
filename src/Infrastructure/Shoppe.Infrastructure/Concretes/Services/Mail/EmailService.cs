@@ -6,14 +6,7 @@ using MimeKit;
 using Shoppe.Application.Abstractions.Services.Mail;
 using Shoppe.Application.DTOs.Mail;
 using Shoppe.Application.Options.Mail;
-using Shoppe.Application.Options.Storage;
-using Shoppe.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Shoppe.Infrastructure.Concretes.Services.Mail
 {
@@ -24,13 +17,6 @@ namespace Shoppe.Infrastructure.Concretes.Services.Mail
         public EmailService(IOptions<EmailOptions> emailOptions)
         {
             _emailConfig = emailOptions.Value;
-        }
-
-        public async Task<MailStatus> GetEmailStatusAsync(string emailId)
-        {
-            // Simulated example: In real-world, integrate with an email provider to get status
-            await Task.Delay(100); // Simulate delay
-            return MailStatus.Sent; // Example: Returning "Sent" as a static value
         }
 
         public async Task ScheduleEmailAsync(RecipientDetailsDTO recipientDetails, string subject, string body, DateTime scheduleTime)
@@ -53,7 +39,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Mail
             };
 
             var emailMessage = CreateEmailMessage(message);
-            await Task.Run(() => Send(emailMessage));
+            await SendAsync(emailMessage);
         }
 
         public async Task SendEmailAsync(RecipientDetailsDTO recipientDetails, string subject, string body)
@@ -66,7 +52,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Mail
             };
 
             var emailMessage = CreateEmailMessage(message);
-            await Task.Run(() => Send(emailMessage));
+            await SendAsync(emailMessage);
         }
 
         public async Task SendEmailWithAttachmentsAsync(RecipientDetailsDTO recipientDetails, string subject, string body, IFormFileCollection attachments)
@@ -86,7 +72,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Mail
             }
 
             message.Body = bodyBuilder.ToMessageBody();
-            await Task.Run(() => Send(message));
+            await SendAsync(message);
         }
 
 
@@ -103,7 +89,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Mail
             }
 
             message.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = body };
-            await Task.Run(() => Send(message));
+            await SendAsync(message);
         }
 
         public async Task SendTemplatedEmailAsync(RecipientDetailsDTO recipientDetails, string templateName, object templateData)
@@ -138,7 +124,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Mail
             return emailMessage;
         }
 
-        private void Send(MimeMessage mailMessage)
+        private async Task SendAsync(MimeMessage mailMessage)
         {
             using var client = new SmtpClient();
             try
@@ -147,7 +133,7 @@ namespace Shoppe.Infrastructure.Concretes.Services.Mail
                 client.AuthenticationMechanisms.Remove("XOAUTH2");
                 client.Authenticate(_emailConfig.UserName, _emailConfig.Password);
 
-                client.Send(mailMessage);
+                await client.SendAsync(mailMessage);
             }
             catch (Exception ex)
             {

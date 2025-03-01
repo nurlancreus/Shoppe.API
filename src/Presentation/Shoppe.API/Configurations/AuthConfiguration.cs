@@ -14,20 +14,7 @@ namespace Shoppe.API.Configurations
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-                //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
-              //.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-              //{
-              //    options.Cookie.HttpOnly = true;
-              //    options.Cookie.SecurePolicy = builder.Environment.IsProduction()
-              //        ? CookieSecurePolicy.Always // Use this in production
-              //        : CookieSecurePolicy.SameAsRequest; // For local development
-              //    options.Cookie.SameSite = SameSiteMode.None; // Consider setting to SameSiteMode.None if cookies are not being sent
-              //    options.Cookie.Name = "accessToken"; // Ensure this matches your client-side cookie name
-              //})
              .AddJwtBearer(options =>
              {
                  options.TokenValidationParameters = new TokenValidationParameters()
@@ -46,6 +33,10 @@ namespace Shoppe.API.Configurations
                      RoleClaimType = ClaimTypes.Role
                  };
              });
+
+            builder.Services.AddAuthorizationBuilder()
+            .AddPolicy(ApiConstants.AuthPolicies.AdminsPolicy, policy => policy.RequireAuthenticatedUser().RequireRole("Admin", "SuperAdmin"))
+            .AddPolicy(ApiConstants.AuthPolicies.SuperAdminPolicy, policy => policy.RequireAuthenticatedUser().RequireRole("SuperAdmin"));
         }
     }
 }

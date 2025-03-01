@@ -12,23 +12,23 @@ namespace Shoppe.Persistence.Seeding
     {
         public static void SeedIdentity(ModelBuilder builder)
         {
-            const string adminRoleId = "admin-role-id"; // Use a constant GUID for reproducibility
+             string adminRoleId = Guid.NewGuid().ToString(); 
             builder.Entity<ApplicationRole>().HasData(
                 new ApplicationRole { Id = adminRoleId, Name = "SuperAdmin", NormalizedName = "SUPERADMIN" }
             );
 
             // Seed the admin user
-            const string adminUserId = "admin-user-id"; // Use a constant GUID for reproducibility
+            string adminUserId = Guid.NewGuid().ToString(); 
             var passwordHasher = new PasswordHasher<ApplicationUser>();
             var adminUser = new ApplicationUser
             {
                 Id = adminUserId,
                 FirstName = "Nurlan",
                 LastName = "Shukurov",
-                UserName = "nurlancreus",
-                NormalizedUserName = "NURLANCREUS",
-                Email = "nurlancreus@example.com",
-                NormalizedEmail = "NURLANCREUS@EXAMPLE.COM",
+                UserName = "superadmin",
+                NormalizedUserName = "SUPERADMIN",
+                Email = "superadmin@example.com",
+                NormalizedEmail = "SUPERADMIN@EXAMPLE.COM",
             };
 
             adminUser.PasswordHash = passwordHasher.HashPassword(adminUser, "qwerty1234");

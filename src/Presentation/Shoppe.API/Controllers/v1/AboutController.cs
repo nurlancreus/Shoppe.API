@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Shoppe.Application.Features.Command.About.Update;
-using Shoppe.Application.Features.Query.About.Get; // Assume there's a GetAboutQuery
-using System.Threading.Tasks;
+using Shoppe.Application.Features.Query.About.Get; 
 using Shoppe.Application.Features.Command.About.RemoveImage;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Shoppe.API.Controllers.v1
 {
-    public class AboutController : ApplicationControllerBase
+    [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
+    public class AboutController : ApplicationVersionController
     {
         private readonly ISender _sender;
 

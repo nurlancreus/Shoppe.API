@@ -4,7 +4,7 @@ using Shoppe.Application.Helpers;
 using Shoppe.Domain.Entities;
 using Shoppe.Domain.Enums;
 
-namespace Shoppe.Application.Abstractions.Services.Mail
+namespace Shoppe.Infrastructure.Concretes.Services.Mail.Template
 {
     public class EmailTemplateService : IEmailTemplateService
     {

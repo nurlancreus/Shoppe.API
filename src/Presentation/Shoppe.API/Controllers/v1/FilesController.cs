@@ -1,12 +1,13 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Query.Files.GetAllImageFiles;
 
 namespace Shoppe.API.Controllers.v1
 {
-
-    public class FilesController : ApplicationControllerBase
+    [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
+    public class FilesController : ApplicationVersionController
     {
         private readonly ISender _sender;
 

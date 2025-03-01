@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Contact.AnswerContact;
 using Shoppe.Application.Features.Command.Contact.CreateContact;
@@ -12,8 +12,7 @@ using Shoppe.Domain.Enums;
 
 namespace Shoppe.API.Controllers.v1
 {
-    //[ApiVersion("1.0")]
-    public class ContactsController : ApplicationControllerBase
+    public class ContactsController : ApplicationVersionController
     {
         private readonly ISender _sender;
 
@@ -22,6 +21,7 @@ namespace Shoppe.API.Controllers.v1
             _sender = sender;
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetAllContactsQueryRequest request)
         {
@@ -30,6 +30,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
@@ -40,6 +41,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateContactCommandRequest request)
         {
@@ -48,6 +50,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpPost("{id}")]
         public async Task<IActionResult> Answer(Guid id, [FromBody] AnswerContactCommandRequest request)
         {
@@ -58,6 +61,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [AllowAnonymous]
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateContactCommandRequest request)
         {
@@ -68,6 +72,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -78,6 +83,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [AllowAnonymous]
         [HttpGet("subjects")]
         public async Task<IActionResult> GetSubjects()
         {

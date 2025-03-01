@@ -11,8 +11,8 @@ namespace Shoppe.Application.Abstractions.Services
 {
     public interface ICouponService
     {
-        Task<GetAllCouponsDTO> GetAll(int page, int pageSize, CancellationToken cancellationToken = default);
-        Task<GetCouponDTO> Get(Guid id, CancellationToken cancellationToken = default);
+        Task<GetAllCouponsDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default);
+        Task<GetCouponDTO> GetAsync(Guid id, CancellationToken cancellationToken = default);
         Task CreateAsync (CreateCouponDTO createCouponDTO, CancellationToken cancellationToken = default);
         Task UpdateAsync (UpdateCouponDTO updateCouponDTO, CancellationToken cancellationToken = default);
         Task DeleteAsync (Guid id, CancellationToken cancellationToken = default);

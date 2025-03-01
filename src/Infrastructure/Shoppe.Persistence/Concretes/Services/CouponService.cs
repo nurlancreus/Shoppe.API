@@ -48,7 +48,7 @@ namespace Shoppe.Persistence.Concretes.Services
             _basketCalculatorService = basketCalculatorService;
         }
 
-        public async Task<GetCouponDTO> Get(Guid id, CancellationToken cancellationToken = default)
+        public async Task<GetCouponDTO> GetAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var coupon = await _couponReadRepository.Table
                                 .AsNoTracking()
@@ -60,7 +60,7 @@ namespace Shoppe.Persistence.Concretes.Services
 
         }
 
-        public async Task<GetAllCouponsDTO> GetAll(int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<GetAllCouponsDTO> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {
             _jwtSession.ValidateAdminAccess();
 

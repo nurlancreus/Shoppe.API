@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Auth.Login;
 using Shoppe.Application.Features.Command.Auth.RefreshLogin;
@@ -7,20 +7,20 @@ using Shoppe.Application.Features.Command.Auth.Register;
 
 namespace Shoppe.API.Controllers.v1
 {
-    //[ApiVersion("1.0")]
-    public class AuthController : ApplicationControllerBase
+    [AllowAnonymous]
+    public class AuthController : ApplicationVersionController
     {
-        private readonly IMediator _mediator;
+        private readonly ISender _sender;
 
-        public AuthController(IMediator mediator)
+        public AuthController(ISender sender)
         {
-            _mediator = mediator;
+            _sender = sender;
         }
 
         [HttpPost("[action]")]
         public async Task<IActionResult> Register(RegisterCommandRequest registerCommandRequest)
         {
-            var response = await _mediator.Send(registerCommandRequest);
+            var response = await _sender.Send(registerCommandRequest);
 
             return Ok(response);
         }
@@ -28,7 +28,7 @@ namespace Shoppe.API.Controllers.v1
         [HttpPost("[action]")]
         public async Task<IActionResult> Login(LoginCommandRequest loginCommandRequest)
         {
-            var response = await _mediator.Send(loginCommandRequest);
+            var response = await _sender.Send(loginCommandRequest);
 
             return Ok(response);
         }
@@ -36,7 +36,7 @@ namespace Shoppe.API.Controllers.v1
         [HttpPost("[action]")]
         public async Task<IActionResult> RefreshLogin(RefreshLoginCommandRequest refreshLoginCommandRequest)
         {
-            var response = await _mediator.Send(refreshLoginCommandRequest);
+            var response = await _sender.Send(refreshLoginCommandRequest);
 
             return Ok(response);
         }

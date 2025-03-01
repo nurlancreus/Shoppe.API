@@ -1,8 +1,6 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shoppe.Application.Abstractions.Repositories;
-using Shoppe.Application.Abstractions.UoW;
 using Shoppe.Application.Features.Command.Blog.ChangeCover;
 using Shoppe.Application.Features.Command.Blog.Create;
 using Shoppe.Application.Features.Command.Blog.Delete;
@@ -10,20 +8,16 @@ using Shoppe.Application.Features.Command.Blog.RemoveImage;
 using Shoppe.Application.Features.Command.Blog.Update;
 using Shoppe.Application.Features.Command.Reaction.ToggleReaction;
 using Shoppe.Application.Features.Command.Reply.Create;
-using Shoppe.Application.Features.Command.Review.CreateReview;
 using Shoppe.Application.Features.Query.Blog.Get;
 using Shoppe.Application.Features.Query.Blog.GetAll;
 using Shoppe.Application.Features.Query.Files.GetAllImageFiles;
 using Shoppe.Application.Features.Query.Reaction.GetBlogReactions;
 using Shoppe.Application.Features.Query.Reply.GetRepliesByEntity;
-using Shoppe.Application.Features.Query.Review.GetReviewByEntity;
-using Shoppe.Domain.Entities;
 using Shoppe.Domain.Enums;
 
 namespace Shoppe.API.Controllers.v1
 {
-    //[ApiVersion("1.0")]
-    public class BlogsController : ApplicationControllerBase
+    public class BlogsController : ApplicationVersionController
     {
         private readonly ISender _sender;
 
@@ -32,6 +26,7 @@ namespace Shoppe.API.Controllers.v1
             _sender = sender;
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CreateBlogCommandRequest request)
         {
@@ -61,6 +56,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromForm] UpdateBlogCommandRequest request)
         {
@@ -71,6 +67,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -94,6 +91,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize]
         [HttpPost("{BlogId}/replies")]
         public async Task<IActionResult> AddReply(Guid BlogId, [FromBody] CreateReplyCommandRequest request)
         {
@@ -105,6 +103,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpPatch("{blogId}/change-cover")]
         public async Task<IActionResult> ChangeCoverImage(Guid blogId, [FromForm] ChangeCoverCommandRequest request)
         {
@@ -115,6 +114,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpDelete("{blogId}/images/{imageId}")]
         public async Task<IActionResult> RemoveImage(Guid blogId, Guid imageId)
         {
@@ -129,6 +129,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpGet("images")]
         public async Task<IActionResult> GetAllBlogsImages([FromQuery] GetAllImageFIlesQueryRequest request)
         {
@@ -139,6 +140,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize]
         [HttpGet("{id}/reactions")]
         public async Task<IActionResult> GetReactions(Guid id)
         {
@@ -149,6 +151,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize]
         [HttpPost("{id}/reactions")]
         public async Task<IActionResult> ToggleReaction(Guid id, ToggleReactionCommandRequest request)
         {

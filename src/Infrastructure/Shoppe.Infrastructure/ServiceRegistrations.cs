@@ -32,6 +32,7 @@ using Shoppe.Infrastructure.Concretes.Services.Payment;
 using Shoppe.Infrastructure.Concretes.Services.Payment.Stripe;
 using Shoppe.Application.Abstractions.Services.Payment.PayPal;
 using Shoppe.Application.Abstractions.Services.Payment.Stripe;
+using Shoppe.Infrastructure.Concretes.Services.Mail.Template;
 
 namespace Shoppe.Infrastructure
 {
@@ -49,6 +50,8 @@ namespace Shoppe.Infrastructure
 
             #region Email
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IOrderEmailService, OrderEmailService>();
+
             services.AddScoped<IEmailTemplateService, EmailTemplateService>();
             services.AddScoped<IAccountEmailTemplateService, EmailTemplateService>();
             services.AddScoped<IContactEmailTemplateService, EmailTemplateService>();

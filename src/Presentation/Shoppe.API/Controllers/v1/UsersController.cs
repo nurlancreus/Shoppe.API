@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Abstractions.Services.Session;
 using Shoppe.Application.Features.Command.User.AssignRoles;
@@ -17,7 +17,8 @@ using Shoppe.Application.Features.Query.User.GetUserPictures;
 
 namespace Shoppe.API.Controllers.v1
 {
-    public class UsersController : ApplicationControllerBase
+    [Authorize]
+    public class UsersController : ApplicationVersionController
     {
         private readonly ISender _sender;
         private readonly IJwtSession _jwtSession;
@@ -28,6 +29,7 @@ namespace Shoppe.API.Controllers.v1
             _jwtSession = jwtSession;
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetAllUsersQueryRequest request)
         {
@@ -36,6 +38,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
         {

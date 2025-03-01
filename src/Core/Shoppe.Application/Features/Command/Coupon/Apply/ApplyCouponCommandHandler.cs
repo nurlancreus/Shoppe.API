@@ -27,8 +27,6 @@ namespace Shoppe.Application.Features.Command.Coupon.Apply
             {
                 IsSuccess = true,
             };
-
-
         }
     }
 }

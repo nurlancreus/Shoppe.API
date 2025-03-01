@@ -1,16 +1,15 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Query.Review.GetAllReviews;
 using Shoppe.Application.Features.Query.Review.GetReviewById;
-using Shoppe.Application.Features.Command.Review.CreateReview;
 using Shoppe.Application.Features.Command.Review.UpdateReview;
 using Shoppe.Application.Features.Command.Review.DeleteReview;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Shoppe.API.Controllers.v1
 {
-    //[ApiVersion("1.0")]
-    public class ReviewsController : ApplicationControllerBase
+    [Authorize]
+    public class ReviewsController : ApplicationVersionController
     {
         private readonly ISender _sender;
 

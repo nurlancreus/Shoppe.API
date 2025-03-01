@@ -1,9 +1,6 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shoppe.Application.Abstractions.Repositories;
-using Shoppe.Application.Abstractions.UoW;
-using Shoppe.Application.Features.Command.Discount.AssignDiscount;
 using Shoppe.Application.Features.Command.Discount.AssignEntities;
 using Shoppe.Application.Features.Command.Product.ChangeMainImage;
 using Shoppe.Application.Features.Command.Product.CreateProduct;
@@ -15,13 +12,11 @@ using Shoppe.Application.Features.Query.Product.GetAllProducts;
 using Shoppe.Application.Features.Query.Product.GetByIds;
 using Shoppe.Application.Features.Query.Product.GetProductById;
 using Shoppe.Application.Features.Query.Review.GetReviewByEntity;
-using Shoppe.Domain.Entities;
 using Shoppe.Domain.Enums;
 
 namespace Shoppe.API.Controllers.v1
 {
-    //[ApiVersion("1.0")]
-    public class ProductsController : ApplicationControllerBase
+    public class ProductsController : ApplicationVersionController
     {
         private readonly ISender _sender;
 
@@ -30,6 +25,7 @@ namespace Shoppe.API.Controllers.v1
             _sender = sender;
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CreateProductCommandRequest request)
         {
@@ -38,8 +34,8 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize]
         [HttpGet]
-        // [ServiceFilter(typeof(SortByProductsActionFilter))]
         public async Task<IActionResult> GetAll([FromQuery] GetAllProductsQueryRequest request)
         {
             var response = await _sender.Send(request);
@@ -47,6 +43,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
@@ -60,6 +57,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpGet("ids")]
         public async Task<IActionResult> GetByIds([FromQuery] string productIds)
         {
@@ -73,6 +71,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromForm] UpdateProductCommandRequest request)
         {
@@ -83,6 +82,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -96,6 +96,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize]
         [HttpGet("{productId}/reviews")]
         public async Task<IActionResult> GetReviews(Guid productId)
         {
@@ -106,6 +107,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpPatch("assign-discount/{discountId}")]
         public async Task<IActionResult> AssignDiscountToProducts (Guid discountId, [FromBody] AssignDiscountToEntitiesCommandRequest request)
         {
@@ -116,6 +118,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize]
         [HttpPost("{productId}/reviews")]
         public async Task<IActionResult> AddReview(Guid productId, [FromBody] CreateReviewCommandRequest request)
         {
@@ -127,6 +130,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpGet("colors")]
         public async Task<IActionResult> GetColors()
         {
@@ -135,6 +139,7 @@ namespace Shoppe.API.Controllers.v1
             return await Task.FromResult(Ok(colors));
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpGet("materials")]
         public async Task<IActionResult> GetMaterials()
         {
@@ -143,6 +148,7 @@ namespace Shoppe.API.Controllers.v1
             return await Task.FromResult(Ok(materials));
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpPatch("{productId}/images/{imageId}")]
         public async Task<IActionResult> ChangeMainImage(Guid productId, Guid imageId)
         {
@@ -157,6 +163,7 @@ namespace Shoppe.API.Controllers.v1
             return Ok(response);
         }
 
+        [Authorize(ApiConstants.AuthPolicies.AdminsPolicy)]
         [HttpDelete("{productId}/images/{imageId}")]
         public async Task<IActionResult> RemoveImage(Guid productId, Guid imageId)
         {

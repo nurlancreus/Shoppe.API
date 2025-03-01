@@ -5,9 +5,7 @@ using Shoppe.Application.Abstractions.Services.Payment.Stripe;
 
 namespace Shoppe.API.Controllers.v1
 {
-    [ApiController]
-    [Route("webhook")]
-    public class WebHookController : ControllerBase
+    public class WebHookController : ApplicationVersionController
     {
         private readonly IPayPalWebHookService _payPalWebhookService;
         private readonly IStripeWebHookService _stripeWebhookService;

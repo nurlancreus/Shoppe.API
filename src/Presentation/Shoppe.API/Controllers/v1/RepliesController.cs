@@ -1,24 +1,20 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Reaction.ToggleReaction;
 using Shoppe.Application.Features.Command.Reply.Create;
 using Shoppe.Application.Features.Command.Reply.Delete;
 using Shoppe.Application.Features.Command.Reply.Update;
-using Shoppe.Application.Features.Command.Review.DeleteReview;
-using Shoppe.Application.Features.Command.Review.UpdateReview;
 using Shoppe.Application.Features.Query.Reaction.GetReplyReactions;
 using Shoppe.Application.Features.Query.Reply.Get;
 using Shoppe.Application.Features.Query.Reply.GetAll;
 using Shoppe.Application.Features.Query.Reply.GetRepliesByEntity;
-using Shoppe.Application.Features.Query.Review.GetAllReviews;
-using Shoppe.Application.Features.Query.Review.GetReviewById;
-using Shoppe.Domain.Entities;
 using Shoppe.Domain.Enums;
 
 namespace Shoppe.API.Controllers.v1
 {
-    public class RepliesController : ApplicationControllerBase
+    [Authorize]
+    public class RepliesController : ApplicationVersionController
     {
         private readonly ISender _sender;
 

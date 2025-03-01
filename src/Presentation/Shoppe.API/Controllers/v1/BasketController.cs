@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Basket.AddBasketItem;
 using Shoppe.Application.Features.Command.Basket.ClearBasket;
@@ -9,13 +9,13 @@ using Shoppe.Application.Features.Command.Basket.DeleteBasketItem;
 using Shoppe.Application.Features.Command.Basket.SyncBasket;
 using Shoppe.Application.Features.Command.Basket.UpdateItemQuantity;
 using Shoppe.Application.Features.Command.Coupon.Apply;
-using Shoppe.Application.Features.Command.Product.UpdateProduct;
 using Shoppe.Application.Features.Query.Basket.GetBasket;
 using Shoppe.Domain.Enums;
 
 namespace Shoppe.API.Controllers.v1
 {
-    public class BasketController : ApplicationControllerBase
+    [Authorize]
+    public class BasketController : ApplicationVersionController
     {
         private readonly ISender _sender;
 

@@ -17,12 +17,6 @@ using Shoppe.Domain.Entities;
 using Shoppe.Domain.Entities.Identity;
 using Shoppe.Domain.Enums;
 using Shoppe.Domain.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace Shoppe.Persistence.Concretes.Services

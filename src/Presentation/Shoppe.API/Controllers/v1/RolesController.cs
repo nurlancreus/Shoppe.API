@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shoppe.Application.Features.Command.Role.AssignUsers;
 using Shoppe.Application.Features.Command.Role.Create;
@@ -10,7 +11,8 @@ using Shoppe.Application.Features.Query.Role.GetUsers;
 
 namespace Shoppe.API.Controllers.v1
 {
-    public class RolesController : ApplicationControllerBase
+    [Authorize(ApiConstants.AuthPolicies.SuperAdminPolicy)]
+    public class RolesController : ApplicationVersionController
     {
         private readonly ISender _sender;
 

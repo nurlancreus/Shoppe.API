@@ -1,12 +1,7 @@
-
-using Microsoft.AspNetCore.Mvc.Versioning;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using Serilog;
 using Shoppe.API.Configurations;
 using Shoppe.API.Middlewares;
 using Shoppe.Persistence;
-using System.Threading.RateLimiting;
 using Shoppe.Infrastructure;
 using Shoppe.Application;
 using Shoppe.Domain.Enums;
@@ -14,6 +9,8 @@ using FluentValidation.AspNetCore;
 using FluentValidation;
 using Shoppe.Application.Validators.Product;
 using Shoppe.SignalR;
+using Shoppe.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Shoppe.API
 {
@@ -36,13 +33,14 @@ namespace Shoppe.API
             builder.Services.AddStorage(StorageType.AWS, builder.Configuration);
 
             builder.ConfigureLogging();
+
             builder.ConfigureOptions();
             builder.ConfigureCors();
 
             builder.Services//AddFluentValidationAutoValidation()
                 .AddFluentValidationClientsideAdapters();
 
-                                                        builder.Services.AddValidatorsFromAssemblyContaining<CreateProductCommandRequestValidator>();
+            builder.Services.AddValidatorsFromAssemblyContaining<CreateProductCommandRequestValidator>();
 
             builder.Services.AddControllers();
 
@@ -60,7 +58,7 @@ namespace Shoppe.API
             builder.ConfigureAuth();
 
             var app = builder.Build();
-            app.UseCors("AllowShoppeClient");
+            app.UseCors(ApiConstants.CorsPolicies.AllowShoppeClientPolicy);
 
             //Use rate limiter
             app.UseRateLimiter();
@@ -69,7 +67,10 @@ namespace Shoppe.API
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "1.0");
+                }); //creates swagger UI for testing all Web API endpoints / action methods
             }
 
             app.ConfigureExceptionHandler(app.Services.GetRequiredService<ILogger<Program>>());
@@ -80,7 +81,8 @@ namespace Shoppe.API
             app.UseStaticFiles();
 
             // for http logging
-            app.UseHttpLogging();
+            bool isDbAvailable = ShoppeDbContext.CheckDatabaseAvailability(builder.Configuration);
+            if (isDbAvailable) app.UseHttpLogging();
 
             app.UseHsts();
             app.UseHttpsRedirection();
